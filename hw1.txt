@@ -1,0 +1,36 @@
+- Aliasing
+Aliasing is an effect that causes different signals indistinguishable when sampled.
+It occurs when a signal contains frequency components above the nyquist frequency.
+Reducing the effect can be done by applying low-pass filter, or having higher sampling rate.
+
+- Sampling frequency
+CD has sampling frequency of 44.1kHz. Most modern VoIP(wideband) uses 16kHz.
+CD requires 44100 samp/sec * 16 bits/samp = 705.6k bits/sec bps.
+16kHz signal requires 16000 samp/sec * 16 bits/samp = 256k bits/sec.
+==================================================================
+hejung@hejung-560XBE-550XBE:~$ soxi 44.1k_1sec.wav 16k_1sec.wav
+
+Input File     : '44.1k_1sec.wav'
+Channels       : 1
+Sample Rate    : 44100
+Precision      : 16-bit
+Duration       : 00:00:01.00 = 44100 samples = 75 CDDA sectors
+File Size      : 88.2k
+Bit Rate       : 706k
+Sample Encoding: 16-bit Signed Integer PCM
+
+
+Input File     : '16k_1sec.wav'
+Channels       : 1
+Sample Rate    : 16000
+Precision      : 16-bit
+Duration       : 00:00:01.00 = 16000 samples ~ 75 CDDA sectors
+File Size      : 32.0k
+Bit Rate       : 256k
+Sample Encoding: 16-bit Signed Integer PCM
+==================================================================
+
+- Sampling rate conversion
+Downsampling is resampling a signal to a lower sample rate. Upsampling resamples to a higher rate.
+There are several types of resampling algorithm which induces different characteristics on output signal, including fft, polyphase, linear et al.
+
