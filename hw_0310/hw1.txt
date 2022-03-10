@@ -65,7 +65,7 @@ in above wave snapshot, # of channels = 0x0001 = 1, frame rate = 0x00003e80 = 16
 .flac : Stands for free lossless audio codec, which is a lossless compression.
 .mp3 : MPEG layer 3 audio. Uses lossy compression.
 .vox : Commonly used in telephony. optimized for digitized voice at a low sampling rate. Uses lossy compression.
-Given 16kHz, 16-bit 1 sec wav file, here are the sizes of each format.
+Given 16kHz, 16-bit audio of 1 second, here are the sizes of each format.
 ==================================================================
 hejung@hejung-560XBE-550XBE:~/2022_hws$ du -bh 16k_1sec.*
 32K     16k_1sec.au
@@ -104,4 +104,5 @@ speech@speechP1:~/share$ du -b hejung_*.wav
 
 Magnitude, phase spectrum with 20ms frame width and hanning window are saved with plot.py.
 hejung_{mag,phase}.mp4 contains segments spectrum as animation, while
-hejung_{01,02,03}_{mag_phase}.png contains magnitude/phase snapshot from hejung_{01,02,03}.wav.
+hejung_{01,02,03}_{mag_phase}.png contains magnitude/phase snapshot from the animation.
+X-axis is based on log scale.
