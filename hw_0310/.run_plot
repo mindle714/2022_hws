@@ -1,0 +1,8 @@
+#!/bin/bash
+
+python plot.py --wav hejung.wav
+
+for idx in 01 02 03; do
+  python plot.py --wav res/hejung_${idx}.wav --snapshot
+  python plot.py --wav res/hejung_${idx}.wav --snapshot
+done

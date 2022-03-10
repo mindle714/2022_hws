@@ -103,6 +103,5 @@ speech@speechP1:~/share$ du -b hejung_*.wav
 ==================================================================
 
 Magnitude, phase spectrum with 20ms frame width and hanning window are saved with plot.py.
-hejung_{mag,phase}.mp4 contains segments spectrum as animation, while
-hejung_{01,02,03}_{mag_phase}.png contains magnitude/phase snapshot from the animation.
-X-axis is based on log scale.
+hejung.mp4 contains segments magnitude/phase spectrum as animation, while
+hejung_{01,02,03}.png contains spectrum snapshot from the animation.
