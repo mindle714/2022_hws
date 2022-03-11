@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for sec in 0.02 0.002; do
+  python plot_spec.py --wav hejung_16k.wav --frame-sec ${sec}
+done
+
+python ext_feat.py --wav hejung_16k.wav --feat-type logmel
+python ext_feat.py --wav hejung_16k.wav --feat-type mfcc
