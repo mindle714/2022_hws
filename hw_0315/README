@@ -1,4 +1,7 @@
 hejung_16k_2ms.png is the spectrogram output of hejung_16k.wav with 2ms frame size (narrowband spectrogram).
 hejung_16k_20ms.png is of 20ms frame size (wideband spectrogram).
+These images are from plot_spec.py. 
 
-hejung_16k_logmel.npy and hejung_16k_mfcc.npy are features extracted from hejung_16k.wav using ext_feat.py with default params.
+hejung_16k_logmel.npy and hejung_16k_mfcc.npy are features 
+extracted from hejung_16k.wav using ext_feat.py with default params.
+Details options can be found with python ext_feat.py --help
