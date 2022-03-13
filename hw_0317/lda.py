@@ -29,12 +29,9 @@ withins = sum(withins)
 
 X_cov = np.cov(X_norm, rowvar=False, bias=True)
 betweens = X_cov - withins
-#print(withins)
-#print(betweens)
 
 import scipy.linalg
-#e_val, e_vec = scipy.linalg.eig(withins, betweens)
-e_val, e_vec = scipy.linalg.eigh(betweens, withins)
+e_val, e_vec = scipy.linalg.eig(betweens, withins)
 idx = np.argsort(e_val)[::-1]
 e_val = e_val[idx]
 e_vec = e_vec[:, idx]

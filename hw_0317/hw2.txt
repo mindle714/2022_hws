@@ -9,12 +9,31 @@ PCA can be processed as:
 1) Center the data by subtracting the mean.
 2) Compute the covariance matrix, further calculate 
   eigenvalues/eigenvectors from the covariance matrix.
-3) sort the eigenvectors by its eigenvalue and select the top N vectors,
+3) Sort the eigenvectors by its eigenvalue and select the top N vectors,
   where N corresponds to the output dimension.
-4) multiply the eigenvectors to get reduced output.
+4) Multiply the eigenvectors to get reduced output.
 
-Details can be found in pca.py.
+Detailed implementation can be found in pca.py.
 
 - LDA
 Linear discriminant analysis is to find a linear combination of 
 features that separates classes.
+
+Detailed implementation can be found in lda.py.
+There are other solutions supported from scikit, SVD and LSQR,
+but lda.py contains Eigenvalue decomposition version.
+
+In this version, LDA is processed as:
+1) Center the data by subtracting the mean.
+2) Compute the scatter matrices of between-classes and within-classes.
+3) Calculate eigenvalues/eigenvectors for the scattermatrices and
+select the top N vectors, where N corresponds to the output dimension.
+4) Multiply the eigenvectors to get reduced output.
+
+Computing the scatter matrices and finding its eigenvectors can be understood as
+maximizing variance between classes and minimizing within classes.
+Separation between the classes is defined as the ratio of the variances
+between the classes to the variance within the classes.
+The maximum separation can be achieved by finding the eigenvectors with the scatter matrices.
+
+Covariance calculation is not needed on SVD version, which makes it more suitable for larger example.   
