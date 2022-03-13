@@ -1,0 +1,20 @@
+- PCA
+Principal components are defined as sequence of unit vectors where
+1) the vectors are orthogonal on each other,
+2) distances between the data and each vectors are minimized.
+PCA is to extract the principal components and change basis,
+also commonly used for dimension reduction.
+
+PCA can be processed as:
+1) Center the data by subtracting the mean.
+2) Compute the covariance matrix, further calculate 
+  eigenvalues/eigenvectors from the covariance matrix.
+3) sort the eigenvectors by its eigenvalue and select the top N vectors,
+  where N corresponds to the output dimension.
+4) multiply the eigenvectors to get reduced output.
+
+Details can be found in pca.py.
+
+- LDA
+Linear discriminant analysis is to find a linear combination of 
+features that separates classes.
