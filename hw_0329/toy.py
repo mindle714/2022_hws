@@ -24,12 +24,20 @@ for i, (m, cv) in enumerate(zip(gm.means_, gm.covariances_)):
   rv = scipy.stats.multivariate_normal(mean=m, cov=cv)
   zs = rv.pdf(xys)
 
+  import matplotlib
   import matplotlib.pyplot as plt
-  fig = plt.figure(figsize=(4.8,2.4))
+  fig = plt.figure(figsize=(9.6,4.8))
   ax_2d = fig.add_subplot(1, 2, 1) 
   ax_3d = fig.add_subplot(1, 2, 2, projection='3d')
 
   ax_2d.scatter(X[:,0], X[:,1])
-  ax_3d.plot_surface(xs, ys, zs)
+  #colors = matplotlib.cm.viridis(plt.Normalize(zs.min(), zs.max()))
+  #rcount, ccount, _ = colors.shape
+  suf = ax_3d.plot_surface(xs, ys, zs,
+    cmap='jet', shade=False, edgecolor='black', linewidth=1)
+    #rcount=rcount, ccout=ccout, facecolors=colors, shade=False)
+  suf.set_facecolor((0,0,0,0))
+    #rstride=1, cstride=1, shade=False, cmap='jet', linewidth=1,
+    #edgecolors='#000000')
   plt.savefig('output2_{}.png'.format(i))
 
