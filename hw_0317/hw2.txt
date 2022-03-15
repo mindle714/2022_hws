@@ -19,15 +19,15 @@ Detailed implementation can be found in pca.py.
 Linear discriminant analysis is to find a linear combination of 
 features that separates classes.
 
-Detailed implementation can be found in lda.py.
+Detailed implementation can be found in lda_*.py.
 There are other solutions supported from scikit, SVD and LSQR,
-but lda.py contains Eigenvalue decomposition version.
+but lda_*.py contains Eigenvalue decomposition version.
 
-In this version, LDA is processed as:
-1) Center the data by subtracting the mean.
-2) Compute the scatter matrices of between-classes and within-classes.
-3) Calculate eigenvalues/eigenvectors for the scattermatrices and
+In this version, LDA can be processed as:
+1) Compute the scatter matrices of between-classes and within-classes.
+2) Calculate eigenvalues/eigenvectors for the scattermatrices and
 select the top N vectors, where N corresponds to the output dimension.
+3) Divide the eigenvectors by its frobenius norm.
 4) Multiply the eigenvectors to get reduced output.
 
 Computing the scatter matrices and finding its eigenvectors can be understood as
@@ -36,4 +36,10 @@ Separation between the classes is defined as the ratio of the variances
 between the classes to the variance within the classes.
 The maximum separation can be achieved by finding the eigenvectors with the scatter matrices.
 
-Covariance calculation is not needed on SVD version, which makes it more suitable for larger example.   
+Covariance calculation is not needed on SVD version, which makes it more suitable for larger example.
+Furthermore, the implementation of LDA with Eigenvalue decomposition
+can also differ in detail for several versions.
+Unlike scikit-learn==0.20.4, version 1.0.2 skips step 3) from the process above.
+Details about modifying the step can be checked from the commit id 414065.
+https://github.com/scikit-learn/scikit-learn/commit/4140657700cc55830347c871134c8e982d29fab5
+lda_0.20.4.py supports sklearn==0.20.4, lda_1.0.2.py supports sklearn==1.0.2.

@@ -13,21 +13,22 @@ while np.min(cnt) < 2:
 if (len(classes) - 1) < dim_out:
   print("# of classes[{}] must be bigger than output dim[{}]".format(len(classes), dim_out))
 
+import pkg_resources
+pkg_resources.require("scikit-learn==0.20.4")
+
 import sklearn.discriminant_analysis
 lda = sklearn.discriminant_analysis.LinearDiscriminantAnalysis(n_components=dim_out, solver='eigen')
 x_lda = lda.fit_transform(X, y)
 print(x_lda)
 
-X_norm = (X - np.mean(X, axis=0))
-
 withins = []
 for i in classes:
-  X_i = X_norm[y == i]
+  X_i = X[y == i]
   X_i_cov = np.cov(X_i, rowvar=False, bias=True)
   withins.append(X_i_cov * (np.sum(y==i) / float(X.shape[0])))
 withins = sum(withins)
 
-X_cov = np.cov(X_norm, rowvar=False, bias=True)
+X_cov = np.cov(X, rowvar=False, bias=True)
 betweens = X_cov - withins
 
 import scipy.linalg
