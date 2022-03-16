@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for mix in 1 2 3 4 5; do
+  python3 toy.py --num-mixture $mix;
+done

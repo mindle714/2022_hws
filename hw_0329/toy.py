@@ -13,16 +13,16 @@ ylim = (-10., 10.)
 
 X = np.concatenate([
   np.random.multivariate_normal(
-    mean=(5.,5.), cov=[[1.,-3.],[-3.,1.]], size=20),
+    mean=(5.,5.), cov=[[1.,-1.],[-1.,3.]], size=30),
   np.random.multivariate_normal(
-    mean=(-1.,2.), cov=[[2.,1.],[1.,1.]], size=20),  
+    mean=(-1.,2.), cov=[[2.,1.],[1.,1.]], size=30),  
   np.random.multivariate_normal(
-    mean=(-5.,-5.), cov=[[3.,0.],[0.,3.]], size=20) 
+    mean=(-5.,-5.), cov=[[3.,0.],[0.,3.]], size=30) 
 ])
 
 import sklearn.mixture
 gm = sklearn.mixture.GaussianMixture(n_components=args.num_mixture, random_state=0)
-gm.fit(X)
+labels = gm.fit_predict(X)
 
 xs = np.linspace(xlim[0], xlim[1], 60)
 ys = np.linspace(ylim[0], ylim[1], 60)
@@ -61,6 +61,7 @@ for i, (m, cv) in enumerate(zip(gm.means_, gm.covariances_)):
   mean = ax_2d.scatter(m[0], m[1], color='red', marker='x') # center
   ax_2d.legend([dat, mean, el], ['data', 'mean', 'var'])
 
+score = np.exp(gm.score(X))
 zs = np.exp(gm.score_samples(xys.reshape(-1, 2)))
 zs = zs.reshape((60, 60))
 
@@ -70,4 +71,4 @@ suf = ax_3d.plot_surface(xs, ys, zs,
   rcount=50, ccount=50, facecolors=colors, shade=False)
 suf.set_facecolor((0,0,0,0))
   
-plt.savefig('toy-{}.png'.format(args.num_mixture))
+plt.savefig('toy-{}-{:.2f}.png'.format(args.num_mixture, score*100))
