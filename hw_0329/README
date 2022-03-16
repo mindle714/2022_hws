@@ -4,9 +4,15 @@ toy-$1-$2.png contains pair of contour/3d-surface describing the gaussian mixtur
 $1 stands for the number of mixtures used and
 $2 is 100*likelihood of the training data under the gmm.
 
-in toy.py, data is sampled from three different distributions:
+In toy.py, data is sampled from three different distributions:
 1) mean [5.,5.], covariance [[1.,-1.],[-1.,3.]]
 2) mean [-1.,2.], covariance [[2.,1.],[1.,1.]]
 3) mean [-5.,-5.], covariance [[3.,0.],[0.,3.]]
-the likelihood increases rapidly until the number of mixtures match
+The likelihood increases rapidly until the number of mixtures match
 the number of sampling distributions; the difference becomes gradual after the point.
+
+- Speaker identification
+Speakers used for train/test are listed in spk.list, 20 males and 20 females.
+Feature extraction is done using ext_feat.py.
+Training and evaluation are done with spk_id.py.
+Detailed options used can be found in run_spk_id.

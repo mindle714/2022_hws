@@ -1,0 +1,9 @@
+#!/bin/bash
+
+spks="$(for spk in $(cat spk.list); do echo ~/vctk/wav16/$spk; done)";
+for mix in 1 2 3; do 
+  python3 spk_id.py --speaker-dirs $spks \
+    --feat-type mfcc --num-mfcc 13 --num-mixture $mix;
+  python3 spk_id.py --speaker-dirs $spks \
+    --feat-type mfcc --num-mfcc 13 --num-mixture $mix --eval;
+done
