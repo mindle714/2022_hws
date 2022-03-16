@@ -41,7 +41,7 @@ ax_3d = fig.add_subplot(1, 2, 2, projection='3d')
 
 import scipy.stats
 for i, (m, cv) in enumerate(zip(gm.means_, gm.covariances_)):
-  ax_2d.scatter(X[:,0], X[:,1])
+  dat = ax_2d.scatter(X[:,0], X[:,1])
 
   def get_ellipse(_m, _cv, scale=20):
     a, b, _, c = _cv.flatten()
@@ -58,7 +58,8 @@ for i, (m, cv) in enumerate(zip(gm.means_, gm.covariances_)):
 
   el = get_ellipse(m, cv)
   ax_2d.add_patch(el)
-  ax_2d.scatter(m[0], m[1], color='red') # center
+  mean = ax_2d.scatter(m[0], m[1], color='red', marker='x') # center
+  ax_2d.legend([dat, mean, el], ['data', 'mean', 'var'])
 
 zs = np.exp(gm.score_samples(xys.reshape(-1, 2)))
 zs = zs.reshape((60, 60))
