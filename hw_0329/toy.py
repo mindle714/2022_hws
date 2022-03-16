@@ -69,5 +69,5 @@ suf = ax_3d.plot_surface(xs, ys, zs,
   rcount=50, ccount=50, facecolors=colors, shade=False)
 suf.set_facecolor((0,0,0,0))
   
-plt.show()
+plt.savefig('output.png')
 
