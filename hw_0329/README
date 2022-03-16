@@ -1,0 +1,4 @@
+- Toy example
+toy.py can be used to generate gmm with given number of mixtures(--num-mixture option).
+toy-*.png contains pair of contour/3d-surface describing the gaussian mixtures.
+suffix number in the image file indicates the number of mixtures used.

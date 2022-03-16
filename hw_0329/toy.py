@@ -21,7 +21,7 @@ X = np.concatenate([
 ])
 
 import sklearn.mixture
-gm = sklearn.mixture.GaussianMixture(n_components=3, random_state=0)
+gm = sklearn.mixture.GaussianMixture(n_components=args.num_mixture, random_state=0)
 gm.fit(X)
 
 xs = np.linspace(xlim[0], xlim[1], 60)
@@ -69,5 +69,4 @@ suf = ax_3d.plot_surface(xs, ys, zs,
   rcount=50, ccount=50, facecolors=colors, shade=False)
 suf.set_facecolor((0,0,0,0))
   
-plt.savefig('output.png')
-
+plt.savefig('toy-{}.png'.format(args.num_mixture))

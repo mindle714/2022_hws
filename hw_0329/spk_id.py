@@ -39,16 +39,26 @@ if args.eval:
     gms = pickle.load(f)
 
   for target_dir in args.speaker_dirs:
+    basename = [e.strip() for e in target_dir.split('/') if e.strip() != ''][-1]
+    
     test_dir = os.path.join(target_dir, 'test', feat_base)
     feats = glob.glob(os.path.join(test_dir, '*.npy'))
     if len(feats) == 0:
       print("dir[{}] contains no npy".format(test_dir))
       continue
    
+    pcount = 0; fcount = 0
     for feat in feats:
-      f = np.transpose(feat)
+      f = np.transpose(np.load(feat))
+      
+      probs = []
       for gm_name, gm in gms:
-        print(gm.predict(f))
+        probs.append(gm.score(f))
+      maxid = np.argmax(probs)
+
+      if gms[maxid][0] == basename: pcount += 1
+      else: fcount += 1
+    print("{} pass[{:.3f}%]".format(target_dir, float(pcount)/(pcount+fcount)*100))
 
   sys.exit(0)
 
