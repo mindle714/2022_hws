@@ -73,3 +73,6 @@ gmms-2-mfcc-13.mdl overall pass 8409/8784(95.731%)
 gmms-3-mfcc-13.mdl overall pass 8640/8784(98.361%)
 gmms-4-mfcc-13.mdl overall pass 8645/8784(98.418%)
 ==================================================================
+
+- Speaker verification
+Details on speaker verification model can be found in spk_vr/README.
