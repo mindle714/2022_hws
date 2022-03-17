@@ -48,22 +48,28 @@ gmms-4-mfcc-13.mdl overall pass 3179/3197(99.437%)
 Detailed accuracy result of each speaker is in spk_id.result.
 
 Even in fail situation, in most case, it can be seen that
-the true label belongs to top-5 labels which have the highest likelihood.
-(In below, top-5 labels are listed within square brackets after sorted by its likelihood)
+the true label belongs to top-3 labels which have the highest likelihood.
+(In below, top-3 labels are listed within square brackets after sorted by its likelihood)
 ==================================================================
 speech@speechP1:~/2022_hws/hw_0329$ spks="$(for spk in $(cat spk.list); \
 > do echo ~/vctk/wav16/$spk; done)"; \
 > python3 spk_id.py --speaker-dirs $spks --feat-type mfcc \
 > --num-mfcc 13 --num-mixture 1 --verbose 2 --eval
-/home/speech/vctk/wav16/p225 pass[100.000%]
-p228_268_mic2.npy predict[p233(-46.84)] > true[p228(-46.89)]
-[p233, p228, p257, p238, p250]
-p228_340_mic2.npy predict[p264(-47.04)] > true[p228(-47.08)]
-[p264, p228, p253, p229, p230]
-p228_031_mic2.npy predict[p264(-49.45)] > true[p228(-49.69)]
-[p264, p228, p244, p225, p230]
-p228_294_mic2.npy predict[p233(-46.13)] > true[p228(-46.19)]
-[p233, p228, p230, p257, p225]
-/home/speech/vctk/wav16/p228 pass[94.521%]
+gmms-1-mfcc-13.mdl /home/speech/vctk/wav16/p225 pass[100.000%]
+p228_268_mic2.npy [p233(-46.84), p228(-46.89), p257(-46.94)]
+p228_340_mic2.npy [p264(-47.04), p228(-47.08), p253(-47.36)]
+p228_031_mic2.npy [p264(-49.45), p228(-49.69), p244(-50.14)]
+p228_294_mic2.npy [p233(-46.13), p228(-46.19), p230(-46.24)]
+gmms-1-mfcc-13.mdl /home/speech/vctk/wav16/p228 pass[94.521%]
 ...
+==================================================================
+
+Additionally, when total 110 speakers are used, 
+the change of accuracy becomes more drastic.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0329/big$ ./run_spk_id
+gmms-1-mfcc-13.mdl overall pass 7924/8784(90.209%)
+gmms-2-mfcc-13.mdl overall pass 8409/8784(95.731%)
+gmms-3-mfcc-13.mdl overall pass 8640/8784(98.361%)
+gmms-4-mfcc-13.mdl overall pass 8645/8784(98.418%)
 ==================================================================

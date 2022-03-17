@@ -10,6 +10,7 @@ parser.add_argument("--feat-type", type=str, required=False,
 parser.add_argument("--eval", action='store_true')
 parser.add_argument("--verbose", type=int, required=False,
   default=0, choices=[0, 1, 2])
+parser.add_argument("--top-k", type=int, required=False, default=1)
 args = parser.parse_args()
 
 import sys
@@ -59,16 +60,14 @@ if args.eval:
         probs.append(gm.score(f))
       maxid = np.argmax(probs)
 
-      if gms[maxid][0] == basename: 
+      if gms[maxid][0] == basename:
         pcount += 1
       else: 
         if args.verbose >= 2:
+          topk_ids = np.argsort(probs)[::-1][:args.top_k]
           base_gm = [e for e in gms if e[0] == basename][0]
-          print("{} predict[{}({:.2f})] > true[{}({:.2f})]".format(
-            os.path.basename(feat), gms[maxid][0], probs[maxid],
-            basename, base_gm[1].score(f)))
-          print("[{}]".format(", ".join(
-              [gms[idx][0] for idx in np.argsort(probs)[::-1][:5]])))
+          print("{} [{}]".format(os.path.basename(feat), ", ".join([
+              "{}({:.2f})".format(gms[idx][0], probs[idx]) for idx in topk_ids])))
         fcount += 1
 
     if args.verbose >= 1:
