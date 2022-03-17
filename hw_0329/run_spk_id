@@ -1,9 +1,22 @@
 #!/bin/bash
 
+USAGE="Usage: $0 [-v 1]"
+EXAMPLE="($0 -v 1)"
+
+verbose=0;
+while getopts ":v:" opt; do
+  case $opt in
+    v) verbose="$OPTARG" ;;
+    ?) echo "$USAGE"; echo "$EXAMPLE"; exit 2 ;;
+  esac
+done
+
 spks="$(for spk in $(cat spk.list); do echo ~/vctk/wav16/$spk; done)";
-for mix in 1 2 3; do 
+for mix in 1 2 3 4; do
+  if [ ! -f "gmms-${mix}-mfcc-13.mdl" ]; then
+    python3 spk_id.py --speaker-dirs $spks \
+      --feat-type mfcc --num-mfcc 13 --num-mixture $mix;
+  fi
   python3 spk_id.py --speaker-dirs $spks \
-    --feat-type mfcc --num-mfcc 13 --num-mixture $mix;
-  python3 spk_id.py --speaker-dirs $spks \
-    --feat-type mfcc --num-mfcc 13 --num-mixture $mix --eval;
+    --feat-type mfcc --num-mfcc 13 --num-mixture $mix --eval --verbose $verbose;
 done

@@ -8,6 +8,8 @@ parser.add_argument("--num-mfcc", type=int, required=False, default=13)
 parser.add_argument("--feat-type", type=str, required=False,
   default="mfcc", choices=["logmel", "mfcc"])
 parser.add_argument("--eval", action='store_true')
+parser.add_argument("--verbose", type=int, required=False,
+  default=0, choices=[0, 1, 2])
 args = parser.parse_args()
 
 import sys
@@ -33,11 +35,12 @@ import sklearn.mixture
 
 if args.eval:
   if not os.path.isfile(gmfile):
-    sys.exit("GMM model {} is missing. run without --eval option")
+    sys.exit("GMM model {} is missing. train without --eval option")
 
   with open(gmfile, 'rb') as f:
     gms = pickle.load(f)
 
+  pcount_tot = 0; fcount_tot = 0
   for target_dir in args.speaker_dirs:
     basename = [e.strip() for e in target_dir.split('/') if e.strip() != ''][-1]
     
@@ -56,10 +59,26 @@ if args.eval:
         probs.append(gm.score(f))
       maxid = np.argmax(probs)
 
-      if gms[maxid][0] == basename: pcount += 1
-      else: fcount += 1
-    print("{} pass[{:.3f}%]".format(target_dir, float(pcount)/(pcount+fcount)*100))
+      if gms[maxid][0] == basename: 
+        pcount += 1
+      else: 
+        if args.verbose >= 2:
+          base_gm = [e for e in gms if e[0] == basename][0]
+          print("{} predict[{}({:.2f})] > true[{}({:.2f})]".format(
+            os.path.basename(feat), gms[maxid][0], probs[maxid],
+            basename, base_gm[1].score(f)))
+          print("[{}]".format(", ".join(
+              [gms[idx][0] for idx in np.argsort(probs)[::-1][:5]])))
+        fcount += 1
 
+    if args.verbose >= 1:
+      print("{} {} pass[{:.3f}%]".format(gmfile, target_dir, float(pcount)/(pcount+fcount)*100))
+
+    pcount_tot += pcount
+    fcount_tot += fcount
+
+  tot = pcount_tot + fcount_tot
+  print("{} overall pass {}/{}({:.3f}%)".format(gmfile, pcount_tot, tot, float(pcount_tot)/(tot)*100))
   sys.exit(0)
 
 gms = []

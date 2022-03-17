@@ -13,6 +13,57 @@ the number of sampling distributions; the difference becomes gradual after the p
 
 - Speaker identification
 Speakers used for train/test are listed in spk.list, 20 males and 20 females.
+Each speaker data is splitted by roughly 10:1 ratio for train:test purpose
+(details can be found in resamp script, which is used for sanitizing vctk corpus). 
+==================================================================
+speech@speechP1:~/2022_hws/hw_0329$ cat spk.list \
+> | xargs -I{} find ~/vctk/wav16/{}/ -name "*.wav" \
+> | rev | cut -d/ -f-3 | rev \
+> | cut -d/ -f-2 | sed 's#wav16/##g' | sort | uniq -c
+    416 p225
+     46 p225/test
+    641 p226
+     71 p226/test
+    701 p227
+     77 p227/test
+...
+==================================================================
+
 Feature extraction is done using ext_feat.py.
+
 Training and evaluation are done with spk_id.py.
+By enabling --eval option, testset in each speaker is evaluated 
+with the (previously trained) gmm and print out the total accuracy.
 Detailed options used can be found in run_spk_id.
+
+Here are the accuracy results of gmm with various number of mixtures 
+given total 40 speakers of mfcc-13 features.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0329$ ./run_spk_id
+gmms-1-mfcc-13.mdl overall pass 3074/3197(96.153%)
+gmms-2-mfcc-13.mdl overall pass 3112/3197(97.341%)
+gmms-3-mfcc-13.mdl overall pass 3179/3197(99.437%)
+gmms-4-mfcc-13.mdl overall pass 3179/3197(99.437%)
+==================================================================
+Detailed accuracy result of each speaker is in spk_id.result.
+
+Even in fail situation, in most case, it can be seen that
+the true label belongs to top-5 labels which have the highest likelihood.
+(In below, top-5 labels are listed within square brackets after sorted by its likelihood)
+==================================================================
+speech@speechP1:~/2022_hws/hw_0329$ spks="$(for spk in $(cat spk.list); \
+> do echo ~/vctk/wav16/$spk; done)"; \
+> python3 spk_id.py --speaker-dirs $spks --feat-type mfcc \
+> --num-mfcc 13 --num-mixture 1 --verbose 2 --eval
+/home/speech/vctk/wav16/p225 pass[100.000%]
+p228_268_mic2.npy predict[p233(-46.84)] > true[p228(-46.89)]
+[p233, p228, p257, p238, p250]
+p228_340_mic2.npy predict[p264(-47.04)] > true[p228(-47.08)]
+[p264, p228, p253, p229, p230]
+p228_031_mic2.npy predict[p264(-49.45)] > true[p228(-49.69)]
+[p264, p228, p244, p225, p230]
+p228_294_mic2.npy predict[p233(-46.13)] > true[p228(-46.19)]
+[p233, p228, p230, p257, p225]
+/home/speech/vctk/wav16/p228 pass[94.521%]
+...
+==================================================================

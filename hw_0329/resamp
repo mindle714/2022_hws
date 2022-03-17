@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+
+for suf in $(find wav48_silence_trimmed -type f | rev | cut -d. -f1 | rev | uniq | sort | uniq); do
+  if [ "$suf" == "flac" ]; then continue; fi
+  if [ "$suf" == "txt" ]; then continue; fi # log.txt
+  exit 0
+done
+
+mkdir -p wav16
+for dir in wav48_silence_trimmed/*/; do
+  echo $dir;
+  outdir="$(echo $dir | sed 's#wav48_silence_trimmed#wav16#g')"
+  mkdir -p ${outdir}/test
+
+  idx=1
+  for flac in $dir/*.flac; do
+    bname="$(basename $flac | sed 's/\.flac/.wav/g')"
+    if [ $idx == 0 ]; then
+      outwav="${outdir}/test/${bname}"
+    else
+      outwav="${outdir}/${bname}"
+    fi
+    sox $flac -t wav -r 16000 $outwav;
+    idx=$(((idx+1)%10))
+  done
+done
