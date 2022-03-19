@@ -59,28 +59,34 @@ if args.eval:
   for basename in basenames:
     feats = feats_dict[basename]
     feats_shuf = random.sample(feats, len(feats))
-    enrolls = feats_shuf[:args.num_enroll]
 
-    ta = feats_shuf[args.num_enroll]
-    def get_fa():
-      fa_basename = random.choice(basenames)
-      while fa_basename == basename:
+    num_tcs = min(20, len(feats_shuf)//(args.num_enroll+1))
+    inuse = feats_shuf[:num_tcs*(args.num_enroll+1)]
+
+    for idx in range(num_tcs):
+      beg = idx * (args.num_enroll+1)
+      enrolls = feats_shuf[beg : beg+args.num_enroll]
+      ta = feats_shuf[beg+args.num_enroll]
+
+      def get_fa():
         fa_basename = random.choice(basenames)
-      return random.choice(feats_dict[fa_basename])
-    fa = get_fa()
+        while fa_basename == basename:
+          fa_basename = random.choice(basenames)
+        return random.choice(feats_dict[fa_basename])
+      fa = get_fa()
 
-    enroll_feat = np.concatenate([e[1] for e in enrolls], axis=0)
-    for n_iter in range(args.max_iter):
-      resp = um.predict_proba(enroll_feat)
-      nk = resp.sum(axis=0) + 10 * np.finfo(resp.dtype).eps
-      alpha = np.expand_dims(nk / (nk + args.rel_factor), -1)
-      means = np.dot(resp.T, enroll_feat) / nk[:, np.newaxis]
-      um.means_ = alpha * means + (1 - alpha) * um.means_
+      enroll_feat = np.concatenate([e[1] for e in enrolls], axis=0)
+      for n_iter in range(args.max_iter):
+        resp = um.predict_proba(enroll_feat)
+        nk = resp.sum(axis=0) + 10 * np.finfo(resp.dtype).eps
+        alpha = np.expand_dims(nk / (nk + args.rel_factor), -1)
+        means = np.dot(resp.T, enroll_feat) / nk[:, np.newaxis]
+        um.means_ = alpha * means + (1 - alpha) * um.means_
 
-    ta_score = um.score(ta[1]) - um_.score(ta[1])
-    fa_score = um.score(fa[1]) - um_.score(fa[1])
-    print("{} target".format(ta_score))
-    print("{} nontarget".format(fa_score))
+      ta_score = um.score(ta[1]) - um_.score(ta[1])
+      fa_score = um.score(fa[1]) - um_.score(fa[1])
+      print("{} target".format(ta_score))
+      print("{} nontarget".format(fa_score))
 
   sys.exit(0)
 
