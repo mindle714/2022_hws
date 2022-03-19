@@ -1,5 +1,5 @@
 Among the speakers in vctk, 10 speakers are selected for testing,
-rest speakers are used for training(spk_test.list, spk_train.list).
+rest are used for training(spk_test.list, spk_train.list).
 
 Training and evaluation are done with spk_vr.py.
 After training ubm given list of training speakers,
@@ -11,7 +11,7 @@ False case(spoofing) waves are randomly selected from other speaker pools.
 Bayesian adaptation(mean-only) is done with enroll features,
 generating speaker-adapted gmm.
 Log-likelihood difference of given input between ubm model and 
-adapted model is used as confidence score.
+adapted model is used as a confidence score of the input.
 
 Here is the eer result of ubm-32-mfcc-13.mdl(32 mixtures, mfcc 13th coeff.),
 when number of enrollments is 1.
@@ -21,14 +21,14 @@ speech@speechP1:~/2022_hws/hw_0329/spk_vr$ ./compute-eer <(cat ubm-32-enroll-1.r
 LOG (compute-eer[5.5.1010~1-498b2]:main():compute-eer.cc:136) Equal error rate is 9%, at threshold -1.22635
 ==================================================================
 
-Performance increases when number of enrollments increases(below is the case when 5 enrollments are used).                                      
+Performance increases when number of enrollments increases(below is the case when 5 enrollments are used). 
 ==================================================================
 speech@speechP1:~/2022_hws/hw_0329/spk_vr$ ./compute-eer <(cat ubm-32-enroll-5.result)
 ./compute-eer /dev/fd/63
 LOG (compute-eer[5.5.1010~1-498b2]:main():compute-eer.cc:136) Equal error rate is 1%, at threshold 0.138814
 ==================================================================
 
-DET of the results can be found from det.png.
+DET of the results is saved as det.png.
 Results from ubm of mixture 16 is also included in the figure.
 It can be seen from the curve that overall performance increases when
 number of enrollments and number of mixtures increases(curve gets closer to the axis).
