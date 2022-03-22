@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+
+testspk="p302 p254 p228 p340 p306 p280 p360 p248 p351 p276"
+for dir in /home/speech/vctk/wav16/*/; do
+  dname="$(echo $dir | rev | cut -d/ -f2 | rev)"
+  istest=false
+  for spk in $testspk; do
+    if [ "$spk" == "$dname" ]; then istest=true; break; fi
+  done
+
+  if $istest; then
+    find $dir -name "*.wav" -exec readlink -f {} \; | \
+      awk '{print "'$dname' "$0}' 1>&2
+  else
+    find $dir -name "*.wav" -exec readlink -f {} \; | \
+      awk '{print "'$dname' "$0}'
+  fi
+done > train.list 2> test.list
