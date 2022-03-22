@@ -8,11 +8,15 @@ for dir in /home/speech/vctk/wav16/*/; do
     if [ "$spk" == "$dname" ]; then istest=true; break; fi
   done
 
-  if $istest; then
-    find $dir -name "*.wav" -exec readlink -f {} \; | \
-      awk '{print "'$dname' "$0}' 1>&2
-  else
-    find $dir -name "*.wav" -exec readlink -f {} \; | \
-      awk '{print "'$dname' "$0}'
-  fi
-done > train.list 2> test.list
+  # testspk can be used as testcase later
+  if $istest; then continue; fi
+  for wav in $dir/test/*.wav; do
+    readlink -f $wav | awk '{print "'$dname' "$0}' 1>&2
+  done
+  for wav in $dir/*.wav; do
+    readlink -f $wav | awk '{print "'$dname' "$0}'
+  done
+done > .train.list 2> test.list
+
+cat .train.list | awk '{print $1}' | sort | uniq > vocab
+shuf .train.list > train.list
