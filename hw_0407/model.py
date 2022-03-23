@@ -6,7 +6,7 @@ def mel_filterbank(
     pcm, sr=16000,
     frame_length=25, frame_step=10, fft_length=None,
     window_fn=functools.partial(tf.signal.hann_window, periodic=True),
-    lower_edge_hertz=80.0, upper_edge_hertz=7600.0, num_mel_bins=80,
+    lower_edge_hertz=80.0, upper_edge_hertz=7600.0, num_mel_bins=24,
     log_noise_floor=1e-3):
 
   frame_length = int(frame_length * sr / 1e3)
@@ -47,16 +47,44 @@ class tdnn(tf.keras.layers.Layer):
     self.vocab = vocab
 
   def build(self, input_shape):
-    self.conv = tf.keras.layers.Conv1D(40, 3)
-    self.prj = tf.keras.layers.Dense(self.vocab)
+    self.frames = [
+      tf.keras.layers.Conv1D(512, 5),
+      tf.keras.layers.Conv1D(512, 3, dilation_rate=2),
+      tf.keras.layers.Conv1D(512, 3, dilation_rate=3),
+      tf.keras.layers.Dense(512),
+      tf.keras.layers.Dense(1500)
+    ]
+    self.frame_bns = [tf.keras.layers.BatchNormalization() \
+      for _ in range(len(self.frames))]
+
+    self.segments = [
+      tf.keras.layers.Dense(512),
+      tf.keras.layers.Dense(512)
+    ]
+    self.segment_bns = [tf.keras.layers.BatchNormalization() \
+      for _ in range(len(self.segments))]
+
+    self.softmax = tf.keras.layers.Dense(self.vocab)
 
   def call(self, inputs, training=None):
-    x, ref = inputs
+    pcm, ref = inputs
+    x = mel_filterbank(pcm)
     ref = tf.squeeze(ref, -1)
 
-    x = self.conv(x)
-    x = tf.math.reduce_mean(x, axis=1)
-    x = self.prj(x)
+    # cmvn; TODO need to consider online cmvn
+    # m, v = tf.nn.moments(x, axes=1, keepdims=True)
+    # x = (x - m) / tf.math.sqrt(v + 1e-9)
+
+    for frame, bn in zip(self.frames, self.frame_bns):
+      x = bn(tf.nn.relu(frame(x)))
+
+    m, v = tf.nn.moments(x, axes=1)
+    x = tf.concat([m, tf.math.sqrt(v + 1e-9)], -1)
+
+    for segment, bn in zip(self.segments, self.segment_bns):
+      x = bn(tf.nn.relu(segment(x)))
+
+    x = self.softmax(x)
 
     loss = tf.nn.sparse_softmax_cross_entropy_with_logits(ref, x)
     loss = tf.math.reduce_mean(loss)
