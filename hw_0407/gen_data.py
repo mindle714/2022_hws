@@ -10,15 +10,17 @@ args = parser.parse_args()
 import os
 import sys
 import json
-from stat import S_IREAD, S_IRGRP, S_IROTH
+from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
 
+args_file = os.path.join(args.output, "ARGS")
 if os.path.isdir(args.output):
   msg = 'directory {} exists. Do you want to proceed?'.format(args.output)
   cont = input("%s (y/N) " % msg).lower() == 'y'
   if not cont: sys.exit(0)
+  if os.path.isfile(args_file):
+    os.chmod(args_file, S_IWUSR|S_IREAD)
 
 os.makedirs(args.output, exist_ok=True)
-args_file = os.path.join(args.output, "ARGS")
 with open(args_file, "w") as f:
   f.write(json.dumps(vars(args)))
 os.chmod(args_file, S_IREAD|S_IRGRP|S_IROTH)
