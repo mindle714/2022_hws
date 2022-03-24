@@ -1,6 +1,8 @@
 #!/usr/bin/bash
 
 testspk="p302 p254 p228 p340 p306 p280 p360 p248 p351 p276"
+num_enrolls=3; num_vr_tc=$((41/(num_enrolls+1)))
+
 for dir in /home/speech/vctk/wav16/*/; do
   dname="$(echo $dir | rev | cut -d/ -f2 | rev)"
   istest=false
@@ -8,15 +10,36 @@ for dir in /home/speech/vctk/wav16/*/; do
     if [ "$spk" == "$dname" ]; then istest=true; break; fi
   done
 
-  # testspk can be used as testcase later
-  if $istest; then continue; fi
+  if $istest; then
+    for _ in $(seq 3); do
+      paste \
+      <(for spk in $testspk; do \
+        find /home/speech/vctk/wav16/$spk/test/*.wav -exec readlink -f {} \;; done | \
+        grep -v "$dir" | shuf | head -n$num_vr_tc) \
+      <(find $dir/test/*.wav -exec readlink -f {} \; | shuf | \
+        awk -vnum_enrolls=$num_enrolls \
+            -vnum_vr_tc=$num_vr_tc \
+            'BEGIN{idx=0; cstr=""} {
+              if (idx >= num_vr_tc*(num_enrolls+1)) {
+                print cstr; exit;
+              }
+              if (idx>0 && idx%(num_enrolls+1)==0) {
+                print cstr; cstr="";
+              }
+              if (cstr == "") cstr = $1; else cstr = cstr" "$1;
+              idx += 1;
+            }') 1>&3;
+      done
+    continue; 
+  fi
+
   for wav in $dir/test/*.wav; do
     readlink -f $wav | awk '{print "'$dname' "$0}' 1>&2
   done
   for wav in $dir/*.wav; do
     readlink -f $wav | awk '{print "'$dname' "$0}'
   done
-done > .train.list 2> test.list
+done > .train.list 2> test_id.list 3> test_vr.list
 
 cat .train.list | awk '{print $1}' | sort | uniq > vocab
 shuf .train.list > train.list

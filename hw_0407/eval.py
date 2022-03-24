@@ -2,6 +2,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--ckpt", type=str, required=True) 
 parser.add_argument("--eval-list", type=str, required=True) 
+parser.add_argument("--eval-type", type=str, required=False,
+  default="id", choices=["id", "vr"])
 args = parser.parse_args()
 
 import os
@@ -26,7 +28,8 @@ with open(exp_args, "r") as f:
 
 import numpy as np
 m = model.tdnn(len(vocab))
-_ = m((np.zeros((1, samp_len), dtype=np.float32), np.zeros((1, 1), dtype=np.int32)))
+_ = m((np.zeros((1, samp_len), dtype=np.float32), 
+  np.zeros((1, 1), dtype=np.int32)), training=False)
 
 import tensorflow as tf
 ckpt = tf.train.Checkpoint(m)
@@ -38,20 +41,45 @@ import tqdm
 
 evals = [e.strip() for e in open(args.eval_list, "r").readlines()]
 
-pcount = 0
-for idx, _eval in tqdm.tqdm(enumerate(evals), total=len(evals)):
-  if len(_eval.split()) != 2:
-    warnings.warn("failed to parse {} at line {}".format(_eval, idx))
-    continue
+if args.eval_type == "id":
+  pcount = 0
+  for idx, _line in tqdm.tqdm(enumerate(evals), total=len(evals)):
+    if len(_line.split()) != 2:
+      warnings.warn("failed to parse {} at line {}".format(_line, idx))
+      continue
 
-  spk, wav = _eval.split()
-  if spk not in vocab:
-    warnings.warn("vocab {} missing {}".format(args.vocab, spk))
-    continue
+    spk, wav = _line.split()
+    if args.eval_type == "id" and spk not in vocab:
+      warnings.warn("vocab {} missing {}".format(args.vocab, spk))
+      continue
 
-  pcm, sr = soundfile.read(wav)
-  out = m((np.expand_dims(pcm, 0), None))
-  pcount += int(np.argmax(out) == vocab[spk])
+    pcm, sr = soundfile.read(wav)
+    out, _ = m((np.expand_dims(pcm, 0), None), training=False)
+    pcount += int(np.argmax(out) == vocab[spk])
 
-print("overall pass {}/{}({:.3f}%)".format(
-  pcount, len(evals), float(pcount)/(len(evals))*100))
+  print("overall pass {}/{}({:.3f}%)".format(
+    pcount, len(evals), float(pcount)/(len(evals))*100))
+    
+else:
+  for idx, _line in enumerate(evals):
+    if len(_line.split()) < 3:
+      warnings.warn("failed to parse {} at line {}".format(_line, idx))
+      continue
+
+    _lines = _line.split()
+    fa = _lines[0]; ta = _lines[1]; enrolls = _lines[2:]
+    
+    def get_xvec(wav):
+      pcm, sr = soundfile.read(wav)
+      _, emb = m((np.expand_dims(pcm, 0), None), training=False)
+      return np.squeeze(emb, 0)
+
+    def cos_sim(e1, e2):
+      denom = np.sqrt(np.sum(e1**2)) * np.sqrt(np.sum(e2**2))
+      return np.sum(e1*e2) / denom
+
+    enroll_xvec = sum([get_xvec(e) for e in enrolls]) / len(enrolls)
+    fa_xvec = get_xvec(fa); ta_xvec = get_xvec(ta)
+
+    print("{} target".format(cos_sim(enroll_xvec, ta_xvec)))
+    print("{} nontarget".format(cos_sim(enroll_xvec, fa_xvec)))

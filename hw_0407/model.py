@@ -78,14 +78,15 @@ class tdnn(tf.keras.layers.Layer):
     # x = (x - m) / tf.math.sqrt(v + 1e-9)
 
     for frame, bn in zip(self.frames, self.frame_bns):
-      x = bn(tf.nn.relu(frame(x)))
+      x = bn(tf.nn.relu(frame(x)), training=training)
 
     m, v = tf.nn.moments(x, axes=1)
     x = tf.concat([m, tf.math.sqrt(v + 1e-9)], -1)
 
     for segment, bn in zip(self.segments, self.segment_bns):
-      x = bn(tf.nn.relu(segment(x)))
+      x = bn(tf.nn.relu(segment(x)), training=training)
 
+    emb = x
     x = self.softmax(x)
 
     if ref is not None:
@@ -93,4 +94,4 @@ class tdnn(tf.keras.layers.Layer):
       loss = tf.math.reduce_mean(loss)
       return loss
     
-    return x
+    return x, emb
