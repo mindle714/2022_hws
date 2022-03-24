@@ -1,3 +1,15 @@
+import os
+import random
+import numpy as np
+import tensorflow as tf
+
+seed = 1234
+os.environ['PYTHONHASHSEED'] = str(seed)
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+random.seed(seed)
+np.random.seed(seed)
+tf.random.set_seed(seed)
+
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--tfrec", type=str, required=True) 
@@ -6,16 +18,14 @@ parser.add_argument("--batch-size", type=int, required=False, default=64)
 parser.add_argument("--eval-step", type=int, required=False, default=100) 
 parser.add_argument("--save-step", type=int, required=False, default=500) 
 parser.add_argument("--train-step", type=int, required=False, default=10000) 
-parser.add_argument("--begin-lr", type=float, required=False, default=1e-3) 
+parser.add_argument("--begin-lr", type=float, required=False, default=1e-4) 
 parser.add_argument("--output", type=str, required=True) 
 args = parser.parse_args()
 
-import os
 import json
-
 tfrec_args = os.path.join(args.tfrec, "ARGS")
 with open(tfrec_args, "r") as f:
-  samp_len = json.load(f)["samp_len"]
+  samp_len = json.loads(f.readlines()[-1])["samp_len"]
 
 vocab = [e.strip() for e in open(args.vocab).readlines()]
 
@@ -36,7 +46,6 @@ with open(args_file, "w") as f:
   f.write(json.dumps(vars(args)))
 os.chmod(args_file, S_IREAD|S_IRGRP|S_IROTH)
 
-import tensorflow as tf
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
   try:
@@ -53,7 +62,8 @@ import parse_data
 import glob
 
 tfrec_list = glob.glob(os.path.join(args.tfrec, "train-*.tfrecord"))
-dataset = parse_data.gen_train(tfrec_list, samp_len, batch_size=args.batch_size)
+dataset = parse_data.gen_train(tfrec_list, samp_len,
+  batch_size=args.batch_size, seed=seed)
 
 import model
 m = model.tdnn(len(vocab))
@@ -82,7 +92,10 @@ def train_step(pcm, ref):
 import logging
 logger = tf.get_logger()
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler(os.path.join(args.output, "train.log"))
+
+logfile = os.path.join(args.output, "train.log")
+if os.path.isfile(logfile): os.remove(logfile)
+fh = logging.FileHandler(logfile)
 logger.addHandler(fh)
 
 ckpt = tf.train.Checkpoint(m)

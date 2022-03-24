@@ -21,9 +21,6 @@ if os.path.isdir(args.output):
     os.chmod(args_file, S_IWUSR|S_IREAD)
 
 os.makedirs(args.output, exist_ok=True)
-with open(args_file, "w") as f:
-  f.write(json.dumps(vars(args)))
-os.chmod(args_file, S_IREAD|S_IRGRP|S_IROTH)
 
 train_list = [e.strip() for e in open(args.train_list).readlines()]
 vocab = {e.strip():idx for idx, e in enumerate(open(args.vocab).readlines())}
@@ -37,7 +34,7 @@ num_chunks = min(len(train_list), args.num_chunks)
 writers = [tf.io.TFRecordWriter(os.path.join(
     args.output, "train-{}.tfrecord".format(idx))) for idx in range(num_chunks)]
 
-chunk_idx = 0
+chunk_idx = 0; chunk_lens = [0 for _ in range(num_chunks)]
 for idx, _list in tqdm.tqdm(enumerate(train_list), total=len(train_list)):
   if len(_list.split()) != 2:
     warnings.warn("failed to parse {} at line {}".format(_list, idx))
@@ -63,7 +60,17 @@ for idx, _list in tqdm.tqdm(enumerate(train_list), total=len(train_list)):
 
     ex = tf.train.Example(features=tf.train.Features(feature=feats))
     writers[chunk_idx].write(ex.SerializeToString())
+
+    chunk_lens[chunk_idx] += 1
     chunk_idx = (chunk_idx+1) % num_chunks
 
 for writer in writers:
   writer.close()
+
+args.chunk_lens = chunk_lens
+
+with open(args_file, "w") as f:
+  f.write(" ".join([sys.executable] + sys.argv))
+  f.write("\n")
+  f.write(json.dumps(vars(args)))
+os.chmod(args_file, S_IREAD|S_IRGRP|S_IROTH)
