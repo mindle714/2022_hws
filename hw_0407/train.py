@@ -43,6 +43,8 @@ if os.path.isdir(args.output):
 
 os.makedirs(args.output, exist_ok=True)
 with open(args_file, "w") as f:
+  f.write(" ".join([sys.executable] + sys.argv))
+  f.write("\n")
   f.write(json.dumps(vars(args)))
 os.chmod(args_file, S_IREAD|S_IRGRP|S_IROTH)
 
@@ -65,12 +67,13 @@ tfrec_list = glob.glob(os.path.join(args.tfrec, "train-*.tfrecord"))
 dataset = parse_data.gen_train(tfrec_list, samp_len,
   batch_size=args.batch_size, seed=seed)
 
-import model
-m = model.tdnn(len(vocab))
 lr = args.begin_lr
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
   lr, decay_steps=1000, decay_rate=0.96, staircase=False)
 opt = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+
+import model
+m = model.tdnn(len(vocab))
 
 origins = [val.__spec__.origin for name, val in globals().items() \
   if isinstance(val, types.ModuleType)]

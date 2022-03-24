@@ -69,7 +69,9 @@ class tdnn(tf.keras.layers.Layer):
   def call(self, inputs, training=None):
     pcm, ref = inputs
     x = mel_filterbank(pcm)
-    ref = tf.squeeze(ref, -1)
+
+    if ref is not None:
+      ref = tf.squeeze(ref, -1)
 
     # cmvn; TODO need to consider online cmvn
     # m, v = tf.nn.moments(x, axes=1, keepdims=True)
@@ -86,6 +88,9 @@ class tdnn(tf.keras.layers.Layer):
 
     x = self.softmax(x)
 
-    loss = tf.nn.sparse_softmax_cross_entropy_with_logits(ref, x)
-    loss = tf.math.reduce_mean(loss)
-    return loss
+    if ref is not None:
+      loss = tf.nn.sparse_softmax_cross_entropy_with_logits(ref, x)
+      loss = tf.math.reduce_mean(loss)
+      return loss
+    
+    return x
