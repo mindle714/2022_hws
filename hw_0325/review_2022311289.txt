@@ -1,0 +1,41 @@
+- parallel operation in the control data 6600
+
+- 요약
+본 논문은 1964년도에 나온 CDC사 메인프레임 컴퓨터 CDC 6000 시리즈의 플래그십 모델인
+CDC 6600의 주된 구조에 대해 설명하고 있다. CDC 6600은 central processor(CP)와
+10대의 peripheral processor(PP)로 이루어져 있으며, CP는 주로 mathematical, logic
+operation의 수행에 사용된 반면, PP는 memory access, IO 등의 housekeeping task 수행에
+사용되었다. 모든 PP는 12 IO channel에 접근하여 channel activity monitoring 등을 수행한다.
+이렇듯 분리된 구조는 기존의 complex instruction을 여러 개의 단순화된 instruction으로 나눌 수 있게 하였다.
+이는, CP가 central memory를 통해서만 PP를 볼 수 있고(XJ, central program address를 제외하고), 
+functional unit들은 central register들을 통해서만 central memory를 볼 수 있도록 하여 
+memory로부터 operand를 fetch하여 addition 수행 후 값을 저장하는 하나의 complicated
+instruction을, memory로부터 값을 fetch하는 instruction과 addtion을 수행하는 instruction으로 나눔으로써
+concurrency가 증대될 수 있음을 의미한다. instruction의 단순화는 또한 instruction을 수행하는 unit이
+기존의 complicated scenario에서 벗어나 본연의 operation을 위한 optimization을 수행할 수 있음에도 의미가 있다.
+
+CP는 10개의 functional unit을 가지며, 이는 2대의 FP multiply, FP divide, FP add, INT(long) add,
+2대의 incrementer, shift, boolean logic, branch로 이루어져 있다.
+이와 같은 function들을 parallel 하게 수행하는 방식으로 구현한 것이 scoreboarding 방식이다.
+Scoreboard는 functional unit별 status를 maintain하여, 새로운 instruction이 issue될 때마다
+scoreboard가 업데이트되며, data dependency가 resolve되었다고 판명될 경우(혹은 waiting이 필요 없음)
+해당 instruction이 수행된다. 이러한 방식을 통해, 현 instruction이 halt된 상황에서도 다음
+instruction이 수행될 수 있는 여지가 생긴다.
+즉, 단순화된 instruction과 동시 수행이 가능한 여러 functional unit 등의 조건을 통해
+scoreboard scheme이 가능해진다.
+
+- 장단점
+본 논문은 processor의 수행 granularity를 작게 함으로써 instruction 하나의 절대적 수행 속도는
+기존의 complex instruction에 비해 늘었을지언정, 다양한 instruction들의 병렬 수행을 가능하게
+함으로써 당시의 SOTA였던 IBM Stretch를 큰 폭으로 뛰어넘었다는 것에 큰 의의를 가지는 것으로 보인다.
+이러한 구조를 가능하게 하는 RISC 식의 design, 여러 functional unit의 채택 등이 이후의 architecture
+design 상에서도 근간을 이루고 있다.
+다만 기존의 complex instruction들이 작은 크기로 분해되면서 프로그래머의 역량이 optimization의 수준에
+영향을 미칠 가능성이 사료된다. 또한 complex instruction 및 reduced instruction을 다양하게 사용하여
+parallelism 및 single instruction optimization의 이점을 동시에 얻을 수 있는 방식이 있는지 고려할 수
+있을 것이라는 점 또한 존재한다.
+Scoreboarding 구조가 가지는 단순함으로 인해 생기는 WAW, WAR hazard의 경우에도 추가 알고리즘
+개발을 통한 개선이 가능할 것으로 보인다.
+PP의 역할 분담 구조에서, 10대의 PP 중에 PP0가 CPU의 overall control을 담당하고 나머지 PP가 
+interchangeable하게 IO task를 수행하는 구조를 가지게 되는데, 이는 PP0의 오류가 전체 프로세스를 
+망가뜨릴 수 있다는 점에서 error prone한 구조로 보인다.
