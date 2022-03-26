@@ -3,3 +3,5 @@ exps/
 tfrec/
 __pycache__/
 vocab
+*.png
+*.log

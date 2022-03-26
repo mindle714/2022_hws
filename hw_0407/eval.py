@@ -35,6 +35,7 @@ import tensorflow as tf
 ckpt = tf.train.Checkpoint(m)
 ckpt.read(args.ckpt)
 
+import sklearn.manifold
 import warnings
 import soundfile
 import tqdm
@@ -61,6 +62,7 @@ if args.eval_type == "id":
     pcount, len(evals), float(pcount)/(len(evals))*100))
     
 else:
+  xvecs = {}
   for idx, _line in enumerate(evals):
     if len(_line.split()) < 3:
       warnings.warn("failed to parse {} at line {}".format(_line, idx))
@@ -78,8 +80,31 @@ else:
       denom = np.sqrt(np.sum(e1**2)) * np.sqrt(np.sum(e2**2))
       return np.sum(e1*e2) / denom
 
-    enroll_xvec = sum([get_xvec(e) for e in enrolls]) / len(enrolls)
+    enroll_xvec = [get_xvec(e) for e in enrolls]
+    spk = os.path.basename(enrolls[0]).split("_")[0]
+    if spk not in xvecs: xvecs[spk] = []
+    xvecs[spk] += enroll_xvec
+
+    enroll_xvec = sum(enroll_xvec) / len(enrolls)
     fa_xvec = get_xvec(fa); ta_xvec = get_xvec(ta)
 
     print("{} target".format(cos_sim(enroll_xvec, ta_xvec)))
     print("{} nontarget".format(cos_sim(enroll_xvec, fa_xvec)))
+
+  xvecs_val = []; xvecs_idx = []; accum = 0
+  for spk in xvecs:
+    xvecs_val += xvecs[spk]
+    xvecs_idx.append((accum, accum + len(xvecs[spk])))
+    accum += len(xvecs[spk])
+
+  xvecs_tsne = sklearn.manifold.TSNE(n_components=2)
+  xvecs_tsne = xvecs_tsne.fit_transform(xvecs_val)
+
+  import matplotlib.pyplot as plt
+  for beg, end in xvecs_idx:
+    plt.scatter(xvecs_tsne[beg:end][:,0], xvecs_tsne[beg:end][:,1])
+  plt.legend(xvecs.keys(), loc='upper right')
+
+  expname = expdir.split("/")[-1]
+  epoch = os.path.basename(args.ckpt).replace(".", "-").split("-")[1]
+  plt.savefig('{}-{}-vr.png'.format(expname, epoch))
