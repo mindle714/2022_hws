@@ -2,6 +2,22 @@
 
 testspk="p302 p254 p228 p340 p306 p280 p360 p248 p351 p276"
 num_enrolls=3; num_vr_tc=$((41/(num_enrolls+1)))
+num_triplet=$((155/2))
+
+trainspk=""
+for dir in /home/speech/vctk/wav16/*/; do
+  dname="$(echo $dir | rev | cut -d/ -f2 | rev)"
+  istest=false
+  for spk in $testspk; do
+    if [ "$spk" == "$dname" ]; then istest=true; break; fi
+  done
+
+  if ! $istest; then trainspk="$trainspk $dname"; fi
+done
+
+for spk in $trainspk; do
+  find /home/speech/vctk/wav16/$spk/*.wav -exec readlink -f {} \;
+done > .train.wav
 
 for dir in /home/speech/vctk/wav16/*/; do
   dname="$(echo $dir | rev | cut -d/ -f2 | rev)"
@@ -29,7 +45,7 @@ for dir in /home/speech/vctk/wav16/*/; do
               if (cstr == "") cstr = $1; else cstr = cstr" "$1;
               idx += 1;
             }') 1>&3;
-      done
+    done
     continue; 
   fi
 
@@ -39,7 +55,26 @@ for dir in /home/speech/vctk/wav16/*/; do
   for wav in $dir/*.wav; do
     readlink -f $wav | awk '{print "'$dname' "$0}'
   done
-done > .train.list 2> test_id.list 3> test_vr.list
+
+  for _ in $(seq 3); do
+    paste \
+      <(cat .train.wav | grep -v "$dir" | shuf | head -n$num_triplet) \
+      <(find $dir/*.wav -exec readlink -f {} \; | shuf | \
+        awk -vnum_triplet=$num_triplet \
+            'BEGIN{idx=0; cstr=""} {
+              if (idx >= num_triplet*2) {
+                print cstr; exit;
+              }
+              if (idx>0 && idx%2==0) {
+                print cstr; cstr="";
+              }
+              if (cstr == "") cstr = $1; else cstr = cstr" "$1;
+              idx += 1;
+            }') 1>&4;
+  done
+
+done > .train.list 2> test_id.list 3> test_vr.list 4> .triplet.list
 
 cat .train.list | awk '{print $1}' | sort | uniq > vocab
 shuf .train.list > train.list
+shuf .triplet.list > triplet.list

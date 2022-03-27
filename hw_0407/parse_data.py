@@ -3,8 +3,9 @@ import tensorflow as tf
 def parse_func(pcm_len):
   def _parse_func(ex):
     desc = {
-      'pcm': tf.io.FixedLenFeature([pcm_len], tf.float32),
-      'speaker': tf.io.FixedLenFeature([1], tf.int64)
+      'neg': tf.io.FixedLenFeature([pcm_len], tf.float32),
+      'pos': tf.io.FixedLenFeature([pcm_len], tf.float32),
+      'anc': tf.io.FixedLenFeature([pcm_len], tf.float32)
     }
     return tf.io.parse_single_example(ex, desc)
   return _parse_func

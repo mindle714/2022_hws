@@ -36,6 +36,8 @@ ckpt = tf.train.Checkpoint(m)
 ckpt.read(args.ckpt)
 
 import sklearn.manifold
+import sklearn.decomposition
+import sklearn.discriminant_analysis
 import warnings
 import soundfile
 import tqdm
@@ -58,7 +60,11 @@ if args.eval_type == "id":
     out, _ = m((np.expand_dims(pcm, 0), None), training=False)
     pcount += int(np.argmax(out) == vocab[spk])
 
-  print("overall pass {}/{}({:.3f}%)".format(
+  mdl_size = os.path.getsize(args.ckpt + ".data-00000-of-00001")
+  mdl_size /= float(1024*1024)
+
+  print("{}({:.1f}MB) overall pass {}/{}({:.3f}%)".format(
+    args.ckpt, mdl_size,
     pcount, len(evals), float(pcount)/(len(evals))*100))
     
 else:
@@ -91,14 +97,24 @@ else:
     print("{} target".format(cos_sim(enroll_xvec, ta_xvec)))
     print("{} nontarget".format(cos_sim(enroll_xvec, fa_xvec)))
 
-  xvecs_val = []; xvecs_idx = []; accum = 0
-  for spk in xvecs:
+  xvecs_val = []; xvecs_tgt = []; xvecs_idx = []; accum = 0
+  for idx, spk in enumerate(xvecs):
     xvecs_val += xvecs[spk]
+    xvecs_tgt += [idx for _ in range(len(xvecs[spk]))]
+
     xvecs_idx.append((accum, accum + len(xvecs[spk])))
     accum += len(xvecs[spk])
 
   xvecs_tsne = sklearn.manifold.TSNE(n_components=2)
   xvecs_tsne = xvecs_tsne.fit_transform(xvecs_val)
+
+  def l2_norm(e):
+    return e / np.linalg.norm(e, axis=-1, keepdims=True)
+
+  xvecs_pca = sklearn.decomposition.PCA(n_components=2)
+  xvecs_pca = xvecs_pca.fit_transform(xvecs_val)
+  #xvecs_pca = sklearn.discriminant_analysis.LinearDiscriminantAnalysis(n_components=2)
+  #xvecs_pca = xvecs_pca.fit_transform(xvecs_val, xvecs_tgt)
 
   import matplotlib.pyplot as plt
   for beg, end in xvecs_idx:
@@ -108,3 +124,20 @@ else:
   expname = expdir.split("/")[-1]
   epoch = os.path.basename(args.ckpt).replace(".", "-").split("-")[1]
   plt.savefig('{}-{}-vr.png'.format(expname, epoch))
+  plt.clf()
+
+  scs = []
+  for beg, end in xvecs_idx:
+    xvecs_norm = l2_norm(xvecs_pca[beg:end])
+    sc = plt.scatter(xvecs_norm[:,0], xvecs_norm[:,1])
+    color = sc.get_facecolor()
+    scs.append(sc)
+
+    xvecs_mean = np.mean(xvecs_norm, 0, keepdims=True)
+    plt.quiver(np.zeros(1), np.zeros(1), xvecs_mean[:,0], xvecs_mean[:,1],
+            angles='xy', scale_units='xy', scale=1, color=color)
+  plt.legend(scs, xvecs.keys(), loc='upper right')
+
+  expname = expdir.split("/")[-1]
+  epoch = os.path.basename(args.ckpt).replace(".", "-").split("-")[1]
+  plt.savefig('{}-{}-vr-norm.png'.format(expname, epoch))

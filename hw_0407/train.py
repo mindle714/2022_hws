@@ -84,9 +84,20 @@ for origin in origins + [os.path.abspath(__file__)]:
   shutil.copy(origin, args.output)
 
 @tf.function
-def train_step(pcm, ref):
+def train_step(neg, pos, anc):
   with tf.GradientTape() as tape:
-    loss = m((pcm, ref), training=True)
+    _, neg_emb = m((neg, None), training=True)
+    _, pos_emb = m((pos, None), training=True)
+    _, anc_emb = m((anc, None), training=True)
+
+    neg_emb = tf.math.l2_normalize(neg_emb, -1)
+    pos_emb = tf.math.l2_normalize(pos_emb, -1)
+    anc_emb = tf.math.l2_normalize(anc_emb, -1)
+
+    neg_anc = tf.math.reduce_sum(neg_emb * anc_emb, -1)
+    pos_anc = tf.math.reduce_sum(pos_emb * anc_emb, -1)
+    loss = tf.math.maximum(0., neg_anc - pos_anc + 0.5)
+    loss = tf.math.reduce_mean(loss)
 
   grads = tape.gradient(loss, m.trainable_weights)
   opt.apply_gradients(zip(grads, m.trainable_weights))
@@ -105,12 +116,13 @@ ckpt = tf.train.Checkpoint(m)
 for idx, data in enumerate(dataset):
   if idx > args.train_step: break
 
-  loss = (train_step(data["pcm"], data["speaker"]))
+  loss = (train_step(data["neg"], data["pos"], data["anc"]))
   if idx > 0 and idx % args.eval_step == 0:
     logger.info("gstep[{}] loss[{:.2f}] lr[{:.2e}]".format(
       idx, loss, lr_schedule(idx).numpy()))
 
   if idx > 0 and idx % args.save_step == 0:
     modelname = "model-{}.ckpt".format(idx)
-    ckpt.write(os.path.join(args.output, modelname))
-    logger.info("model is saved as {}".format(modelname))
+    modelpath = os.path.join(args.output, modelname)
+    ckpt.write(modelpath)
+    logger.info("model is saved as {}".format(modelpath))
