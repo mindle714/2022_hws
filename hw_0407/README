@@ -133,3 +133,7 @@ xvec-small-triplet(295K) Equal error rate is 2.66667%, at threshold 0.772014
 ==================================================================
 It can be seen that arcface loss, triplet loss both reduce EER with
 the same model size/complexity.
+
+t-SNE plot of the above models can be found in
+{xvec,xvec-small,xvec-small-arcface,xvec-small-triplet}-30000-vr.png.
+It can be seen that embeddings are well clustered based on their class(speaker).

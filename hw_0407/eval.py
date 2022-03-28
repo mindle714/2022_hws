@@ -4,6 +4,7 @@ parser.add_argument("--ckpt", type=str, required=True)
 parser.add_argument("--eval-list", type=str, required=True) 
 parser.add_argument("--eval-type", type=str, required=False,
   default="id", choices=["id", "vr"])
+parser.add_argument("--print-norm", action="store_true")
 args = parser.parse_args()
 
 import os
@@ -111,14 +112,6 @@ else:
   xvecs_tsne = sklearn.manifold.TSNE(n_components=2)
   xvecs_tsne = xvecs_tsne.fit_transform(xvecs_val)
 
-  def l2_norm(e):
-    return e / np.linalg.norm(e, axis=-1, keepdims=True)
-
-  xvecs_pca = sklearn.decomposition.PCA(n_components=2)
-  xvecs_pca = xvecs_pca.fit_transform(xvecs_val)
-  #xvecs_pca = sklearn.discriminant_analysis.LinearDiscriminantAnalysis(n_components=2)
-  #xvecs_pca = xvecs_pca.fit_transform(xvecs_val, xvecs_tgt)
-
   import matplotlib.pyplot as plt
   for beg, end in xvecs_idx:
     plt.scatter(xvecs_tsne[beg:end][:,0], xvecs_tsne[beg:end][:,1])
@@ -129,18 +122,24 @@ else:
   plt.savefig('{}-{}-vr.png'.format(expname, epoch))
   plt.clf()
 
-  scs = []
-  for beg, end in xvecs_idx:
-    xvecs_norm = l2_norm(xvecs_pca[beg:end])
-    sc = plt.scatter(xvecs_norm[:,0], xvecs_norm[:,1])
-    color = sc.get_facecolor()
-    scs.append(sc)
+  if args.print_norm:
+    def l2_norm(e):
+      return e / np.linalg.norm(e, axis=-1, keepdims=True)
 
-    xvecs_mean = np.mean(xvecs_norm, 0, keepdims=True)
-    plt.quiver(np.zeros(1), np.zeros(1), xvecs_mean[:,0], xvecs_mean[:,1],
-            angles='xy', scale_units='xy', scale=1, color=color)
-  plt.legend(scs, xvecs.keys(), loc='upper right')
+    xvecs_pca = sklearn.decomposition.PCA(n_components=2)
+    xvecs_pca = xvecs_pca.fit_transform(xvecs_val)
+    # xvecs_pca = sklearn.discriminant_analysis.LinearDiscriminantAnalysis(n_components=2)
+    # xvecs_pca = xvecs_pca.fit_transform(xvecs_val, xvecs_tgt)
 
-  expname = expdir.split("/")[-1]
-  epoch = os.path.basename(args.ckpt).replace(".", "-").split("-")[1]
-  plt.savefig('{}-{}-vr-norm.png'.format(expname, epoch))
+    scs = []
+    for beg, end in xvecs_idx:
+      xvecs_norm = l2_norm(xvecs_pca[beg:end])
+      sc = plt.scatter(xvecs_norm[:,0], xvecs_norm[:,1])
+      color = sc.get_facecolor()
+      scs.append(sc)
+
+      xvecs_mean = np.mean(xvecs_norm, 0, keepdims=True)
+      plt.quiver(np.zeros(1), np.zeros(1), xvecs_mean[:,0], xvecs_mean[:,1],
+              angles='xy', scale_units='xy', scale=1, color=color)
+    plt.legend(scs, xvecs.keys(), loc='upper right')
+    plt.savefig('{}-{}-vr-norm.png'.format(expname, epoch))
