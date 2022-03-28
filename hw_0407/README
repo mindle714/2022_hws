@@ -1,1 +1,135 @@
+- Data preparation
+Using genlist, train.list, test_id.list, test_vr.list, triplet.list files are generated.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0407$ head -n3 train.list test_id.list test_vr.list triplet.list
+==> train.list <==
+p240 /home/speech/vctk/wav16/p240/p240_211_mic1.wav
+p247 /home/speech/vctk/wav16/p247/p247_452_mic1.wav
+p269 /home/speech/vctk/wav16/p269/p269_342_mic1.wav
 
+==> test_id.list <==
+p225 /home/speech/vctk/wav16/p225/test/p225_005_mic2.wav
+p225 /home/speech/vctk/wav16/p225/test/p225_010_mic2.wav
+p225 /home/speech/vctk/wav16/p225/test/p225_016_mic2.wav
+
+==> test_vr.list <==
+/home/speech/vctk/wav16/p360/test/p360_245_mic2.wav     /home/speech/vctk/wav16/p228/test/p228_142_mic2.wav /home/speech/vctk/wav16/p228/test/p228_192_mic2.wav /home/speech/vctk/wav16/p228/test/p228_289_mic2.wav /home/speech/vctk/wav16/p228/test/p228_051_mic2.wav
+/home/speech/vctk/wav16/p360/test/p360_295_mic2.wav     /home/speech/vctk/wav16/p228/test/p228_360_mic2.wav /home/speech/vctk/wav16/p228/test/p228_243_mic2.wav /home/speech/vctk/wav16/p228/test/p228_157_mic2.wav /home/speech/vctk/wav16/p228/test/p228_102_mic2.wav
+/home/speech/vctk/wav16/p351/test/p351_176_mic2.wav     /home/speech/vctk/wav16/p228/test/p228_223_mic2.wav /home/speech/vctk/wav16/p228/test/p228_087_mic2.wav /home/speech/vctk/wav16/p228/test/p228_350_mic2.wav /home/speech/vctk/wav16/p228/test/p228_330_mic2.wav
+
+==> triplet.list <==
+/home/speech/vctk/wav16/p334/p334_327_mic2.wav  /home/speech/vctk/wav16/p335/p335_295_mic2.wav /home/speech/vctk/wav16/p335/p335_286_mic1.wav
+/home/speech/vctk/wav16/p229/p229_282_mic1.wav  /home/speech/vctk/wav16/p282/p282_268_mic1.wav /home/speech/vctk/wav16/p282/p282_089_mic2.wav
+/home/speech/vctk/wav16/p333/p333_188_mic1.wav  /home/speech/vctk/wav16/p343/p343_150_mic2.wav /home/speech/vctk/wav16/p343/p343_223_mic2.wav
+==================================================================
+train.list has the following format:
+<speaker id> <wav path>
+The target class is the speaker given the wav.
+
+test_id.list, test_vr.list are used for evaluation.
+test_ld.list has the same format as train.list, for speaker identification task.
+test_vr.list has the following format:
+<false case wav> <true case wav> <enroll wav 1> <enroll wav 2> ...
+Enroll embedding is calculated with the list of enroll wavs, and
+similarities are compared with false case and true case.
+Of course the true case is from the same speaker of the enrolls'.
+test_vr.list is for speaker verification task.
+
+triplet.list has the following format:
+<negative wav> <positive wav> <anchor wav>
+Train objective is to minimize similarity between negative-anchor wavs while
+maximize similarity between positive-anchor.
+
+With generated lists, gen_data.py is used to create tfrecord
+which will be fed to tensorflow graph.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0407$ ls -htl tfrec/ | head -n5
+total 24G
+-r--r--r-- 1 speech speech  800  3월 24 17:20 ARGS
+-rw-rw-r-- 1 speech speech 244M  3월 24 17:20 train-0.tfrecord
+-rw-rw-r-- 1 speech speech 244M  3월 24 17:20 train-10.tfrecord
+-rw-rw-r-- 1 speech speech 244M  3월 24 17:20 train-11.tfrecord
+==================================================================
+
+- Model training
+Training is done with train.py. Train log is saved at <output dir>/train.log.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0407$ head -n3 exps/xvec/train.log
+gstep[100] loss[3.73] lr[9.96e-05]
+gstep[200] loss[3.00] lr[9.92e-05]
+gstep[300] loss[2.71] lr[9.88e-05]
+==================================================================
+Every <output dir> contains python scripts related to the training the model.
+<output dir>/model.py defines model architecture used for training.
+
+- Result
+Original x-vector model is trained within exps/xvec.
+Model follows kaldi nnet configuration, from the author of the paper.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0407$ head exps/xvec/nnet.config
+# This file was created by the command:
+# steps/nnet3/xconfig_to_configs.py --xconfig-file exp/xvector_nnet_1a/configs/network.xconfig --config-dir exp/xvector_nnet_1a/configs/
+# It contains the entire neural network.
+
+input-node name=input dim=23
+component name=tdnn1.affine type=NaturalGradientAffineComponent input-dim=115 output-dim=512 max-change=0.75
+component-node name=tdnn1.affine component=tdnn1.affine input=Append(Offset(input, -2), Offset(input, -1), input, Offset(input, 1), Offset(input, 2))
+  component name=tdnn1.relu type=RectifiedLinearComponent dim=512 self-repair-scale=1e-05
+  component-node name=tdnn1.relu component=tdnn1.relu input=tdnn1.affine
+  component name=tdnn1.batchnorm type=BatchNormComponent dim=512 target-rms=1.0
+==================================================================
+Minor parameter differences(weight initialization, gradient clipping et al.)
+which can be induced by training framework(from kaldi to tensorflow) is ignored.
+No CM(V)N is done unlike the paper and 24 dim. log-mel is used for feature. 
+
+Smaller x-vector model is trained within exps/xvec-small.
+This model shares same architecture with exps/xvec, except the dimension.
+
+Arcface loss is used with small x-vector in exps/xvec-small-arcface,
+with margin 0.35 and scale 16.
+==================================================================
+ 94     if ref is not None:
+ 95       x_norm = tf.math.l2_normalize(x, -1)
+ 96       w_norm = tf.math.l2_normalize(self.softmax, 0)
+ 97
+ 98       xw = tf.linalg.matmul(x_norm, w_norm)
+ 99       m_mask = tf.one_hot(ref, self.vocab, on_value=self.margin, dtype=tf.float32)
+100
+101       x = tf.math.cos(tf.math.acos(xw) + m_mask)
+102       x *= self.scale
+==================================================================
+
+Triplet loss is used with small x-vector in exps/xvec-small-triplet,
+with margin 0.5.
+==================================================================
+ 88   with tf.GradientTape() as tape:
+ 89     _, neg_emb = m((neg, None), training=True)
+ 90     _, pos_emb = m((pos, None), training=True)
+ 91     _, anc_emb = m((anc, None), training=True)
+ 92
+ 93     neg_emb = tf.math.l2_normalize(neg_emb, -1)
+ 94     pos_emb = tf.math.l2_normalize(pos_emb, -1)
+ 95     anc_emb = tf.math.l2_normalize(anc_emb, -1)
+ 96
+ 97     neg_anc = tf.math.reduce_sum(neg_emb * anc_emb, -1)
+ 98     pos_anc = tf.math.reduce_sum(pos_emb * anc_emb, -1)
+ 99     loss = tf.math.maximum(0., neg_anc - pos_anc + 0.5)
+100     loss = tf.math.reduce_mean(loss)
+==================================================================
+
+Evaluation of the model is done with eval.py.
+Result on test_id.list(speaker identification task) is as follows:
+==================================================================
+exps/xvec/model-30000.ckpt(17.3MB) overall pass 8040/8041(99.988%)
+exps/xvec-small/model-30000.ckpt(294.8KB) overall pass 7831/8041(97.388%)
+==================================================================
+
+Result on test_vr.list(speaker verification task) is as follows:
+==================================================================
+xvec(18M) Equal error rate is 2%, at threshold 0.714053
+xvec-small(295K) Equal error rate is 4%, at threshold 0.758682
+xvec-small-arcface(295K) Equal error rate is 2%, at threshold 0.702091
+xvec-small-triplet(295K) Equal error rate is 2.66667%, at threshold 0.772014
+==================================================================
+It can be seen that arcface loss, triplet loss both reduce EER with
+the same model size/complexity.

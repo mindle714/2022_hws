@@ -60,11 +60,14 @@ if args.eval_type == "id":
     out, _ = m((np.expand_dims(pcm, 0), None), training=False)
     pcount += int(np.argmax(out) == vocab[spk])
 
-  mdl_size = os.path.getsize(args.ckpt + ".data-00000-of-00001")
-  mdl_size /= float(1024*1024)
+  def get_size(bsize):
+    if bsize > (1024*1024):
+      return "{:.1f}MB".format(bsize / float(1024*1024))
+    return "{:.1f}KB".format(bsize / float(1024))
 
-  print("{}({:.1f}MB) overall pass {}/{}({:.3f}%)".format(
-    args.ckpt, mdl_size,
+  mdl_size = os.path.getsize(args.ckpt + ".data-00000-of-00001")
+  print("{}({}) overall pass {}/{}({:.3f}%)".format(
+    args.ckpt, get_size(mdl_size),
     pcount, len(evals), float(pcount)/(len(evals))*100))
     
 else:
