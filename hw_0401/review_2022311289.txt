@@ -1,0 +1,58 @@
+- An Efficient Algorithm for Exploiting Multiple Arithmetic Units
+
+- 요약
+본 논문은 1964년도에 나온 IBM사 System/360 Model 91에 채택된, floating point
+execution unit에 속하는 다양한 execution unit들(adder, multiplier/divider)의
+병렬 최적화를 위해 고안된 두 가지 주된 방법, reservation station과 CDB의 구조에
+대해 설명하고 있다. System/360 Model 91은 performance 향상을 위해 다양한 level의
+구조 변경을 채택하였다. Execution unit은 fixed-point와 floating-point target으로
+나뉘어, fixed-point unit이 (상대적으로) 빠른 수행 속도에 힘입어 storage instruction
+최적화가 주된 관심사였다면 floating-point unit은 adder, multipler/divider로 각
+instruction별 unit이 개별적으로 구성되어 각 unit들간의 병렬 수행을 위한 구조를
+필요로 하였다.
+
+여러 instruction들이 병렬 수행을 할 때에 필요한 조건은 우선
+1) dependency가 있는 instruction간의 depdendency가 지켜지면서,
+2) dependency가 없는 instruction은 효율에 따라 병렬적으로 수행 가능해야 한다는 것이다.
+이때 busy bit의 채택은 조건 1)은 만족할지언정, dependency로 stall된 unit이 존재할 경우
+해당 unit을 바로 사용할 수 있는 다른 instruction들 또한 stall된다는 단점이 존재한다.
+이를 위해 고안된 방법이 reservation station으로, 이는 instruction visible한 여러 virtual 
+unit을 추가하는 것과 같다. 이전 instruction의 stall이 unit에서 이루어지지 않고 station단에서
+이루어짐에 따라, unit은 실제 수행이 가능한 instruction을 받아 stall없이 수행이 가능하다.
+
+상기의 방법이 동일한 unit을 보는 여러 instruction들이 효율적으로 수행될 수 있도록 하는
+것이라면, CDB는 동일한 register를 보는 여러 instruction들의 수행을 큰 폭으로 효율화한다.
+CDB는 각 unit이 부여받은 tag 정보를 id로 하여 필요 시 각 unit의 결과를 broadcast함으로써 
+공통 register에의 read/write 없이 원하는 값이 서로 다른 unit에 forwarding되도록 한다.
+이는, 한 unit 결과가 anonymously 다른 unit에 제공되게 함으로써 CDB가 temporary storage를
+제공하는 것과 비슷한 효과를 나타낸다. 이로써 동일한 register를 사용하고 load로 시작하는 
+여러 instruction chunk들이 병렬적으로 수행될 수 있는데, 이는 기존 방식에서 모든 unit이
+한 register를 보기 때문에 register 값의 integrity를 지키기 위한 stall을 하는 반면,
+본 방식은 CDB를 통해 여러 unit들의 결과가 chain화되어 이어지기 때문에 새로운 load로 register
+값이 update된 이후에 해당 register값을 바로 사용 가능하다. 이러한 특성은 특히
+동일한 register를 빈번하게 사용하게 되는 looping function에서 유용한데, load로 indexed storage
+값을 fetch하고 수행을 처리한 후 store하게 되는 typical loop structure에서 여타의 loop unroll
+없이도 여러 step을 병렬적으로 수행 가능하다.
+
+- 장단점
+본 논문은 우선 reservation station을 통해 실제 execution unit의 갯수를 늘리지 않으면서도
+여러 instruction들이 동일 unit에 할당될 수 있게 함으로써, cost effective하게 동일 unit target의
+instruction간 병렬 수행을 가능케 했다. 실제 unit을 추가했을 때 생길 수 있는 idle time을 고려하면
+한 unit의 수행 efficiency를 크게 올린 방법이라고 생각된다. 또한 각 unit들의 특성에 맞추어
+unit별 reservation station의 갯수 또한 달리 책정할 수 있으므로(본 논문의 경우 adder는 3개,
+multiplier/divider는 2개의 station 할당) 디자인 친화적인 방법으로 보인다. 하지만 실제 unit이
+추가될 수 있는 여지가 큰 모델에서라면, 이와 같은 방식의 필요성은 줄 것으로 보인다.
+
+CDB는 각 unit의 결과가 CDB를 통해 broadcast되게 함으로써 register에의 실 접근을 최소화하였고,
+이는 접근 cost 뿐만 아니라 register 이름만 동일하고 semantically 다른 값을 base로 수행이
+이루어지는 서로 다른 instruction chunk간의 병렬 수행도 가능케 함으로써 fake dependency를
+해소하도록 하였다. 이는 큰 폭의 수행 시간 절감이 가능하나, 서로 다른 unit이 본인의 결과를
+broadcast하기 위한 CDB 확보 싸움이 필요함을 의미한다. 이에 적당한 bandwith를 가지는 bus가
+존재하여 다양한 broadcast를 수행할 수 있다면 좋을 것으로 사료된다.
+또한 해당에 없더라도 모든 unit은 CDB 결과를 받아들이기 위해 매 순간 CDB의 broadcast값을
+비교하는 과정이 필요하다. 이는 모든 instruction이 최소 2 cycle 이상의 수행 속도를 가지도록 한다.
+즉 broadcast 과정에서의 낭비라고 생각되며, 만일 target unit에의 direct interrupt 방식으로
+notification이 가능하다면 좀 더 effective할 수 있을 것으로 생각된다.
+Unit 결과값이 anonymous해짐에 따라, program의 in/out integrity는 기존과 동일하나, 수행 중간의
+register 값이 programmer의 예상, in-order 방식의 semantic과 다를 가능성이 농후함 또한
+debugging 과정 등에서 나타날 수 있는 예상 문제로 생각된다.
