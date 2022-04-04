@@ -1,4 +1,4 @@
-function [output, sr] = HistEq_v2(input, wtile, htile)
+function [output, sr] = HistEq_v3(input, wtile, htile, clip)
 L = cast(intmax(class(input)), 'int16')+1;
 sr = 0:1:L-1;
 
@@ -8,6 +8,8 @@ hsize = floor(size(input,2) / htile);
 input = input(1:wsize*wtile, 1:hsize*htile);
 si = size(input);
 
+clip = max(int16(clip * (wsize * hsize) / L), 1);
+
 % prepare histogram, interpolation and lookup table
 hist=zeros(wtile, htile, L);
 for i=1:si(1)
@@ -16,6 +18,32 @@ for i=1:si(1)
         hist_j = floor((j-1) / hsize) + 1;
         in = input(i,j) + 1;
         hist(hist_i, hist_j, in) = hist(hist_i, hist_j, in) + 1;
+    end
+end
+
+% clip histogram
+for i=1:wtile
+    for j=1:htile
+        clipped = 0;
+        for k=1:L
+            h = hist(i, j, k);
+            if h > clip
+                clipped = clipped + (h - clip);
+                hist(i, j, k) = clip;
+            end
+        end
+
+        % scatter remainders
+        for k=1:L
+            hist(i, j, k) = hist(i, j, k) + int16(clipped / L);
+        end
+        clipped = clipped - int16(clipped / L) * L;
+        if clipped > 0
+            clip_step = floor(L / clipped);
+            for k=1:clip_step:clip_step*clipped
+                hist(i, j, k) = hist(i, j, k) + 1;
+            end
+        end
     end
 end
 

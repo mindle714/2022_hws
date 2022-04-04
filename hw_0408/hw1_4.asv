@@ -10,7 +10,7 @@ subplot(1,4,2);
 imshow(ce);
 subplot(1,4,3);
 imshow(ce2);
-subplot(1,4,4);
+subplot(1,2,4);
 imshow(ce3);
 
 figure(2);

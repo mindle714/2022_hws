@@ -19,18 +19,14 @@ for i=1:si(1)
     end
 end
 
-ind=zeros(si(2), 2);
 interp=zeros(si(2), 2);
+ind=zeros(si(2), 2);
 
-for j=1:si(1)
-    idx = double(j-1) / wsize - 0.5;
-
-    interp(j,1) = idx - floor(idx);
-    interp(j,2) = 1 - interp(j,1);
-
-    ind(j,1) = max(floor(idx), 0) + 1;
-    ind(j,2) = min(floor(idx)+1, htile-1) + 1;
-end
+idxs = double((1:si(2))-1) / wsize - 0.5;
+interp(:,1) = idxs - floor(idxs);
+interp(:,2) = 1 - interp(:,1);
+ind(:,1) = max(floor(idxs), 0) + 1;
+ind(:,2) = min(floor(idxs)+1, htile-1) + 1;
 
 lut=zeros(wtile, htile, L);
 for i=1:wtile
@@ -38,7 +34,8 @@ for i=1:wtile
         s = 0;
         for k=1:L
             s = s + hist(i, j, k);
-            lut(i, j, k) = s * double(L-1) / (si(1) * si(2));
+            lut(i, j, k) = (s * double(L-1)) / (wsize * hsize);
+            lut(i, j, k) = cast(lut(i, j, k), class(input));
         end
     end
 end
@@ -56,6 +53,11 @@ for i=1:si(1)
 
     for j=1:si(2)
         in = input(i,j) + 1;
+        fprintf(1, "%d %d\n", ind0, ind(j,1));
+
+        hist_i = floor((i-1) / wsize) + 1;
+        hist_j = floor((j-1) / hsize) + 1;
+
         output(i,j) = ...
             (lut(ind0, ind(j, 1), in) * interp(j, 2) + ...
             lut(ind0, ind(j, 2), in) * interp(j, 1)) * interp0 + ...
@@ -63,3 +65,5 @@ for i=1:si(1)
             lut(ind1, ind(j, 2), in) * interp(j, 1)) * interp1;
     end
 end
+
+size(output);

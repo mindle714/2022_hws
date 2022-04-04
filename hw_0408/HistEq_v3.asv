@@ -1,4 +1,4 @@
-function [output, sr] = HistEq_v2(input, wtile, htile)
+function [output, sr] = HistEq_v3(input, wtile, htile, clip)
 L = cast(intmax(class(input)), 'int16')+1;
 sr = 0:1:L-1;
 
@@ -7,6 +7,8 @@ wsize = floor(size(input,1) / wtile);
 hsize = floor(size(input,2) / htile);
 input = input(1:wsize*wtile, 1:hsize*htile);
 si = size(input);
+
+clip = max(clip * (wsize * hsize) / L1);
 
 % prepare histogram, interpolation and lookup table
 hist=zeros(wtile, htile, L);

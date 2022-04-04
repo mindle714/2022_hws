@@ -1,8 +1,8 @@
-function [output, lut] = HistEq(input)
+function [output, sr] = HistEq(input)
 output = input;
 si = size(input);
 L = cast(intmax(class(input)), 'int16')+1;
-lut = 0:1:L-1;
+sr = 0:1:L-1;
 hist=zeros(1, L);
 
 for i=1:si(1)
@@ -11,15 +11,15 @@ for i=1:si(1)
     end
 end
 
-s = 0;
-for i=1:L
-    s = s + hist(i);
-    lut(i) = (s * double(L-1)) / (si(1) * si(2));
-    lut(i) = cast(lut(i), class(input));
+for i=1:length(sr)
+    s = 0;
+    for j=1:length(sr)
+        s = s + hist(j);
+    end
 end
 
 for i=1:si(1)
     for j=1:si(2)
-        output(i,j) = lut(input(i,j)+1);
+        output(i,j) = sr(input(i,j)+1);
     end
 end
