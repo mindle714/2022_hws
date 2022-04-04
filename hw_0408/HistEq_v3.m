@@ -2,9 +2,24 @@ function [output, sr] = HistEq_v3(input, wtile, htile, clip)
 L = cast(intmax(class(input)), 'int16')+1;
 sr = 0:1:L-1;
 
-% TODO
-wsize = floor(size(input,1) / wtile);
-hsize = floor(size(input,2) / htile);
+% pad input
+l_pad = 0; t_pad = 0;
+orig_size = size(input);
+
+rem = mod(size(input, 1), wtile);
+if rem > 0
+    l_pad = ceil(rem / 2);
+    input = padarray(input, [l_pad, 0], 'replicate');
+end
+
+rem = mod(size(input, 2), htile);
+if rem > 0
+    t_pad = ceil(rem / 2);
+    input = padarray(input, [0, t_pad], 'replicate');
+end
+
+wsize = size(input,1) / wtile;
+hsize = size(input,2) / htile;
 input = input(1:wsize*wtile, 1:hsize*htile);
 si = size(input);
 
@@ -39,7 +54,7 @@ for i=1:wtile
         end
         clipped = clipped - int16(clipped / L) * L;
         if clipped > 0
-            clip_step = floor(L / clipped);
+            clip_step = floor(double(L) / double(clipped));
             for k=1:clip_step:clip_step*clipped
                 hist(i, j, k) = hist(i, j, k) + 1;
             end
@@ -82,9 +97,6 @@ for i=1:si(1)
     for j=1:si(2)
         in = input(i,j) + 1;
 
-        hist_i = floor((i-1) / wsize) + 1;
-        hist_j = floor((j-1) / hsize) + 1;
-
         output(i,j) = ...
             (lut(ind0, ind(j, 1), in) * interp(j, 2) + ...
             lut(ind0, ind(j, 2), in) * interp(j, 1)) * interp1 + ...
@@ -93,4 +105,4 @@ for i=1:si(1)
     end
 end
 
-size(output);
+output = output(l_pad+1:(l_pad+1)+orig_size(1), t_pad+1:(t_pad+1)+orig_size(2));

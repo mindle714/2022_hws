@@ -1,8 +1,4 @@
-function Hist(input, print_orig)
-%figure(1)
-if print_orig
-    subplot(1,2,1);
-end
+function Hist(input)
 
 histogram(input)
 s = size(input);
@@ -14,5 +10,5 @@ for i=1:s(1)
         hist(input(i,j)+1) = hist(input(i,j)+1) + 1;
     end
 end
-subplot(1,2,2);
+
 bar(1:1:length(hist), hist)
