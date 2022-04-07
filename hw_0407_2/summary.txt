@@ -1,0 +1,36 @@
+- Three basic problems of HMM
+
+1. Evaluation
+With "given" HMM model, measure the likelihood of observing some sequence O.
+
+Naive approach: for every possible state combinations, calculate the probability
+-> too complicated! instead, utilizing dynamic programming: Forward/Backward algorithm.
+Forward algorithm: 
+-> a_i = probability of o_1 ~ o_t, q_t = i
+(probability of having state of time t be "i" at (forward)partial O)
+Backward algorithm: 
+-> b_i = probability of o_t+1 ~ o_T, q_t = i
+(probability of having state of time t be "i" at (backward)partial O)
+
+2. Decoding
+With "given" HMM model, get the state sequence Q having the maximum likelihood of observation O.
+
+Naive approach: for every possible state combinations, calculate the probability and choose maximum
+-> too complicated! instead, utilizing dynamic programming: Viterbi algorithm.
+Viterbi algorithm:
+-> Almost same as Forward algorithm, instead "max" is used instead of "sum" in
+merging previous state statistics.
+-> After forward pass is done, backtrace to get the optimal sequence.
+
+3. Learning
+Find optimal HMM model from the observation O.
+
+Naive apporach: for every model combination, calculate the probability and choose maximum
+-> too complicated! instead, utilizing Baum-Welch(EM) algorithm.
+Baum-Welch algorithm:
+1. Initialize model(for initial "observation prob", use (force) align data for good initialization)
+2. Given observation O, measure average statistics for state transition/observation probs
+-> it is proved that the "likelihood" of given observation is maximum when
+the state transition and observation probs follows the average statistics
+3. HMM model = newly calculated(averaged) HMM model
+4. repeat 2~3 until the difference in 3 converges.
