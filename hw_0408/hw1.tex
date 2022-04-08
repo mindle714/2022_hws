@@ -27,6 +27,9 @@ Algorithm\ref{alg:1} is the pseudocode for implementing PiecewiseLinearTr.m.
 \begin{algorithm}
 \caption{PiecewiseLinearTr.m}
 \label{alg:1}
+%\SetKwInOut{in}{out}
+\KwIn{$input$ of size $(M,N)$, segment coordinates $a$, $b$}
+\KwOut{$output$}
 $output = zeros$\;
 $slope = zeros$\;
 $y\_inter = zeros$\;
@@ -52,7 +55,7 @@ segment coordinates of [0 .25 .5 .75 1],[0 .75 .25 .5 1].
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{hw1_1_2}
+    \includegraphics[width=0.8\linewidth]{hw1_1_2}
     \caption{transformation functions. 
     left: coordinates of [0,1], [1,0], right: coordinates of [0 .25 .5 .75 1],[0 .75 .25 .5 1].}
     \label{fig:2}
@@ -61,7 +64,7 @@ segment coordinates of [0 .25 .5 .75 1],[0 .75 .25 .5 1].
 
 \figurename{\ref{fig:2}} plots two transformation functions. It can be seen that left transformation
 inverses the input intensity, which is proved on middle version of \figurename{\ref{fig:1}}.
-In the rightmost cameraman image, darkest part like coat is whitened and background, which has relatively
+In the rightmost cameraman image, darkest part such as coat is whitened and background, which has relatively
 high intensity, is darkened. This corresponds with right function of \figurename{\ref{fig:2}}.  
 
 \begin{figure}[h]
@@ -81,6 +84,7 @@ Algorithm\ref{alg:2} is the pseudocode for the file.
 \begin{algorithm}
 \caption{Hist.m}
 \label{alg:2}
+\KwIn{$input$ of size $(M,N)$}
 $hist = zeros$\;
 \For{$i = 1:M$}{
     \For{$j = 1:N$}{
@@ -90,11 +94,12 @@ $hist = zeros$\;
 plot $hist$\;
 \end{algorithm}
 
-\figurename{\ref{fig:3}} is the result of the hw1\_2.m. 
+\figurename{\ref{fig:3}} is the result of the hw1\_2.m. It can be seen that majority of the intensities
+are concentrated on low range, which can be inferred from the darkness of the image.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\linewidth]{hw1_2}
+    \includegraphics[width=0.6\linewidth]{hw1_2}
     \caption{histogram visualizations.}
     \label{fig:3}
     \vspace{-2mm}
@@ -104,18 +109,16 @@ plot $hist$\;
 
 hw1\_3.m loads input.jpg and applies histogram equalization.
 HistEq.m accepts input as image and output histogram-equalized version of the image.
-The pseudocode for HistEq.m can be found in Algorithm\ref{alg:3}.
+The pseudocode for HistEq.m can be found in Algorithm\ref{alg:3}. It internally
+build lookup-table(LUT) for intensity transformation.
 
 \begin{algorithm}
 \caption{HistEq.m}
 \label{alg:3}
-$hist = zeros$\;
+\KwIn{$input$ of size $(M,N)$}
+\KwOut{$output$}
+build histogram $hist$ from $input$\;
 $lut = zeros$\;
-\For{$i = 1:M$}{
-    \For{$j = 1:N$}{
-        $hist(input(i,j)) += 1$\;
-    }
-}
     
 \For{$i = 1:L$}{
     $z = sum(hist(1:i))$\;
@@ -131,7 +134,7 @@ $output = input$\;
 }
 \end{algorithm}
 
-\figurename{\ref{fig:4}} depicts the resulting image and its corresponding hsitogram. 
+\figurename{\ref{fig:4}} depicts the resulting image and its corresponding histogram. 
 It can be seen that the resulting image has enhanced contrast, and the equalized histogram
 has more flattened distribution than the original histogram.
 Transformed histogram follows more to uniform than the original. 
@@ -147,7 +150,7 @@ Transformed histogram follows more to uniform than the original.
 
 \section*{Problem 4: Histogram Equalization}
 
-Histogram equalized image(left of \figurename{\ref{fig:4}}) has better 
+Histogram equalized image(rightside of \figurename{\ref{fig:4}}) has better 
 overall contrast than the original, but some details on lighter part 
 is lost due to over-brightness.
 To solve the issue, adaptive histogram equalization is implemented in
@@ -155,11 +158,15 @@ HistEq\_v2.m. In naive approach, each pixel is equalized base on the histogram
 of its neighbors. This requires too much computation complexity, thus
 each pixel is interpolated from the neighboring tile histograms.
 Detailed implementation is in Algorithm\ref{alg:4}. Detailed corner case 
-exceptions are ignored.
+exceptions are ignored on the pseudocode.
 
 \begin{algorithm}
 \caption{HistEq\_v2.m}
 \label{alg:4}
+\KwIn{$input$, 
+$tile\_x$, $tile\_y$: number of tiles in x/y-axis of $input$, 
+$tile\_w$, $tile\_h$: width/height of each tile}
+\KwOut{$output$}
 $hist = zeros$\;
 $lut = zeros$\;
 \For{$tile\_i = 1:tile\_x$}{
@@ -185,30 +192,6 @@ $output = input$\;
 }
 \end{algorithm}
 
-\begin{algorithm}
-    \caption{HistMatching.m}
-    \label{alg:5}
-    build $lut_t$ for historgram equalization given $input$\;
-    build $lut_g$ for histogram equalization given $input\_match$\;
-    
-    $lut_{g'} = zeros$\;
-    \For{$i = 1:L$}{
-        $lut_{g'}(lut_g(i)) = i$\;
-    }
-    \For{$i = 1:L$}{
-        \If{$lut_{g'}(i)$ is undefined}{
-            assign interpolated value on $lut_{g'}(i)$\;
-        }
-    }
-    
-    $output = input$\;
-    \For{$i = 1:M$}{
-        \For{$j = 1:N$}{
-            $output(i,j) = lut_{g'}(lut_t(input(i,j)))$\;
-        }
-    }
-    \end{algorithm}
-
 This gives better visualization than naive histogram equalization in 
 \figurename{\ref{fig:6}} (third image). Some details on sidewall of the building is restored,
 fence becomes sharper etc. However, some artifacts also arise, make it look like stained.
@@ -229,8 +212,8 @@ natural on one hand and details being boosted on the other.
     \includegraphics[width=\linewidth]{hw1_4}
     \caption{Results of several histogram equalizations and their histograms. 
     first: original image. second: vanilla histogram equalization.
-    third: adaptive histogram equalization.
-    fourth: contrast limited adaptive histogram equalization.}
+    third: adaptive histogram equalization(tile size=8x8).
+    fourth: contrast limited adaptive histogram equalization(tile size=8x8, clip threshold=4).}
     \label{fig:6}
     \vspace{-2mm}
 \end{figure*}
@@ -242,24 +225,50 @@ target histogram from input\_match.jpg. Histogram matching is done by
 applying inverse histogram equalization of input\_match.jpg at histogram-equalized
 image from input.jpg. Details can be found in Algorithm\ref{alg:5}.
 
-When building inverse-LUT from targetting image, some of the intensities
+\begin{algorithm}
+\caption{HistMatching.m}
+\label{alg:5}
+\KwIn{$input$ of size $(M,N)$}
+\KwOut{$output$}
+build $lut_t$ for historgram equalization given $input$\;
+build $lut_g$ for histogram equalization given $input\_match$\;
+        
+$lut_{g'} = zeros$\;
+\For{$i = 1:L$}{
+    $lut_{g'}(lut_g(i)) = i$\;
+}
+\For{$i = 1:L$}{
+    \If{$lut_{g'}(i)$ is undefined}{
+        assign interpolated value on $lut_{g'}(i)$\;
+    }
+}
+        
+$output = input$\;
+\For{$i = 1:M$}{
+    \For{$j = 1:N$}{
+        $output(i,j) = lut_{g'}(lut_t(input(i,j)))$\;
+    }
+}
+\end{algorithm}
+
+When building inverse-LUT from target image, some of the intensities
 may be undefined because LUT is not always one-to-one. In that case,
 interpolation can be used to predict the missing value.
-
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=0.7\linewidth]{hw1_5}
-    \caption{Resulting image of histogram matching and its corresponding histogram. 
-    left: original image and its histogram. middle: targetting image and its histogram (target histogram).
-    third: result of applying histogram matching on the image and its histogram.}
-    \label{fig:7}
-    \vspace{-2mm}
-\end{figure*}
 
 Result can be found in \figurename{\ref{fig:7}}. The processed image
 seems to follow intensity distribution of target image(middle).
 Also, the historgam in \figurename{\ref{fig:7}} convinces the
 matching be done properly, as the output histogram resembles to the 
 target histogram.
+
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{hw1_5}
+    \caption{Result image of histogram matching and its corresponding histogram. 
+    left: original image and its histogram. middle: target image and its histogram (target histogram).
+    third: result of applying histogram matching on the image and its histogram.}
+    \label{fig:7}
+    \vspace{-2mm}
+\end{figure*}
 
 \end{document}
