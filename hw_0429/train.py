@@ -28,13 +28,16 @@ import json
 tfrec_args = os.path.join(args.tfrec, "ARGS")
 with open(tfrec_args, "r") as f:
   samp_len = json.loads(f.readlines()[-1])["samp_len"]
+  trans_len = json.loads(f.readlines()[-1])["trans_len"]
 
 if args.val_tfrec is not None:
   val_tfrec_args = os.path.join(args.val_tfrec, "ARGS")
   with open(val_tfrec_args, "r") as f:
     val_samp_len = json.loads(f.readlines()[-1])["samp_len"]
-  if val_samp_len != samp_len:
-    sys.exit('validation data has sample length {}'.format(val_samp_len))
+    val_trans_len = json.loads(f.readlines()[-1])["trans_len"]
+
+  assert val_samp_len == samp_len
+  assert val_trans_len == trans_len
 
 import types
 import sys
@@ -71,13 +74,13 @@ import parse_data
 import glob
 
 tfrec_list = glob.glob(os.path.join(args.tfrec, "train-*.tfrecord"))
-dataset = parse_data.gen_train(tfrec_list, samp_len,
+dataset = parse_data.gen_train(tfrec_list, samp_len, trans_len,
   batch_size=args.batch_size, seed=seed)
 
 val_dataset = None
 if args.val_tfrec is not None:
   val_tfrec_list = glob.glob(os.path.join(args.val_tfrec, "train-*.tfrecord"))
-  val_dataset = parse_data.gen_val(val_tfrec_list, samp_len,
+  val_dataset = parse_data.gen_val(val_tfrec_list, samp_len, trans_len,
     batch_size=args.batch_size, seed=seed)
 
 lr = tf.Variable(args.begin_lr, trainable=False)
@@ -103,9 +106,9 @@ log_writer = tf.summary.create_file_writer(logdir)
 log_writer.set_as_default()
 
 @tf.function
-def run_step(step, s1, s2, mix, training=True):
+def run_step(step, pcm, ref, training=True):
   with tf.GradientTape() as tape, log_writer.as_default():
-    loss = m((s1, s2, mix), training=training)
+    loss = m((pcm, ref), training=training)
     loss = tf.math.reduce_mean(loss)
     tf.summary.scalar("loss", loss, step=step)
 
@@ -132,7 +135,7 @@ for idx, data in enumerate(dataset):
   if idx > args.train_step: break
 
   loss = run_step(tf.cast(idx, tf.int64), 
-    data["s1"], data["s2"], data["mix"])
+    data["pcm"], data["ref"])
   log_writer.flush()
 
   if idx > 0 and idx % args.eval_step == 0:
@@ -143,7 +146,7 @@ for idx, data in enumerate(dataset):
     val_loss = 0; num_val = 0
     for val_data in val_dataset:
       val_loss += run_step(tf.cast(idx, tf.int64),
-        val_data["s1"], val_data["s2"], val_data["mix"], training=False)
+        val_data["pcm"], val_data["ref"], training=False)
       num_val += 1
     val_loss /= num_val
 

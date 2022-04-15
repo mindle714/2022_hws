@@ -3,7 +3,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--wav-list", type=str, required=True) 
 parser.add_argument("--trans-list", type=str, required=True) 
 parser.add_argument("--num-chunks", type=int, required=False, default=100)
-parser.add_argument("--max-samp-len", type=int, required=False, default=14*16000)
+parser.add_argument("--samp-len", type=int, required=False, default=14*16000)
 parser.add_argument("--output", type=str, required=True) 
 args = parser.parse_args()
 
@@ -41,7 +41,7 @@ for trans in trans_list:
   vidx_list.append(vidx)
   max_trans = max(len(vidx), max_trans)
 
-args.max_trans = max_trans
+args.trans_len = max_trans
 with open(os.path.join(args.output, "vocab"), "w") as f:
   for k in vocab:
     f.write("{}\t{}\n".format(k, vocab[k]))
@@ -62,13 +62,13 @@ ignored = 0
 for idx, (_pcm, vidx) in tqdm.tqdm(enumerate(zip(wav_list, vidx_list)), total=len(wav_list)):
   pcm, _ = soundfile.read(_pcm)
 
-  max_samp = args.max_samp_len
-  if pcm.shape[0] > max_samp:
+  samp_len = args.samp_len
+  if pcm.shape[0] > samp_len:
     ignored += 1
     continue
       
   pcm = np.concatenate([pcm,
-    np.zeros(max_samp - pcm.shape[0], dtype=pcm.dtype)], 0)
+    np.zeros(samp_len - pcm.shape[0], dtype=pcm.dtype)], 0)
   trans = np.concatenate([vidx,
     np.zeros(max_trans - len(vidx), dtype=np.int32)])
 
