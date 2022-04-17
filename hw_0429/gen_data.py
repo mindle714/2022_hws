@@ -66,15 +66,25 @@ for idx, (_pcm, vidx) in tqdm.tqdm(enumerate(zip(wav_list, vidx_list)), total=le
   if pcm.shape[0] > samp_len:
     ignored += 1
     continue
-      
+  
+  pcm_len = pcm.shape[0]
+  trans_len = len(vidx)
+
   pcm = np.concatenate([pcm,
     np.zeros(samp_len - pcm.shape[0], dtype=pcm.dtype)], 0)
   trans = np.concatenate([vidx,
     np.zeros(max_trans - len(vidx), dtype=np.int32)])
 
   pcm_feat = tf.train.Feature(float_list=tf.train.FloatList(value=pcm))
+  pcm_len_feat = tf.train.Feature(int64_list=tf.train.Int64List(value=[pcm_len]))
+
   trans_feat = tf.train.Feature(int64_list=tf.train.Int64List(value=trans))
-  feats = {'pcm': pcm_feat, 'trans': trans_feat}
+  trans_len_feat = tf.train.Feature(int64_list=tf.train.Int64List(value=[trans_len]))
+
+  feats = {
+    'pcm': pcm_feat, 'pcm_len': pcm_len_feat, 
+    'trans': trans_feat, 'trans_len': trans_len_feat
+  }
 
   ex = tf.train.Example(features=tf.train.Features(feature=feats))
   writers[chunk_idx].write(ex.SerializeToString())
