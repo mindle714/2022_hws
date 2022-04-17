@@ -26,8 +26,6 @@ class birnn(tf.keras.layers.Layer):
 
   def call(self, inputs, training=None):
     pcm, pcm_len, ref, ref_len = inputs
-    pcm_len = tf.squeeze(pcm_len, -1)
-    ref_len = tf.squeeze(ref_len, -1)
 
     x = mel_filterbank(pcm, frame_length=self.frame_length,
       frame_step=self.frame_step)
@@ -40,6 +38,9 @@ class birnn(tf.keras.layers.Layer):
     if ref is not None:
       frame_length = int(self.frame_length * self.sr / 1e3)
       frame_step = int(self.frame_step * self.sr / 1e3)
+    
+      pcm_len = tf.squeeze(pcm_len, -1)
+      ref_len = tf.squeeze(ref_len, -1)
 
       x_len = (pcm_len - frame_length) // frame_step + 1
       x_len = tf.math.maximum(x_len, 0)
