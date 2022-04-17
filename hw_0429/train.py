@@ -14,7 +14,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--tfrec", type=str, required=True) 
 parser.add_argument("--val-tfrec", type=str, required=False, default=None)
-parser.add_argument("--batch-size", type=int, required=False, default=64) 
+parser.add_argument("--batch-size", type=int, required=False, default=32) 
 parser.add_argument("--eval-step", type=int, required=False, default=100) 
 parser.add_argument("--save-step", type=int, required=False, default=1000) 
 parser.add_argument("--val-step", type=int, required=False, default=1000) 
@@ -27,17 +27,24 @@ args = parser.parse_args()
 import json
 tfrec_args = os.path.join(args.tfrec, "ARGS")
 with open(tfrec_args, "r") as f:
-  samp_len = json.loads(f.readlines()[-1])["samp_len"]
-  trans_len = json.loads(f.readlines()[-1])["trans_len"]
+  jargs = json.loads(f.readlines()[-1])
+  samp_len = jargs["samp_len"]
+  trans_len = jargs["trans_len"]
 
 if args.val_tfrec is not None:
   val_tfrec_args = os.path.join(args.val_tfrec, "ARGS")
   with open(val_tfrec_args, "r") as f:
-    val_samp_len = json.loads(f.readlines()[-1])["samp_len"]
-    val_trans_len = json.loads(f.readlines()[-1])["trans_len"]
+    val_jargs = json.loads(f.readlines()[-1])
+    val_samp_len = val_jargs["samp_len"]
+    val_trans_len = val_jargs["trans_len"]
 
   assert val_samp_len == samp_len
   assert val_trans_len == trans_len
+
+vocab = [e.strip() for e in open(os.path.join(args.tfrec, "vocab")).readlines()]
+if args.val_tfrec is not None:
+  val_vocab = [e.strip() for e in open(os.path.join(args.val_tfrec, "vocab")).readlines()]
+  assert vocab == val_vocab
 
 import types
 import sys
@@ -89,10 +96,10 @@ lr = tf.Variable(args.begin_lr, trainable=False)
 opt = tf.keras.optimizers.Adam(learning_rate=lr)
 
 import model
-m = model.convtas()
+m = model.birnn(len(vocab))
 
 specs = [val.__spec__ for name, val in sys.modules.items() \
-  if isinstance(val, types.ModuleType)]
+  if isinstance(val, types.ModuleType) and not ('_main_' in name)]
 origins = [spec.origin for spec in specs if spec is not None]
 origins = [e for e in origins if e is not None and os.getcwd() in e]
 
@@ -106,9 +113,9 @@ log_writer = tf.summary.create_file_writer(logdir)
 log_writer.set_as_default()
 
 @tf.function
-def run_step(step, pcm, ref, training=True):
+def run_step(step, pcm, pcm_len, ref, ref_len, training=True):
   with tf.GradientTape() as tape, log_writer.as_default():
-    loss = m((pcm, ref), training=training)
+    loss = m((pcm, pcm_len, ref, ref_len), training=training)
     loss = tf.math.reduce_mean(loss)
     tf.summary.scalar("loss", loss, step=step)
 
@@ -128,14 +135,14 @@ if os.path.isfile(logfile): os.remove(logfile)
 fh = logging.FileHandler(logfile)
 logger.addHandler(fh)
 
-ckpt = tf.train.Checkpoint(m)
+ckpt = tf.train.Checkpoint(model=m)
 prev_val_loss = None; stall_cnt = 0
 
 for idx, data in enumerate(dataset):
   if idx > args.train_step: break
 
   loss = run_step(tf.cast(idx, tf.int64), 
-    data["pcm"], data["ref"])
+    data["pcm"], data["pcm_len"], data["trans"], data["trans_len"])
   log_writer.flush()
 
   if idx > 0 and idx % args.eval_step == 0:
@@ -146,7 +153,8 @@ for idx, data in enumerate(dataset):
     val_loss = 0; num_val = 0
     for val_data in val_dataset:
       val_loss += run_step(tf.cast(idx, tf.int64),
-        val_data["pcm"], val_data["ref"], training=False)
+        val_data["pcm"], val_data["pcm_len"],
+        val_data["trans"], val_data["trans_len"], training=False)
       num_val += 1
     val_loss /= num_val
 
