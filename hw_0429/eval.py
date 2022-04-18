@@ -1,7 +1,7 @@
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--ckpt", type=str, required=False,
-  default="exps/base/model-4000.ckpt") 
+  default="exps/base_cont/model-16000.ckpt") 
 parser.add_argument("--wav-list", type=str, required=False,
   default="/home/speech/wsj1/dev93.list") 
 parser.add_argument("--trans-list", type=str, required=False,
@@ -11,7 +11,6 @@ args = parser.parse_args()
 
 import os
 import sys
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 expdir = os.path.abspath(os.path.dirname(args.ckpt))
 sys.path.insert(0, expdir)
@@ -40,11 +39,8 @@ _in = np.zeros((1, samp_len), dtype=np.float32)
 _ = m((_in, np.zeros((1,1)), None, np.zeros((1,1))), training=False)
 
 import tensorflow as tf
-ckpt = tf.train.Checkpoint(m)
+ckpt = tf.train.Checkpoint(model=m)
 ckpt.read(args.ckpt)
-print(m.lstms[0].get_weights()[0])
-print(m.lstms[0].get_weights()[1])
-sys.exit(0)
 
 import warnings
 import soundfile
@@ -59,7 +55,7 @@ with open("{}-{}.eval".format(expname, epoch), "w") as f:
 
   for idx, (_wav, _trans) in enumerate(zip(wav_list, trans_list)):
     pcm, _ = soundfile.read(_wav)
-    pcm = np.expand_dims(pcm, 0)
+    pcm = np.expand_dims(pcm, 0).astype(np.float32)
 
     def pad(pcm, mod=8):
       if pcm.shape[-1] % mod != 0:
@@ -75,4 +71,17 @@ with open("{}-{}.eval".format(expname, epoch), "w") as f:
       denom = np.sum(num, -1, keepdims=True)
       return num / denom
 
-    print(softmax(hyp))
+    def greedy(hyp):
+      hyp = np.squeeze(hyp, 0)
+      hyp = np.argmax(hyp, -1)
+
+      truns = []; prev = 0
+      for idx in hyp:
+        if idx != prev:
+          if prev != 0: truns.append(prev)
+        prev = idx
+      if prev != 0: truns.append(prev)
+      return ''.join([vocab[e] for e in truns])
+        
+    f.write(greedy(hyp) + "\n")
+    f.flush()
