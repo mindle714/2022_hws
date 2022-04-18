@@ -1,0 +1,8 @@
+#!/bin/bash
+
+./compute-wer --text --mode=present ark:/dev/fd/5 ark:/dev/fd/6 \
+  5< <(cat /dev/stdin | \
+    sed 's/\s\s*/_/g' | sed 's/./& /g' | awk '{print NR" "$0}') \
+  6< <(cat ~/wsj1/dev93.txt | sed 's/<NOISE>//g' | \
+    sed 's/\s\s*/_/g' | sed 's/./& /g' | awk '{print NR" "$0}') \
+  | sed 's/WER/CER/g'

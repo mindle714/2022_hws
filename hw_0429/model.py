@@ -12,8 +12,8 @@ class birnn(tf.keras.layers.Layer):
 
     self.vocab = vocab
     self.sr = 16000
-    self.frame_length = 25
-    self.frame_step = 10
+    self.frame_length = 16
+    self.frame_step = 8
     self.dim = 500
     self.layer = 5
 
@@ -27,7 +27,7 @@ class birnn(tf.keras.layers.Layer):
   def call(self, inputs, training=None):
     pcm, pcm_len, ref, ref_len = inputs
 
-    x = mel_filterbank(pcm, frame_length=self.frame_length,
+    x = spectrogram(pcm, frame_length=self.frame_length,
       frame_step=self.frame_step)
 
     for lstm in self.lstms:
