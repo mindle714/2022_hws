@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if false; then
+spk="$(cat /home/speech/2022_hws/hw_0407/train.list \
+  | sort -k1 -n | cut -d' ' -f1 | uniq | head -n20)"; 
+for s in $spk; do 
+  echo $s 1>&3
+  cat /home/speech/2022_hws/hw_0407/train.list \
+    | sort -k1 -n | grep "^$s " | shuf | head -n25 > .tmp.list
+  head -n20 .tmp.list;
+  tail -n5 .tmp.list 1>&2
+done > train.list 2> eval.list 3> vocab
+rm .tmp.list
+fi
+
+cat /home/speech/demand/16k.list /home/speech/musan/noise.list | shuf \
+  | head -n$(wc -l train.list | awk '{print $1}') > noise.list
