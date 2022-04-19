@@ -50,9 +50,7 @@ class tdnn(tf.keras.layers.Layer):
     self.frames = [
       tf.keras.layers.Conv1D(64, 5),
       tf.keras.layers.Conv1D(64, 3, dilation_rate=2),
-      tf.keras.layers.Conv1D(64, 3, dilation_rate=3),
-      tf.keras.layers.Dense(64),
-      tf.keras.layers.Dense(128)
+      tf.keras.layers.Dense(64)
     ]
     self.frame_bns = [tf.keras.layers.BatchNormalization() \
       for _ in range(len(self.frames))]
