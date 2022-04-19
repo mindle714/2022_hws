@@ -33,7 +33,7 @@ _ = m((np.zeros((1, samp_len), dtype=np.float32),
   np.zeros((1, 1), dtype=np.int32)), training=False)
 
 import tensorflow as tf
-ckpt = tf.train.Checkpoint(m)
+ckpt = tf.train.Checkpoint(model=m)
 ckpt.read(args.ckpt)
 
 import sklearn.manifold

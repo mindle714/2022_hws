@@ -13,6 +13,7 @@ tf.random.set_seed(seed)
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--tfrec", type=str, required=True) 
+parser.add_argument("--vocab", type=str, required=True) 
 parser.add_argument("--val-tfrec", type=str, required=False, default=None)
 parser.add_argument("--batch-size", type=int, required=False, default=64) 
 parser.add_argument("--eval-step", type=int, required=False, default=100) 
@@ -35,6 +36,8 @@ if args.val_tfrec is not None:
     val_samp_len = json.loads(f.readlines()[-1])["samp_len"]
   if val_samp_len != samp_len:
     sys.exit('validation data has sample length {}'.format(val_samp_len))
+
+vocab = [e.strip() for e in open(args.vocab).readlines()]
 
 import types
 import sys
@@ -86,7 +89,7 @@ lr = tf.Variable(args.begin_lr, trainable=False)
 opt = tf.keras.optimizers.Adam(learning_rate=lr)
 
 import model
-m = model.convtas()
+m = model.tdnn(len(vocab))
 
 specs = [val.__spec__ for name, val in sys.modules.items() \
   if isinstance(val, types.ModuleType)]
@@ -103,9 +106,9 @@ log_writer = tf.summary.create_file_writer(logdir)
 log_writer.set_as_default()
 
 @tf.function
-def run_step(step, s1, s2, mix, training=True):
+def run_step(step, pcm, spk, training=True):
   with tf.GradientTape() as tape, log_writer.as_default():
-    loss = m((s1, s2, mix), training=training)
+    loss = m((pcm, spk), training=training)
     loss = tf.math.reduce_mean(loss)
     tf.summary.scalar("loss", loss, step=step)
 
@@ -125,14 +128,13 @@ if os.path.isfile(logfile): os.remove(logfile)
 fh = logging.FileHandler(logfile)
 logger.addHandler(fh)
 
-ckpt = tf.train.Checkpoint(m)
+ckpt = tf.train.Checkpoint(model=m)
 prev_val_loss = None; stall_cnt = 0
 
 for idx, data in enumerate(dataset):
   if idx > args.train_step: break
 
-  loss = run_step(tf.cast(idx, tf.int64), 
-    data["s1"], data["s2"], data["mix"])
+  loss = run_step(tf.cast(idx, tf.int64), data["pcm"], data["speaker"])
   log_writer.flush()
 
   if idx > 0 and idx % args.eval_step == 0:
