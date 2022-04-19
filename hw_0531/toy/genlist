@@ -13,5 +13,11 @@ done > train.list 2> eval.list 3> vocab
 rm .tmp.list
 fi
 
+trainwc=$(wc -l train.list | awk '{print $1}')
+evalwc=$(wc -l eval.list | awk '{print $1}')
 cat /home/speech/demand/16k.list /home/speech/musan/noise.list | shuf \
-  | head -n$(wc -l train.list | awk '{print $1}') > noise.list
+  | head -n$((trainwc+evalwc)) > .tmp.list
+
+head -n$trainwc .tmp.list > ns_train.list
+tail -n$evalwc .tmp.list > ns_eval.list
+rm .tmp.list
