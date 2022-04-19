@@ -1,21 +1,21 @@
 #!/bin/bash
 
-if false; then
 spk="$(cat /home/speech/2022_hws/hw_0407/train.list \
-  | sort -k1 -n | cut -d' ' -f1 | uniq | head -n20)"; 
+  | sort -k1 -n | cut -d' ' -f1 | uniq | head -n100)"; 
 for s in $spk; do 
   echo $s 1>&3
   cat /home/speech/2022_hws/hw_0407/train.list \
-    | sort -k1 -n | grep "^$s " | shuf | head -n25 > .tmp.list
-  head -n20 .tmp.list;
+    | sort -k1 -n | grep "^$s " | shuf | head -n20 > .tmp.list
+  head -n15 .tmp.list;
   tail -n5 .tmp.list 1>&2
 done > train.list 2> eval.list 3> vocab
 rm .tmp.list
-fi
 
 trainwc=$(wc -l train.list | awk '{print $1}')
 evalwc=$(wc -l eval.list | awk '{print $1}')
-cat /home/speech/demand/16k.list /home/speech/musan/noise.list | shuf \
+cat /home/speech/demand/16k.list \
+  /home/speech/musan/noise.list \
+  /home/speech/musan/music.list | shuf \
   | head -n$((trainwc+evalwc)) > .tmp.list
 
 head -n$trainwc .tmp.list > ns_train.list

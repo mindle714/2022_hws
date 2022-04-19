@@ -8,7 +8,17 @@ parser.add_argument("--vocab", type=str, required=True)
 parser.add_argument("--num-chunks", type=int, required=False, default=100)
 parser.add_argument("--samp-len", type=int, required=False, default=8192)
 parser.add_argument("--output", type=str, required=True) 
+parser.add_argument("--apply-jointb", action='store_true') 
 args = parser.parse_args()
+
+if args.apply_jointb:
+  import jointbilatFil
+  import librosa
+
+  def magnitude(e): return np.abs(e)
+  def phase(e): return np.arctan2(e.imag, e.real)
+  def polar(mag, phase):
+    return mag * (np.cos(phase) + np.sin(phase) * 1j)
 
 import os
 import sys
@@ -61,6 +71,13 @@ for idx, _list in tqdm.tqdm(enumerate(train_list), total=len(train_list)):
     continue
 
   if args.noise_list is not None:
+    if args.apply_jointb:
+      f_orig = librosa.stft(pcm)
+      m_orig = magnitude(f_orig)
+      m_orig = librosa.amplitude_to_db(m_orig)
+
+    soundfile.write(os.path.join(args.output, "{}_orig.wav".format(idx)), pcm, 16000)
+
     snr_db = np.random.uniform(args.min_snr, args.max_snr)
     noise, _ = soundfile.read(noise_list[idx])
 
@@ -75,6 +92,20 @@ for idx, _list in tqdm.tqdm(enumerate(train_list), total=len(train_list)):
     pcm += noise
     noise_pcm_en = np.maximum(np.mean(pcm**2), 1e-9)
     pcm *= np.sqrt(pcm_en / noise_pcm_en)
+    soundfile.write(os.path.join(args.output, "{}_ns.wav".format(idx)), pcm, 16000)
+
+    if args.apply_jointb:
+      f_ns = librosa.stft(pcm)
+      m_ns = magnitude(f_ns); ph_ns = phase(f_ns)
+      m_ns = librosa.amplitude_to_db(m_ns)
+
+      m_ns_new = jointbilatFil.jointBilateralFilter(
+        np.expand_dims(m_ns, -1), np.expand_dims(m_orig, -1))
+      m_ns_new = np.squeeze(m_ns_new, -1)
+      m_ns_new = librosa.db_to_amplitude(m_ns_new)
+
+      pcm = librosa.istft(polar(m_ns_new, ph_ns), length=pcm.shape[0])
+      soundfile.write(os.path.join(args.output, "{}_ns_new.wav".format(idx)), pcm, 16000)
 
   hop_len = args.samp_len//2
   for pcm_idx in range((pcm.shape[0]-args.samp_len)//hop_len):
