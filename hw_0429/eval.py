@@ -7,7 +7,15 @@ parser.add_argument("--wav-list", type=str, required=False,
 parser.add_argument("--trans-list", type=str, required=False,
   default="/home/speech/wsj1/dev93.txt") 
 parser.add_argument("--save-result", action="store_true") 
+parser.add_argument("--beam-size", type=int, required=False, default=1)
+parser.add_argument("--arpa", type=str, required=False, default=None)
+parser.add_argument("--lm-weight", type=int, required=False, default=0.1)
 args = parser.parse_args()
+
+if args.arpa is not None:
+  import arpa
+  lms = arpa.loadf(args.arpa)
+  lm = lms[0]
 
 import os
 import sys
@@ -72,9 +80,6 @@ with open("{}-{}.eval".format(expname, epoch), "w") as f:
       return num / denom
 
     def greedy(hyp):
-      hyp = np.squeeze(hyp, 0)
-      hyp = np.argmax(hyp, -1)
-
       truns = []; prev = 0
       for idx in hyp:
         if idx != prev:
@@ -82,6 +87,45 @@ with open("{}-{}.eval".format(expname, epoch), "w") as f:
         prev = idx
       if prev != 0: truns.append(prev)
       return ''.join([vocab[e] for e in truns])
-        
-    f.write(greedy(hyp) + "\n")
-    f.flush()
+    
+    if args.beam_size < 1:
+      maxids = np.argmax(np.squeeze(hyp, 0), -1)
+      f.write(greedy(maxids) + "\n")
+      f.flush()
+
+    else:
+      logits = softmax(np.squeeze(hyp, 0))
+      beams = [((0., 0.), [])]
+
+      for t in range(logits.shape[0]):
+        new_beams = []
+
+        for bidx in beams:
+          (bprob, nbprob), y = beams[bidx]
+          (c_bprob, c_nbprob), c_y = ((0., 0.), y)
+
+          if len(y) > 0:
+            ye = y[-1]
+            c_nbprob = nbprob * logits[t][ye] # repeat last
+
+            for e in beams:
+              if y[:-1] == e[1]:
+                # blank is needed to append "b" to "~b"
+                prefix_prob = e[0][0] if (len(e[1]) > 0 and ye == e[1][-1]) else sum(e[0])
+                c_nbprob += prefix_prob * logits[t][ye] # expand from prefix
+           
+          c_bprob = (bprob + nbprob) * logits[t][0] # blank -> 0
+          new_beams.append(((c_bprob, c_nbprob), c_y))
+
+          for k in range(1, logits[t].shape[-1]):
+            (c_bprob, c_nbprob), c_y = ((0., 0.), y + [k])
+            prefix_prob = bprob if (len(y) > 0 and k == y[-1]) else bprob + nbprob 
+
+            c_nbprob = prefix_prob * logits[t][k] 
+            new_beams.append(((c_bprob, c_nbprob), c_y))
+
+        beams = sorted(new_beams, key=lambda e: sum(e[0]), reverse=True)
+        beams = beams[:args.beam_size]
+
+      f.write(" ".join(beams[0][1]) + "\n")
+      f.flush()
