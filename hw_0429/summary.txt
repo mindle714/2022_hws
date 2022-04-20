@@ -1,0 +1,36 @@
+- Towards End-to-End Speech Recognition with Recurrent Neural Networks
+
+The paper descibes end-to-end ASR model with bidirectional LSTM layers with CTC loss.
+The network is trained directly on unaligned character sequences, which removes
+the need for g2p module or force-alignment with HMM.
+
+Network consists of frame-wise deep(five in the paper) bidirectional LSTM layers, 
+exploiting future context. Softmaxed output of the model is the probability of
+emitting the character label at the frame step. Align mismatch between the input frames
+and the output character labels is driven by introducing blank label at output and
+ignoring repetition on successive labels. In CTC loss, all the possible alignments
+from the target is merged by dynamic programming algorithm, enabling the gradients
+flows across the entire alignment candidates. CTC loss targets the merged aligment
+probabilities.
+
+Fine-tuning the model with respect to reducing WER is also introduced.
+Training loss and gradients with any custom loss function between the output and the reference
+can be approximated by applying Monte-Carlo sampling, instead of calculating the exact
+expected loss across the whole alignment candidates. However this requires the model
+weights to be reasonable enough not to confuse the chosen samples, which makes this loss
+more suitable for fine-tuning.
+
+In decoding, instead of greedily emitting each frame label with the highest probability,
+the number of output candidates must be maintained, because of the many-to-one nature of label
+alignments. In other words, output label "abc" can be constructed from either "--abc", "aab-c",
+"a--bc" or else, and the probability of generating the label must consider all the alignment
+possibilities. But it is impractical to follow all the candidates, so instead, beam with size W
+is used to maintain the top W output candidates. Furthermore, when updating the beam score
+for each frame step, each beam state must carry two cases: case where the last label is blank or not.
+These two cases are needed because same successive labels must be truncated. It is also possible
+to integrate LM probabilities in beam search.
+
+Training the model with WSJ dataset shows that the model outperforms the baseline especially
+when LM is none or small; which can be explained by that the bidirectional LSTM model embeds
+label dependencies quite well. It also shows that even without the nuisance submodules 
+the end-to-end model can achieve good result in ASR task.
