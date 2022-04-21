@@ -92,7 +92,7 @@ base_cont-16000-b40.eval        %WER 82.79 [ 6695 / 8087, 622 ins, 475 del, 5598
 ==================================================================
 It can be seen that by increasing the beam size, both CER and WER decrease.
 However, the amount of gain by increasing the beam size is quite small, partially due to the
-fact that the label granularity is small(character). Increasing the beam size can show better result hereafter.
+fact that the output granularity is small(per frame). Increasing the beam size can improve the result hereafter.
 
 LM is also integrated onto the beam search logic. Using --arpa, --lm-weight options
 will enable considering LM probabilities in beam search with specific weight. 
