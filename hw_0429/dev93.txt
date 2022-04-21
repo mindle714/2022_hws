@@ -1,0 +1,1 @@
+/home/speech/wsj1/dev93.txt

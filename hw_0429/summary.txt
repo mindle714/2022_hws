@@ -28,7 +28,8 @@ possibilities. But it is impractical to follow all the candidates, so instead, b
 is used to maintain the top W output candidates. Furthermore, when updating the beam score
 for each frame step, each beam state must carry two cases: case where the last label is blank or not.
 These two cases are needed because same successive labels must be truncated. It is also possible
-to integrate LM probabilities in beam search.
+to integrate LM probabilities in beam search. When using LM with word as its unit, it is
+necessary to build character-wise probabilities with vocabulary prefixes.
 
 Training the model with WSJ dataset shows that the model outperforms the baseline especially
 when LM is none or small; which can be explained by that the bidirectional LSTM model embeds

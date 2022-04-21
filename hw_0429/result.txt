@@ -1,0 +1,11 @@
+- Data preparation
+As in the paper, training set is from 14 hour subset si84 from WSJ0
+and evaluation set is dev93 from WSJ1 (si84.*, dev93.* files were used). 
+Vocabulary is built for each character label in training set, including upper-case letters, 
+punctuation and space. No text normalization is used except for removing <NOISE> tag.
+Vocabulary list can be found in si84/vocab, total 44 entries, including <blank>
+tag which will be used in CTC loss.
+Details can be found from gen_data.py.
+
+- Training
+

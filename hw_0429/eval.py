@@ -12,8 +12,10 @@ args = parser.parse_args()
 
 if args.arpa is not None:
   import arpa
-  lms = arpa.loadf(args.arpa)
-  lm = lms[0]
+  import trie
+
+  lm = arpa.loadf(args.arpa)[0]
+  prefix_trie = trie.trie(lm.vocabulary())
 
 import os
 import sys
@@ -68,12 +70,6 @@ with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
 
     hyp = m((pad(pcm), np.zeros((1,1)), None, np.zeros((1,1))), training=False)
 
-    def softmax(x):
-      z = x - np.max(x, -1, keepdims=True)
-      num = np.exp(z)
-      denom = np.sum(num, -1, keepdims=True)
-      return num / denom
-
     def greedy(hyp):
       truns = []; prev = 0
       for idx in hyp:
@@ -89,6 +85,27 @@ with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
       f.flush()
 
     else:
+      def softmax(x):
+        z = x - np.max(x, -1, keepdims=True)
+        num = np.exp(z)
+        denom = np.sum(num, -1, keepdims=True)
+        return num / denom
+
+      def lm_prob(cidxs):
+        if args.arpa is None: return 1.
+
+        cwords = ''.join([vocab[e] for e in cidxs])
+        cwords = cwords.split()
+        if len(cwords) == 0: return 1.
+
+        num_prefs = trie.expand_prefix(prefix_trie, cwords[-1])
+        denom_prefs = trie.expand_prefix(prefix_trie, cwords[-1][:-1]) \
+          if len(cwords[-1]) > 1 else []
+
+        num = sum([lm.p(cwords[:-1] + ' ' + e) for e in num_prefs])
+        denom = sum([lm.p(cwords[:-1] + ' ' + e for e in denom_prefs)])
+        return num / denom
+
       logits = softmax(np.squeeze(hyp, 0))
       beams = [((1., 0.), [])]
 
@@ -107,7 +124,7 @@ with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
               if y[:-1] == e[1]:
                 # blank is needed to append "b" to "~b"
                 prefix_prob = e[0][0] if (len(e[1]) > 0 and ye == e[1][-1]) else sum(e[0])
-                c_nbprob += prefix_prob * logits[t][ye] # expand from prefix
+                c_nbprob += prefix_prob * logits[t][ye] * lm_prob(c_y) # expand from prefix
            
           c_bprob = (bprob + nbprob) * logits[t][0] # blank -> 0
           new_beams.append(((c_bprob, c_nbprob), c_y))
@@ -116,7 +133,7 @@ with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
             (c_bprob, c_nbprob), c_y = ((0., 0.), y + [k])
             prefix_prob = bprob if (len(y) > 0 and k == y[-1]) else bprob + nbprob 
 
-            c_nbprob = prefix_prob * logits[t][k] 
+            c_nbprob = prefix_prob * logits[t][k] * lm_prob(c_y) 
             new_beams.append(((c_bprob, c_nbprob), c_y))
 
         beams = sorted(new_beams, 
