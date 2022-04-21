@@ -1,11 +1,140 @@
 - Data preparation
 As in the paper, training set is from 14 hour subset si84 from WSJ0
-and evaluation set is dev93 from WSJ1 (si84.*, dev93.* files were used). 
+and evaluation set is dev93 from WSJ1 (si84.*, dev93.* files were used).
+==================================================================
+speech@speechP1:~/2022_hws/hw_0429$ head -n3 si84.*
+==> si84.list <==
+/home/speech/wsj0/wav/wsj0/si_tr_s/011/011c0201.wav
+/home/speech/wsj0/wav/wsj0/si_tr_s/011/011c0202.wav
+/home/speech/wsj0/wav/wsj0/si_tr_s/011/011c0203.wav
+
+==> si84.txt <==
+THE SALE OF THE HOTELS IS PART OF HOLIDAY'S STRATEGY TO SELL OFF ASSETS AND CONCENTRATE ON PROPERTY MANAGEMENT
+THE HOTEL OPERATOR'S EMBASSY SUITES HOTELS INCORPORATED SUBSIDIARY WILL CONTINUE TO MANAGE THE PROPERTIES
+LONG TERM MANAGEMENT CONTRACTS ALLOW US TO GENERATE INCOME ON A SIGNIFICANTLY LOWER CAPITAL BASE SAID MICHAEL
+==================================================================
+
 Vocabulary is built for each character label in training set, including upper-case letters, 
 punctuation and space. No text normalization is used except for removing <NOISE> tag.
-Vocabulary list can be found in si84/vocab, total 44 entries, including <blank>
-tag which will be used in CTC loss.
-Details can be found from gen_data.py.
+Vocabulary list can be found in si84/vocab. Total 44 entries, including <blank>
+tag which will be used in CTC loss are in the vocabulary.
+Details can be found from gen_data.py, which converts wav-transcript pairs of training
+corpus into tfrecord structures.
 
 - Training
+Following the paper, the five-layered bidirectional LSTM network is used.
+Log-mel spectrogram is used as an input.
+Detailed model implementation can be found in either model.py or exps/base_cont/model.py.
+It can be seen that the CTC loss is used for training objective.
+==================================================================
+ 27   def call(self, inputs, training=None):
+ 28     pcm, pcm_len, ref, ref_len = inputs
+ 29
+ 30     x = mel_filterbank(pcm, frame_length=self.frame_length,
+ 31       frame_step=self.frame_step)
+ 32
+ 33     for lstm in self.lstms:
+ 34       x = lstm(x)
+ 35
+ 36     x = self.post(x)
+ 37
+ 38     if ref is not None:
+ 39       frame_length = int(self.frame_length * self.sr / 1e3)
+ 40       frame_step = int(self.frame_step * self.sr / 1e3)
+ 41
+ 42       pcm_len = tf.squeeze(pcm_len, -1)
+ 43       ref_len = tf.squeeze(ref_len, -1)
+ 44
+ 45       x_len = (pcm_len - frame_length) // frame_step + 1
+ 46       x_len = tf.math.maximum(x_len, 0)
+ 47
+ 48       loss = tf.nn.ctc_loss(ref, x, ref_len, x_len, logits_time_major=False)
+ 49       return loss
+ 50
+ 51     return x
+==================================================================
 
+Training is done with batch size 32 for ~16k iterations. Detailed hyperparameters
+including learning rate and optimizer for the model can be found in exps/base_cont/ARGS.
+
+- Evaluation
+Decoding logics are implemented in eval.py. Both greedy and beam-search scheme
+with or without LM are included.
+
+In greedy search, for each frame, the label which has the largest probability
+is selected. Running eval.py with --beam-size 0 option turns on the greedy search.
+Greedy mechanism is the fastest decoding algorithm, but it does not reflect the many-to-one
+nature of label alignments that was discussed in summary.txt. Thus, gathering all the
+probabilities of possible alignments given a certain label sequence is needed.
+For practical tracking of the possible label sequences in decoding, beam-search mechanism
+is implemented.
+
+In beam search, for each frame, each partial candidate sequences are populated with the
+next labels. After sorting new candidates by its probability, top W candidates are maintained,
+where W stands for the beam size which can be specified by --beam-size option.
+Furthermore, for each candidate(beam state), probabilities of both ending with blank label or
+non-blank label are maintained, to support the case where same successive labels are truncated.
+
+Below is the CER, WER of the model with different beam sizes.
+base_cont-16000.eval is the result of the greedy search, and -b$W suffix stands for the 
+beam search with beam size W.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0429$ for eval in \
+> base_cont-16000.eval base_cont-16000-b8.eval base_cont-16000-b40.eval; do \
+> printf "%-30s\t" $eval; cat $eval | ./getcer |& grep CER; \
+> printf "%-30s\t" $eval; cat $eval | ./getwer |& grep WER; done
+base_cont-16000.eval            %CER 35.78 [ 16420 / 45890, 5961 ins, 3229 del, 7230 sub ]
+base_cont-16000.eval            %WER 83.61 [ 6699 / 8012, 662 ins, 440 del, 5597 sub ]
+base_cont-16000-b8.eval         %CER 35.56 [ 16356 / 45992, 5865 ins, 3235 del, 7256 sub ]
+base_cont-16000-b8.eval         %WER 83.21 [ 6687 / 8036, 647 ins, 449 del, 5591 sub ]
+base_cont-16000-b40.eval        %CER 35.24 [ 16393 / 46523, 5588 ins, 3489 del, 7316 sub ]
+base_cont-16000-b40.eval        %WER 82.79 [ 6695 / 8087, 622 ins, 475 del, 5598 sub ]
+==================================================================
+It can be seen that by increasing the beam size, both CER and WER decrease.
+However, the amount of gain by increasing the beam size is quite small, partially due to the
+fact that the label granularity is small(character). Increasing the beam size can show better result hereafter.
+
+LM is also integrated onto the beam search logic. Using --arpa, --lm-weight options
+will enable considering LM probabilities in beam search with specific weight. 
+3gram.arpa is the trigram LM model generated from kaldi's egs/wsj/s5 recipes.   
+==================================================================
+speech@speechP1:~/2022_hws/hw_0429$ head 3gram.arpa
+\data\
+    ngram 1=145903
+    ngram 2=4515675
+    ngram 3=3089898
+
+    \1-grams:
+    -99     <s>     -1.71906
+    -1.93813        </s>
+    -3.51767        MAJOR   -0.61811
+    -5.64168        SCHENECTADY     -0.50011
+==================================================================
+
+One problem that arose with LM is the granularity mismatch between the model output and the LM;
+LM uses word as its unit and model outputs characters. To measure chracter-wise LM probabilities,
+the paper adds all the LM probabilities sharing the same character prefix.
+To efficiently gather words of same prefix, trie structure is used in trie.py.
+However, gathering all the probabilties at each decoding step made the inference seriously slow.
+Maximum number of words to be expanded is introduced to tackle the problem. In other words,
+instead of watching all the possible words, only a subset of the words are referenced
+to approximate the LM probability of a character sequence.
+
+The evaluation result including LM decoding is as follows.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0429$ for eval in \
+> base_cont-16000.eval base_cont-16000-b8.eval base_cont-16000-b8-lm.eval; do \
+> if ! echo $eval | grep -q "\-lm"; then printf "%-30s\t" $eval; cat $eval | ./getcer |& grep CER; fi; \
+> printf "%-30s\t" $eval; cat $eval | ./getwer |& grep WER; done
+base_cont-16000.eval            %CER 35.78 [ 16420 / 45890, 5961 ins, 3229 del, 7230 sub ]
+base_cont-16000.eval            %WER 83.61 [ 6699 / 8012, 662 ins, 440 del, 5597 sub ]
+base_cont-16000-b8.eval         %CER 35.56 [ 16356 / 45992, 5865 ins, 3235 del, 7256 sub ]
+base_cont-16000-b8.eval         %WER 83.21 [ 6687 / 8036, 647 ins, 449 del, 5591 sub ]
+base_cont-16000-b8-lm.eval      %WER 77.64 [ 6735 / 8675, 399 ins, 840 del, 5496 sub ]
+==================================================================
+
+It can be seen that introducing LM decreases WER further.
+However the gain from LM was not as big as the paper stated, and that would be
+partially due to the maximum number of words that I introduced for decoding efficiency(10 is used in eval.py).
+Relatively small beam size would be another reason. 
+Increasing the beam size with higher number of word candidates can decrease the WER moreover.
