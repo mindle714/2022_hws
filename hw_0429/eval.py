@@ -4,8 +4,6 @@ parser.add_argument("--ckpt", type=str, required=False,
   default="exps/base_cont/model-16000.ckpt") 
 parser.add_argument("--wav-list", type=str, required=False,
   default="/home/speech/wsj1/dev93.list") 
-parser.add_argument("--trans-list", type=str, required=False,
-  default="/home/speech/wsj1/dev93.txt") 
 parser.add_argument("--save-result", action="store_true") 
 parser.add_argument("--beam-size", type=int, required=False, default=1)
 parser.add_argument("--arpa", type=str, required=False, default=None)
@@ -55,13 +53,10 @@ import soundfile
 import tqdm
 
 wav_list = [e.strip() for e in open(args.wav_list, "r").readlines()]
-trans_list = [e.strip() for e in open(args.trans_list, "r").readlines()]
-assert len(wav_list) == len(trans_list)
-
-with open("{}-{}.eval".format(expname, epoch), "w") as f:
+with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
   pcount = 0; snr_tot = 0
 
-  for idx, (_wav, _trans) in enumerate(zip(wav_list, trans_list)):
+  for idx, _wav in enumerate(wav_list):
     pcm, _ = soundfile.read(_wav)
     pcm = np.expand_dims(pcm, 0).astype(np.float32)
 
@@ -95,12 +90,12 @@ with open("{}-{}.eval".format(expname, epoch), "w") as f:
 
     else:
       logits = softmax(np.squeeze(hyp, 0))
-      beams = [((0., 0.), [])]
+      beams = [((1., 0.), [])]
 
       for t in range(logits.shape[0]):
         new_beams = []
 
-        for bidx in beams:
+        for bidx in range(len(beams)):
           (bprob, nbprob), y = beams[bidx]
           (c_bprob, c_nbprob), c_y = ((0., 0.), y)
 
@@ -124,8 +119,9 @@ with open("{}-{}.eval".format(expname, epoch), "w") as f:
             c_nbprob = prefix_prob * logits[t][k] 
             new_beams.append(((c_bprob, c_nbprob), c_y))
 
-        beams = sorted(new_beams, key=lambda e: sum(e[0]), reverse=True)
+        beams = sorted(new_beams, 
+          key=lambda e: sum(e[0])/(((5+len(e[1]))**0.5)/(6**0.5)), reverse=True)
         beams = beams[:args.beam_size]
 
-      f.write(" ".join(beams[0][1]) + "\n")
+      f.write(''.join([vocab[e] for e in beams[0][1]]) + "\n")
       f.flush()
