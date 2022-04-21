@@ -53,9 +53,17 @@ ckpt.read(args.ckpt)
 import warnings
 import soundfile
 import tqdm
+import time
 
 wav_list = [e.strip() for e in open(args.wav_list, "r").readlines()]
-with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
+
+outfile = "{}-{}.eval".format(expname, epoch)
+if args.beam_size > 0:
+  outfile = "{}-{}-b{}.eval".format(expname, epoch, args.beam_size)
+  if args.arpa is not None:
+    outfile = "{}-{}-b{}-lm.eval".format(expname, epoch, args.beam_size)
+
+with open(outfile, "w") as f:
   pcount = 0; snr_tot = 0
 
   for idx, _wav in enumerate(wav_list):
@@ -91,26 +99,48 @@ with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
         denom = np.sum(num, -1, keepdims=True)
         return num / denom
 
-      def lm_prob(cidxs):
+      def _lm_prob(cidxs, max_ctx=3, max_prefs=10):
         if args.arpa is None: return 1.
 
         cwords = ''.join([vocab[e] for e in cidxs])
         cwords = cwords.split()
         if len(cwords) == 0: return 1.
 
-        num_prefs = trie.expand_prefix(prefix_trie, cwords[-1])
-        denom_prefs = trie.expand_prefix(prefix_trie, cwords[-1][:-1]) \
+        num_prefs = trie.expand_prefix(prefix_trie, cwords[-1], max_prefs)
+        denom_prefs = trie.expand_prefix(prefix_trie, cwords[-1][:-1], max_prefs) \
           if len(cwords[-1]) > 1 else []
 
-        num = sum([lm.p(cwords[:-1] + ' ' + e) for e in num_prefs])
-        denom = sum([lm.p(cwords[:-1] + ' ' + e for e in denom_prefs)])
-        return num / denom
+        num_cwords = [(' '.join(cwords[:-1]) + ' ' + e).strip() for e in num_prefs]
+        num_cwords = [' '.join(e.split()[:max_ctx]) for e in num_prefs]
+        num_cwords = [e for e in num_cwords if e != '']
+        
+        denom_cwords = [(' '.join(cwords[:-1]) + ' ' + e).strip() for e in denom_prefs]
+        denom_cwords = [' '.join(e.split()[:max_ctx]) for e in denom_prefs]
+        denom_cwords = [e for e in denom_cwords if e != '']
+
+        num = sum([lm.p(e) for e in num_cwords]) if len(num_cwords) > 0 else 0.
+        denom = sum([lm.p(e) for e in denom_cwords]) if len(denom_cwords) > 0 else 1.
+        
+        return (num / denom) ** args.lm_weight
+
+      lm_elapsed = 0
+      def lm_prob(cidxs):
+        global lm_elapsed
+
+        start = time.time()
+        res = _lm_prob(cidxs)
+        end = time.time()
+
+        lm_elapsed += (end - start)
+        return res
 
       logits = softmax(np.squeeze(hyp, 0))
       beams = [((1., 0.), [])]
 
       for t in range(logits.shape[0]):
         new_beams = []
+        lm_elapsed = 0
+        start = time.time()
 
         for bidx in range(len(beams)):
           (bprob, nbprob), y = beams[bidx]
@@ -139,6 +169,7 @@ with open("{}-{}-b{}.eval".format(expname, epoch, args.beam_size), "w") as f:
         beams = sorted(new_beams, 
           key=lambda e: sum(e[0])/(((5+len(e[1]))**0.5)/(6**0.5)), reverse=True)
         beams = beams[:args.beam_size]
+        end = time.time()
 
       f.write(''.join([vocab[e] for e in beams[0][1]]) + "\n")
       f.flush()
