@@ -1,0 +1,93 @@
+- training LAS with different input/output sequences
+In training set, each wav-transcript pair contains various length of sequences.
+Several implementational tricks should be used to train LAS, the sequence-to-sequence model.
+
+At listener's point of view, assume batch training, 
+tensor of shape [batch-size, time-step] should be fed to the encoder. 
+To integrate wavs having different timestep, maximum wav length of 
+training data should be found and for shorter wavs, padding at the end 
+of the pcm is needed. However, in most cases the duration distribution 
+of the training wavs is not uniform; 
+
+Below is the rough distribution of WSJ0 si84 training set.
+==================================================================
+speech@speechP1:~/wsj0$ cat si84.list | xargs -I{} soxi -D {} | \
+> cut -d. -f1 | sort | uniq -c | sort -k2 -n | awk '{print $1}' | uplot
+
+
+  1000 +-------------------------------------------------------------------+
+       |      +      +     +      +      +      +      +     +      +      |
+   900 |-+              A**A***                                          +-|
+       |              **       A**                                         |
+   800 |-+          *A                                                   +-|
+       |          **              A                                        |
+   700 |-+       A                 *                                     +-|
+       |        *                   *                                      |
+   600 |-+      *                    *                                   +-|
+       |       *                      A                                    |
+   500 |-+    A                        *                                 +-|
+       |     *                          *                                  |
+   400 |-+   *                          *                                +-|
+       |    *                            A**                               |
+   300 |-+ *                                                             +-|
+       |   *                                A**                            |
+   200 |-+A                                    *                         +-|
+       | *                                      A**                        |
+   100 |*+                                         A***                  +-|
+       |      +      +     +      +      +      +      A**   +      +      |
+     0 +-------------------------------------------------------------------+
+       0      2      4     6      8      10     12     14    16     18     20
+==================================================================
+
+As above, the distribution is long-tailed in many cases,
+thus it is often effective to compromise the maximum timestep with shorter length,
+discarding wavs with longer duration or slicing the wav/transcript proportional
+to its length, if to use some heuristics.
+
+In pytorch, torch.nn.utils.rnn.pack_padded_sequence can be used for
+efficient operations on padded sequence; It skips the operations on padded
+part by flattening the sequences with variable length.
+
+Another consideration in input shape is that the time step for the
+high level feature is reduced from the input by a factor of 2**(number of layers),
+which is 8 in the paper. The remainders of the input features are abandoned. 
+Maintaining the input frame length as a multiple of 8 can gain a minor 
+improvement on training efficiency.
+
+After padding the given wav and its transcript in a similar manner, 
+a mask indicating valid portion of the padded tensor is needed. 
+This mask is used on speller.
+
+In training phase, for each decoding step, speller is fed with
+high level features and the previous input label. When calculating
+attention probability between the high level features and decoder state,
+excluding the padded part is required for accurate model training.
+
+One common method for discounting invalid portion is to add
+sufficiently small value on the invalid part before applying softmax.
+Below is the simple test chunk which depicts masking effect.
+==================================================================
+speech@speechP1:~/2022_hws/hw_0426$ cat test.py
+import numpy as np
+def softmax(x):
+  z = x - np.max(x, -1, keepdims=True)
+  num = np.exp(z)
+  denom = np.sum(num, -1, keepdims=True)
+  return num / denom
+
+dim = 16; timestep = 10
+s = np.ones((dim,))
+h = np.ones((timestep, dim))
+mask = np.array([1.,1.,1.,1.,1.,0.,0.,0.,0.,0.])
+
+print(softmax(np.matmul(s, h.T)))
+print(softmax(np.matmul(s, h.T) + -1e9 * (1-mask)))
+speech@speechP1:~/2022_hws/hw_0426$ python3 test.py
+[0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1]
+[0.2 0.2 0.2 0.2 0.2 0.  0.  0.  0.  0. ]
+==================================================================
+
+It can be seen that very small probabilities are assigned
+for invalid timestep of the attention probabilities when the invalid
+portion is added with -1e9. This kind of masked attention is required
+or the invalid portion may get high attention, resulting contaminated context.
