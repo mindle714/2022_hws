@@ -20,6 +20,7 @@ In guided filter, filter output is assumed to be a linear transformation of guid
 with linear coefficients $a_k$, $b_k$ in a window $\omega_k$ of center pixel $k$.
 Coefficients are optimized to minimize the difference between filter output $q$ and input $p$:
 \[E(a_k,b_k) = \sum_{i \in \omega_k}((a_kI_i + b_k - p_i)^2 + \epsilon a_k^2)\]
+which can be solved by linear regression to have each coefficients as:
 \[a_k=\frac{1/|\omega|\sum_{i \in \omega_k}I_ip_i - \mu_k\bar{p_k}}{\sigma_k^2+\epsilon}\]
 \[b_k=\bar{p_k} - a_k\mu_k\]
 where $\mu_k$, $\sigma_k^2$ are the mean, variance of $I$ in $\omega_k$, 
@@ -28,13 +29,14 @@ $\epsilon a_k^2$ is a regularization term to prevent explosion of $a_k$.
 Moreover, low-pass filter can be approximated when $\sigma_k^2 << \epsilon$ and thus
 $a_k \sim 0$, $b_k \sim \bar{p_k}$.
 
-When applying the window in the image, several windows $\omega_k$ can affect a same pixel.
+When applying the window in the image, several windows $\omega_k$ can affect a same pixel $i$.
 Thus output $q_i$ can be averaged from all the possible windows $\omega_k$ in which the pixel $i$
 is within the window:
 \[q_i = 1/|\omega|\sum_{k:i \in \omega_k}(a_kI_i + b_k)\]
 
-From the equation above, box filters ($\sum_{i \in \omega_k}f_i$) are the only filters
-applied in calculating the output image. Thus by using the integral image technique, 
+From the equation above, it can be found that box filters ($\sum_{i \in \omega_k}f_i$) are 
+the only filters applied in calculating the output image. 
+Thus by using the integral image technique, 
 the time complexity of guided filter becomes O($N$) where N is the number of pixels.
 
 \begin{figure}[h]
@@ -99,6 +101,13 @@ kernel is constructed as to preserve dominant edge (dividing bottom and top diag
 Guidance image having less dominant edge incurs both bilateral filter and guided filter
 to have omnidirectional smoothing effect.
 
+As discussed above, guided filter assumes linear transformation from guidance to input 
+and aggregate the guide-transformed output within a window. This can prevent the
+occurence of gradient reversal problem with time complexity of O(N).
+Guided filter can be applied in various fields of image processing, including detail
+enhancement, denoising, matting, haze removal and so forth.
+
+\pagebreak
 \subsection*{problem 1: rolling guidance filter}
 
 Rolling guidance filter \cite{rolling} is a scale-aware local operation filter that controls smoothing
@@ -126,12 +135,14 @@ It can also be possible to use other types of edge-recovery filter such as guide
 \[J^{t+1}(p) = JointBilateral(p, I, J^t, \sigma_s, \sigma_r)\]
 \[= 1/K_p\sum_{q \in N(p)}exp(-\frac{||p-q||^2}{2\sigma_s^2}-\frac{||J^t(p)-J^t(q)||^2}{2\sigma_r^2})I(q)\]
 \[K_p = \sum_{q \in N(p)}exp(-\frac{||p-q||^2}{2\sigma_s^2}-\frac{||J^t(p)-J^t(q)||^2}{2\sigma_r^2})\]
-These two steps can be merged if $J^0$ is a constant-value image. Assign $J^t$ as a constant $C$, then
-the resulting $J^t$ has the form exactly same as gaussian filter. The combined iteration is described in Algorithm 1.
+
+When using joint bilateral filter as its guidance, the small structure removal
+step and the edge recovery step can be merged if $J^0$ is a constant-value image. 
+Assign $J^t$ as a constant $C$, then the resulting $J^t$ has the form exactly 
+same as gaussian filter. The combined iteration is described in Algorithm 1.
 \[J^t(p) = C \forall p\]
 \[J^{t+1}(p) = 1/K_p\sum_{q \in N(p)}exp(-\frac{||p-q||^2}{2\sigma_s^2}-\frac{||J^t(p)-J^t(q)||^2}{2\sigma_r^2})I(q)\]
-\[= 1/K_p\sum_{q \in N(p)}exp(-\frac{||p-q||^2}{2\sigma_s^2})I(q)\]
-\[= G(p)\]
+\[= 1/K_p\sum_{q \in N(p)}exp(-\frac{||p-q||^2}{2\sigma_s^2})I(q) = G(p)\]
 
 \begin{algorithm}
     \caption{rolling guidance filter}
@@ -152,9 +163,10 @@ the resulting $J^t$ has the form exactly same as gaussian filter. The combined i
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{hw2_1_7}
-    \caption{output image $J_t$ on different timestep}
-    \label{fig:7}
+    \includegraphics[width=\linewidth]{hw2_1_8}
+    \caption{comparison on edge-aware filtering (bilateral, $L^0$, WLS, guided, recursive filters) 
+    and scale-aware filtering (rolling guidance filter)}
+    \label{fig:8}
 \end{figure}
 
 The detailed iteration process and its output in 1-D signal example and the real image can be
@@ -168,10 +180,9 @@ specific image, within 10 iterations the edge is almost recovered.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{hw2_1_8}
-    \caption{comparison on edge-aware filtering (bilateral, $L^0$, WLS, guided, recursive filters) 
-    and scale-aware filtering (rolling guidance filter)}
-    \label{fig:8}
+    \includegraphics[width=\linewidth]{hw2_1_7}
+    \caption{output image $J_t$ on different timestep}
+    \label{fig:7}
 \end{figure}
 
 \figurename{\ref{fig:8}} shows the scale-aware nature of the rolling guidance filter.
@@ -179,11 +190,18 @@ It can be seen the existing edge-aware filtering cannot successively remove the 
 elements while preserving the large scale element as it is, while in rolling guidance filter
 depending on $\sigma_s$ the elements are masked out in the order of their scales. 
 
+Due to its simple implementation with fast and reasonably good result on scale-aware
+filtering, many applications can earn benefit from the rolling guidance filter; including
+detail enhancement, tone mapping, multi-scale structure decomposition, segmentation
+and so on. Especially, virtual contour restoration characteristic of the filter can
+boost performance on segmentation task by providinf large-scale image information.
+
+\pagebreak
 \subsection*{problem 2: cross image filtering}
 
-hw2\_2.m reads art\_depth\_low\_res.png as input image,  art\_color\_high\_res.png
-as guidance image and apply joint bilateral filter and guided filter.
-art\_depth\_low\_res.png contains low resolution depth image, and art\_color\_high\_res.png
+hw2\_2.m reads input, guidance image and apply both joint bilateral filter and guided filter.
+input image, art\_depth\_low\_res.png contains low resolution depth image, 
+and guidance image, art\_color\_high\_res.png
 contains high resolution color image. The goal of applying the filters onto the images
 is to increase edge details within the depth image by utilizing color image as its
 guidance.
@@ -191,16 +209,25 @@ guidance.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{hw2_2_1}
-    \caption{result of hw2\_2.m. leftmost : original input image,
-    second : output of joint bilateral filter with kernel diameter 65,
+    \caption{result of hw2\_2.m. top left : original input image,
+    top right : output of joint bilateral filter with kernel diameter 65,
     both $\sigma_s$ and $\sigma_r$ 10,
-    third : output of guided filter with kernel diameter 65, $\epsilon$ $4e-1$}
+    bottom left : output of guided filter with kernel diameter = 65, $\epsilon = 4e-1$,
+    bottom right : ground truth high resolution image}
     \label{fig:9}
 \end{figure}
 
 \figurename{\ref{fig:9}} shows the result of applying both filter given input and guidance image.
 It can be seen that in both joint bilateral and guidance filter, the details on edge components
-are boosted. Pseudocode for joint bilateral and guidance filters are as follows:
+are boosted. However, no discrete segmentation could be achieved like in the groundtruth image
+from both filters. That would be partially due to the intensity variance of the guidance image.
+Flattening guidance image to have less textual or small scaled variation might help in the case.
+
+Pseudocode for joint bilateral and guided filters are as follows. It can be seen that
+the complexity of joint bilateral filter and guided filter is O($Nr^2$) and O(N) respectively 
+where $N$ is the size of input image and $r$ is kernel radius (In the pseudocode of guided filter,
+extracting mean from each window is described; vanilla implementation will require O($r^2$) computation,
+but this can be achieved in constant time by the integral technique):
 
 \begin{algorithm}
     \caption{joint\_bilateral.m}
@@ -253,9 +280,11 @@ are boosted. Pseudocode for joint bilateral and guidance filters are as follows:
 
 hw2\_3.m reads image.png, apply rolling guidance filter with both joint bilateral filter
 and guided filter. The result can be found in \figurename{\ref{fig:10}}.
+
 In \figurename{\ref{fig:10}}, the leftmost images on both top and bottom are result of 
-applying gaussian filter on the original image. It can be seen that as iteration proceed,
-on both scheme the image edge is getting sharper.
+applying gaussian filter on the original image. It can be seen that both small structures like
+texture of table are smoothed out while large structures like table corder are
+blurred. As iteration proceed, large scale edge components are gradually restored.
 
 \begin{figure*}[h]
     \centering
@@ -282,7 +311,7 @@ edge components are successively preserved.
     \includegraphics[width=\linewidth]{hw2_4_1}
     \caption{result of hw2\_4.m. left : original image, second : output of bilateral filter 
     with kernel size = 5, $\sigma_s$ = 5, third : output of guided filter with guidance as
-    itself, ksize = 17 and $\epsilon$ = 1e-1, fourth : output of WLS filter with
+    itself, kernel diameter = 17 and $\epsilon$ = 1e-1, fourth : output of WLS filter with
     $\lambda$ = 2, $\alpha$ = 1.2 and $\epsilon$ = 1e-4}
     \label{fig:11}
 \end{figure*}
@@ -313,10 +342,11 @@ Laplacian matrix could be achieved by the sparse matrix.
 
 \begin{thebibliography}{9}
     \bibitem{guided}
-    K. He, J. Sun, and X. Tang, Guided Image Filtering, ECCV 2010.
+    He, Kaiming, Jian Sun, and Xiaoou Tang. "Guided image filtering." 
+    IEEE transactions on pattern analysis and machine intelligence 35.6 (2012): 1397-1409.
     
     \bibitem{rolling}
-    Q. Zhang et al., Rolling Guidance Filter, ECCV 2014.
+    Zhang, Qi, et al. "Rolling guidance filter." European conference on computer vision. Springer, Cham, 2014.
 \end{thebibliography}
 
 \end{document}
