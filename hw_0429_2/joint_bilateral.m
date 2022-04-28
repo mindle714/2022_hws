@@ -1,28 +1,30 @@
 function output = joint_bilateral(input, guide, ksize, sigma_s, sigma_r)
-input = im2double(input);
-guide = im2double(guide);
+guide_new_max = 2 * sqrt(ksize^2 + ksize^2);
+guide_max = max(guide, [], 'all');
+guide = guide / guide_max * guide_new_max;
 
-output = input;
 si = size(input);
+output = zeros(si);
 
 radius = fix(ksize/2);
-pad_input = padarray(input, [radius, radius]);
-pad_guide = padarray(guide, [radius, radius]);
+pad_input = padarray(input, [radius, radius], 'symmetric');
+pad_guide = padarray(guide, [radius, radius], 'symmetric');
 gs = gauss2d(ksize, sigma_s);
 
 for i=1:si(1)
     for j=1:si(2)
-        win_input = pad_input(i:i+ksize-1, j:j+ksize-1);
-        win_guide = pad_guide(i:i+ksize-1, j:j+ksize-1);
-        win_guide = abs(win_guide - guide(i, j));
-        win_guide = exp(-1/2 * win_guide.^2 / (sigma_r^2));
+        win_input = pad_input(i:i+ksize-1, j:j+ksize-1,:);   
+        win_guide = pad_guide(i:i+ksize-1, j:j+ksize-1,:);
+        gr = exp(-((win_guide - guide(i, j)).^2) / (2*sigma_r^2));
 
-        denom = sum(gs .* win_guide, 'all');
-        output(i,j) = sum(gs .* win_guide .* win_input, 'all') / denom;
+        for k=1:si(3)
+            denom = sum(gs .* gr(:, :, k), 'all');
+            output(i, j, k) = sum(gs .* gr(:, :, k) .* win_input(:, :, k), 'all') / denom;
+        end
     end
 end
 
-function gs = gauss2d(ksize, a)
+function gs = gauss2d(ksize, sigma)
 radius = fix(ksize/2);
 [X, Y] = meshgrid(-radius:radius, -radius:radius);
-gs = (1 / (a*sqrt(2*pi))) * exp(-(X.^2+Y.^2)/(2*a^2));
+gs = (1 / (sigma*sqrt(2*pi))) * exp(-(X.^2+Y.^2) / (2*sigma^2));

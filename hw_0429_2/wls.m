@@ -23,7 +23,6 @@ a_y_shift = padarray(a_y, 1, 'pre');
 a_y_shift = a_y_shift(1:size(a_y));
 
 lg_diag = a_x + a_x_shift + a_y + a_y_shift;
-%lg = spdiags([a_x, a_y, lg_diag, a_y, a_x], [-si(1), -1, 0, 1, si(1)], si_all, si_all);
 lg = spdiags([-a_x, -a_y], [-si(1), -1], si_all, si_all);
 lg = lg + lg' + spdiags([lg_diag], [0], si_all, si_all);
 lhs = speye(si_all, si_all) + lambda * lg;

@@ -1,12 +1,20 @@
 [img, map] = imread('image.png');
+img = im2double(img);
 
-img_jb = rolling_guidance(img, 5, 'joint_bilateral', 7, 1., .25);
-img_g = rolling_guidance(img, 5, 'guided', 7, 1e-4);
+img_jbs = rolling_guidance(img, 5, 'joint_bilateral', 25, 10, 10);
+img_gs = rolling_guidance(img, 5, 'guided', 17, 4e-3);
 
 figure(1)
-subplot(1,3,1);
-imshow(img);
-subplot(1,3,2);
-imshow(img_jb);
-subplot(1,3,3);
-imshow(img_g);
+
+idx = 1;
+for img_idx=[1 2 4 6]
+    subplot(2,4,idx);
+    imshow(squeeze(img_jbs(img_idx,:,:,:)));
+    idx = idx + 1;
+end
+
+for img_idx=[1 2 4 6]
+    subplot(2,4,idx);
+    imshow(squeeze(img_gs(img_idx,:,:,:)));
+    idx = idx + 1;
+end
