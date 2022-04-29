@@ -5,7 +5,7 @@
 \section*{digital image processing hw2}
 \subsection*{problem 1: guided filter}
 
-Guided filter \cite{guided} is an explicit image filter which have the edge-preserving 
+Guided filter \cite{guided} is an explicit image filter which has the edge-preserving 
 smoothing property like the bilateral filter, but also handles gradient reversal artifacts
 within O($N$) time complexity where N is the number of pixels.
 
@@ -31,7 +31,7 @@ $a_k \sim 0$, $b_k \sim \bar{p_k}$.
 
 When applying the window in the image, several windows $\omega_k$ can affect a same pixel $i$.
 Thus output $q_i$ can be averaged from all the possible windows $\omega_k$ in which the pixel $i$
-is within the window:
+is contained:
 \[q_i = 1/|\omega|\sum_{k:i \in \omega_k}(a_kI_i + b_k)\]
 
 From the equation above, it can be found that box filters ($\sum_{i \in \omega_k}f_i$) are 
@@ -56,7 +56,7 @@ the time complexity of guided filter becomes O($N$) where N is the number of pix
 \end{figure}
 
 Another good property of the above equation is that $\bigtriangledown q$ can be approximated
-as a scaling of $\bigtriangledown I$ only when big intensiy change causes small value for
+as a scaling of $\bigtriangledown I$ only when big intensity change causes small value for
 $\bigtriangledown \bar{a_i}$, $\bigtriangledown \bar{b_i}$ where
 $\bar{a_i} = 1/|\omega|\sum_{k \in \omega_i}a_k$ and 
 $\bar{b_i} = 1/|\omega|\sum_{k \in \omega_i}b_k$. By assuring scaling relation only on edge,
@@ -85,7 +85,7 @@ thus $(1 + \frac{(I_i - \mu_k)(I_j - \mu_k)}{\sigma_k^2 + \epsilon})$ gets close
 resulting small $W_{ij}$ value. Semantically, small $W_{ij}$ means that 
 pixels positioned on $p_i$ and $p_j$ are not smoothed on a scale.
 Contrastly, when $I_i$ and $I_j$ are on the same side
-of an egde, $(I_i-\mu_k)(I_j-\mu_k)$ becomes positive, making $W_{ij}$ reasonably big
+of an edge, $(I_i-\mu_k)(I_j-\mu_k)$ becomes positive, making $W_{ij}$ reasonably big
 value to smooth the pixels positioned on $p_i$ and $p_j$.
 
 \begin{figure}[h]
@@ -101,9 +101,9 @@ kernel is constructed as to preserve dominant edge (dividing bottom and top diag
 Guidance image having less dominant edge incurs both bilateral filter and guided filter
 to have omnidirectional smoothing effect.
 
-As discussed above, guided filter assumes linear transformation from guidance to input 
-and aggregate the guide-transformed output within a window. This can prevent the
-occurence of gradient reversal problem with time complexity of O(N).
+As discussed above, guided filter assumes linear transformation between guidance image and
+input image, then aggregates the guide-transformed output within a window. This can prevent the
+occurrence of gradient reversal problem with time complexity of O(N).
 Guided filter can be applied in various fields of image processing, including detail
 enhancement, denoising, matting, haze removal and so forth.
 
@@ -163,30 +163,30 @@ same as gaussian filter. The combined iteration is described in Algorithm 1.
 
 \begin{figure}[h]
     \centering
+    \includegraphics[width=\linewidth]{hw2_1_7}
+    \caption{output image $J_t$ on different timestep within an iteration}
+    \label{fig:7}
+\end{figure}
+
+The detailed iteration process, its output in 1-D signal example and the real image can be
+found from \figurename{\ref{fig:2}}, \figurename{\ref{fig:7}} respectively.
+As the iteration progresses, small structure smooths out ($I$ to $J_1$ from 
+\figurename{\ref{fig:2}} (a)) while large structure gets blurred
+at the first phase and then the edge is recovered.
+Intermediate results on iterative edge recovery phase (\figurename{\ref{fig:7}}) also indicate 
+the average number of iterations needed for the final output. It can be seen that in the
+specific image, within 10 iterations the edge is almost recovered.
+
+\begin{figure}[h]
+    \centering
     \includegraphics[width=\linewidth]{hw2_1_8}
     \caption{comparison on edge-aware filtering (bilateral, $L^0$, WLS, guided, recursive filters) 
     and scale-aware filtering (rolling guidance filter)}
     \label{fig:8}
 \end{figure}
 
-The detailed iteration process and its output in 1-D signal example and the real image can be
-found from \figurename{\ref{fig:2}}, \figurename{\ref{fig:7}} respectively.
-As the iteration progresses, small structure smoothes out ($I$ to $J_1$ from 
-\figurename{\ref{fig:2}} (a)) while large structure gets blurred
-at the first phase and then the edge is recovered.
-Intermediate results on iterative edge recovery phase (\figurename{\ref{fig:7}}) also indicates 
-the average number of iterations needed for the final output. It can be seen that in the
-specific image, within 10 iterations the edge is almost recovered.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{hw2_1_7}
-    \caption{output image $J_t$ on different timestep}
-    \label{fig:7}
-\end{figure}
-
 \figurename{\ref{fig:8}} shows the scale-aware nature of the rolling guidance filter.
-It can be seen the existing edge-aware filtering cannot successively remove the small scale
+It can be seen that the existing edge-aware filterings cannot successively remove the small scale
 elements while preserving the large scale element as it is, while in rolling guidance filter
 depending on $\sigma_s$ the elements are masked out in the order of their scales. 
 
@@ -194,7 +194,7 @@ Due to its simple implementation with fast and reasonably good result on scale-a
 filtering, many applications can earn benefit from the rolling guidance filter; including
 detail enhancement, tone mapping, multi-scale structure decomposition, segmentation
 and so on. Especially, virtual contour restoration characteristic of the filter can
-boost performance on segmentation task by providinf large-scale image information.
+boost performance on segmentation task by providing large-scale image information.
 
 \pagebreak
 \subsection*{problem 2: cross image filtering}
@@ -210,14 +210,14 @@ guidance.
     \centering
     \includegraphics[width=\linewidth]{hw2_2_1}
     \caption{result of hw2\_2.m. top left : original input image,
-    top right : output of joint bilateral filter with kernel diameter 65,
-    both $\sigma_s$ and $\sigma_r$ 10,
-    bottom left : output of guided filter with kernel diameter = 65, $\epsilon = 4e-1$,
+    top right : output of joint bilateral filter with kernel diameter = 65,
+    $\sigma_s$, $\sigma_r$ = 10,
+    bottom left : output of guided filter with kernel diameter = 65, $\epsilon = 4*10^{-1}$,
     bottom right : ground truth high resolution image}
     \label{fig:9}
 \end{figure}
 
-\figurename{\ref{fig:9}} shows the result of applying both filter given input and guidance image.
+\figurename{\ref{fig:9}} shows the result of applying both filters given input and guidance image.
 It can be seen that in both joint bilateral and guidance filter, the details on edge components
 are boosted. However, no discrete segmentation could be achieved like in the groundtruth image
 from both filters. That would be partially due to the intensity variance of the guidance image.
@@ -283,7 +283,7 @@ and guided filter. The result can be found in \figurename{\ref{fig:10}}.
 
 In \figurename{\ref{fig:10}}, the leftmost images on both top and bottom are result of 
 applying gaussian filter on the original image. It can be seen that both small structures like
-texture of table are smoothed out while large structures like table corder are
+texture of table are smoothed out while large structures like table corner are
 blurred. As iteration proceed, large scale edge components are gradually restored.
 
 \begin{figure*}[h]
@@ -298,12 +298,12 @@ blurred. As iteration proceed, large scale edge components are gradually restore
 
 \subsection*{problem 4: WLS filter}
 
-hw2\_4.m reads noisy\_image.png and apply bilateral, guided and WLS filter. 
-\figurename{\ref{fig:11}} depicts the result of applying various filter onto the noisy input. 
-It can be seen that both three filters can remove noise in some amount, but their 
-edge preserving status is different. In bilateral filter output, edges are blurred In
+hw2\_4.m reads noisy\_image.png then apply bilateral, guided and WLS filter. 
+\figurename{\ref{fig:11}} depicts the result of applying various filters onto the noisy input. 
+It can be seen that all three filters can remove noise in some amount, but their 
+edge preserving status are different. In bilateral filter output, edges are blurred in
 great amount. Though this edge smoothing effect is alleviated on guided filter, it also
-contains some blurring effect. On WLS result, while suppressing noisy componenet, most of 
+contains some blurring effect. On WLS result, while suppressing noisy component, most of 
 edge components are successively preserved.
 
 \begin{figure*}[h]
@@ -311,8 +311,8 @@ edge components are successively preserved.
     \includegraphics[width=\linewidth]{hw2_4_1}
     \caption{result of hw2\_4.m. left : original image, second : output of bilateral filter 
     with kernel size = 5, $\sigma_s$ = 5, third : output of guided filter with guidance as
-    itself, kernel diameter = 17 and $\epsilon$ = 1e-1, fourth : output of WLS filter with
-    $\lambda$ = 2, $\alpha$ = 1.2 and $\epsilon$ = 1e-4}
+    itself, kernel diameter = 17 and $\epsilon = 10^{-1}$, fourth : output of WLS filter with
+    $\lambda = 2$, $\alpha = 1.2$ and $\epsilon = 10^{-4}$}
     \label{fig:11}
 \end{figure*}
 
