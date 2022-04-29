@@ -2,8 +2,8 @@
 
 - 요약
 본 논문은 cache miss 이후에 따라오는 miss penalty를 줄이기 위한 방안으로
-cache request를 pipeline화하여 miss 여부에 상관없이 cache hit rate를 극대화
-하고자 한다.
+cache request를 pipeline화하여 miss 여부에 상관없이 cache hit rate를 극대화하는 구조를 제시한다.
+
 기존의 cache 구조(tag array, cache buffer)와 메모리 구조에 더해 추가되는
 자료구조는 다음과 같다:
 1) 매 cache miss마다 할당될 miss status holding register(MSHR)
@@ -11,3 +11,44 @@ cache request를 pipeline화하여 miss 여부에 상관없이 cache hit rate를
 3) outstanding miss 시의 데이터를 저장하기 위한 input stack
 이외에 해당 구조들을 추가하기 위한 control unit 등이 필요하다.
 
+또한 각 MSHR은 다음과 같은 정보들을 가진다:
+1) memory data가 저장될 주소인 cache buffer address
+2) input request address
+3) block 내 word 별 input id tag와 send-to-cpu bit
+4) block 내 word 별 input stack 참조 여부를 나타내는 bit
+5) block 내 word 별 cache buffer에의 write 진척을 나타내는 bit 및 처리 완료된 word의 갯수
+6) valid bit, obsolete indicator
+
+MSHR이 cache control의 측면에서 활용되는 양상은 다음과 같다.
+Cache miss 상황에서, 우선 cache의 tag array에 주어진 input request address와 
+n-way MSHR comparator를 통해 MSHR entry 중에 현재까지도 진행 중인 
+miss에의 hit이 존재하는지(previous miss hit) 확인한다. 
+
+상기의 상황에서 miss가 발생했을 때, 즉 현재의 cache miss가 primary miss일 때의 흐름은 다음과 같다.
+첫째로 MSHR이 assign되어 valid bit이 설정되고(남은 entry가 없다면 structural stall), 
+obsolete indicator가 비워진다. 할당된 MSHR에 입력받은 cache  buffer address와 
+input request address를 저장한 후, send-to-cpu bit이 설정되고 input tag가 저장된다(cache prefetch 시에는 생략).
+memory에의 request 과정에서는, MSHR entry와 해당 cache block 내 word의 위치가 같이 전달된다.
+
+상기의 상황에서 previous miss hit이 발생했을 경우,
+만일 요청하는 word에의 send-to-cpu bit이 해당 MSHR에 아직 설정되어 있지 않은 경우에는
+해당 bit이 설정되고 input id tag가 설정된다. 이는 secondary miss maintenance로 볼 수 있다.
+허나 만일 send-to-cpu bit이 이미 설정되어 있다면, 이때는 central memory로부터
+해당 데이터를 읽어 오는 것이 필요하다. 즉 structural stall이 발생한다.
+
+memory로부터 data(word)가 읽어들여지면, 이에 해당하는 MSHR entry가 참조된다.
+MSHR entry의 word 별 send-to-cpu bit이 확인되어, send-to-cpu bit이 설정된 word의 경우
+input id tag와 함께 CPU로 보내진다. 이를 통해 primary miss 및 뒤이은
+secondary miss가 resolve된다. 또한 해당 word가 당장 cache buffer에 저장될 수 
+없다면 input stack에 대신 저장되고 in-input-stack bit이 설정된다.
+
+- 장단점
+본 논문은 MSHR 구조체를 제안하여 cache miss penalty가 최소화될 수 있도록 했음에 의의를 가진다.
+우선 primary cache miss가 발생했을 때 stall하는 것이 아닌 해당 정보를 MSHR에 저장함으로써 이후 instruction
+을 수행할 수 있도록 하였고, primary miss에 뒤이은 secondary miss를 MSHR에 저장함으로써 중복된 cache block을 
+memory requestor를 통해 요청해야 하는 필요성을 없애 효율성을 극대화했다.
+다만 본 논문상의 구현은 word 별 send-to-cpu 및 input id tag를 통해 한 cache block 내의 word별 request 정보를
+저장하였는데, 이는 cache block이 상대적으로 더 적은 수의 word로 이루어지게 될 경우에 불리해진다.
+이는, 동일한 cache block 및 동일한 word에의 요청이 들어올 경우 send-to-cpu bit이 이미 설정되어 있을 가능성이 커지기 때문이다.
+또한 위와 같은 상황에서는 자주 접근되는 word에 해당하는 bit만이 사용되어지고, 그 이외의 bit은 자주 사용되지 않을 가능성이 있다.
+이와 같은 단점이 추후 explicitly addressed MSHR을 통해 어느 정도 해결된다.
