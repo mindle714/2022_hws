@@ -1,0 +1,37 @@
+- complexity/performance tradeoffs with non-blocking loads
+
+- 요약
+cache miss는 세 가지 종류로 구분된다: primary miss는 특정 cache block에의 첫 miss를
+의미한다. 이후의 동일 cache block miss 중 HW 자원의 부족으로 stall이 일어날 경우
+structural-stall miss, 그렇지 않은 경우 secondary miss라고 일컬어진다.
+lockup-free cache의 구현은 위의 세 miss 해결 방안에 따라 implicitly addressed MSHR,
+explicitly addressed MSHR로 구분되고 이와 별개로 in-cache MSHR, inverted MSRH 구조가 존재한다.
+
+Implicitly addressed MSHR은 각 MSHR이 valid bit과 block request address를 가져 comparator를 통해
+해당 block에의 primary miss 여부를 확인한다. 또한 각 word 별 valid bit, destination address
+(register addr.) 및 추가 format info. 등이 저장되어 특정 word에의 secondary miss가 기록된다.
+이와 같은 구조는 primary miss 이후에 특정 word에의 secondary miss가 오직 하나만 유지될 수 있다는 단점이 존재하여
+컴파일러 단에서 동일 adr.에 두 번 접근하지 못하도록 하는 optimization이 추가로 필요하다.
+또한 block 내 word 별로 정보를 저장하기 때문에 word 사이즈가 줄어 block 내 word 갯수가 증가할 경우
+필요한 용량이 증가한다는 단점이 존재한다.
+
+Explicitly addressed MSHR은 word 별 miss info에 추가로 해당 word address를 가짐으로써
+상기의 문제를 해결한다. Implicitly addressed MSHR에 추가로 매 word field 별 address
+bit 용량이 추가되나, block 내 word 갯수가 달라지더라도 필요 용량이 커지지는 않는 장점이 있다.
+이와 같은 explicitly addressed MSHR은 동일 word에의 접근이 잦거나 word granularity가
+작을 때 유용하다.
+
+In-Cache MSHR은 outstanding fetch의 target cache line은 data fetch 과정에서 
+비어 있음에 착안하여, 매 cache line에 transit bit을 두어 해당 line이 fetch되는 
+중임을 나타낸다. Transit 중일 때는 tag array와 data array에 각각 fetch address와
+MSHR를 저장한다. 그러나 이는 direct-mapped cache에서 하나의 primary miss만을 지원하게 되고,
+
+Inverted MSHR은, 상기의 implicitly/explicitly addressed MSHR이 매 outstanding fetch마다
+정보를 저장하는 것에 반해, register, write buffer, program counter 등의 destination
+별로 정보가 저장된다. 이는 fully-associative TLB와 비슷하게 구현되며, 이전의 MSHR 구조와는
+달리 maximum outstanding fetch 제한이나 block 별 최대 miss 갯수에 제한이 없다.
+
+상기의 MSHR 디자인 성능 측정을 위해 고려해야 할 사안은 다음과 같다.
+해당 구조의 complexity, performace tradeoff 측정을 위해서는 outstanding miss의
+종류와 갯수를 조건으로 하여 성능을 측정해야 한다. 이를 위해 data access 시에 모든
+프로세서가 stall되게 하고 평균 메모리 stall CPI를 측정한다.

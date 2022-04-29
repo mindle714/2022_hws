@@ -1,0 +1,13 @@
+- lockup-free instruction fetch/prefetch cache organiztion
+
+- 요약
+본 논문은 cache miss 이후에 따라오는 miss penalty를 줄이기 위한 방안으로
+cache request를 pipeline화하여 miss 여부에 상관없이 cache hit rate를 극대화
+하고자 한다.
+기존의 cache 구조(tag array, cache buffer)와 메모리 구조에 더해 추가되는
+자료구조는 다음과 같다:
+1) 매 cache miss마다 할당될 miss status holding register(MSHR)
+2) MSHR의 entry들과의 비교를 위한 comparator
+3) outstanding miss 시의 데이터를 저장하기 위한 input stack
+이외에 해당 구조들을 추가하기 위한 control unit 등이 필요하다.
+
