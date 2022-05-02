@@ -1,20 +1,38 @@
 - wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations
 
 The paper describes the self-supervised learning of representations 
-from unlabeled raw audio. The learnt model is later used with relatively
-small amount of labeled data for fine-tuning.
+from unlabelled raw audio. The learnt model is later used with relatively
+small amount of labelled data for fine-tuning.
 
 The architecture of predicting the future latent representation with
 autoregressive model initially came from the Contrastive Predictive Coding.
 Applying the CPC onto improving supervised ASR beyond frame-wise phoneme classification
 is proposed in wav2vec. Discretizing the latent representation, as in VQ-VAE, introduced
-vq-wav2vec afterwards. wav2vec 2.0 modifies the model by using continuous representation
-as an input for the aggregator made of transformer block.
+vq-wav2vec afterwards. wav2vec 2.0 modifies the vq-wav2vec model by using continuous 
+representation as an input for the aggregator made of transformer blocks and
+jointly learn quantizer with aggregator.
 
-Model for self-supervised learning consists of following components:
-feature encoder, quantizer and context aggregator.
+In detail for wav2vec 2.0, model for self-supervised learning consists of 
+following components: feature encoder, quantizer and context aggregator.
 Feature encoder is composed of several layers of temporal convolution, 
 layer norm and GELU. Output of the encoder, referred as latent speech
-representation, is discrretized with product quantizer. Context aggregator,
-following Transformer architecture, outputs contextual representation.
+representation, is discrretized with product quantizer of group 16. 
+Context aggregator, following Transformer architecture, outputs contextual representation.
 
+Contrastive loss is defined so as the cosine similarity between the context 
+network output and the corresponding quantized latent representation is minimized
+while the similarities between the context and the distractors, which are sampled 
+from other time steps of the same utterance, are maximized.
+Diversity loss, the entropy of the average softmax probabilities over the entire
+groups of codebooks within a batch, is used to encourage equal use of the total
+entries within the codebooks. Contrastive loss and diversity loss are added with
+weighting factor to build the overall loss.
+
+After pre-training, the model is fine-tuned with labelled data after adding
+projection layer on top of the context network.
+Results of pre-training the model with either librispeech or librivox and fine-tuning
+the model with sparse labelled data(libri-light) convince that even with small
+labelled data the model can achieve good performance. Using full labelled
+data makes the model achieve state-of-the-art WER. This architecture
+can also be applied to various languages which have little labelled data or are
+hard to be collected.
