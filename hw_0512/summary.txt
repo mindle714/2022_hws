@@ -1,0 +1,20 @@
+- wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations
+
+The paper describes the self-supervised learning of representations 
+from unlabeled raw audio. The learnt model is later used with relatively
+small amount of labeled data for fine-tuning.
+
+The architecture of predicting the future latent representation with
+autoregressive model initially came from the Contrastive Predictive Coding.
+Applying the CPC onto improving supervised ASR beyond frame-wise phoneme classification
+is proposed in wav2vec. Discretizing the latent representation, as in VQ-VAE, introduced
+vq-wav2vec afterwards. wav2vec 2.0 modifies the model by using continuous representation
+as an input for the aggregator made of transformer block.
+
+Model for self-supervised learning consists of following components:
+feature encoder, quantizer and context aggregator.
+Feature encoder is composed of several layers of temporal convolution, 
+layer norm and GELU. Output of the encoder, referred as latent speech
+representation, is discrretized with product quantizer. Context aggregator,
+following Transformer architecture, outputs contextual representation.
+
