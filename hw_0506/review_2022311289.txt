@@ -1,16 +1,16 @@
 - trace cache: a low latency approach to high bandwidth instruction fetching
 
 - 요약
-본 논문은 매 cycle multiple basic blocks fetch를 위해 고안된, dynamic instruction
-stream을 caching하여 이후에 동일한 fetch address 및 branch prediction 결과가
-주어졌을 때 기존의 instruction cache에 접근하는 대신 해당하는 contiguous 
-multiple basic blocks를 곧바로 사용할 수 있게 하는 구조를 고안하고, 해당 구조가
+본 논문은 매 cycle, multiple basic blocks fetch를 위해 고안된 cache 구조인 trace cache를 설명한다.
+Trace cache는 dynamic instruction stream을 caching하여 이후에 동일한 fetch address 및 branch 
+prediction 결과가 주어졌을 때 기존의 instruction cache에 접근하는 대신 해당하는 contiguous 
+multiple basic blocks를 곧바로 사용할 수 있게 하는 기능을 가진다. 추가로 본 논문은 해당 구조가
 기존에 연구되었던 동일 목적의 다른 구조에 비해 가지는 장점에 대해 논한다.
 
 Trace cache는 다음과 같은 정보를 저장한다:
 1) valid bit
 2) trace 시작 address
-3) 매 brach별 taken/not taken flag bits
+3) 매 branch별 taken/not taken flag bits
 4) # of branch와, 마지막 instruction이 branch인지를 나타내는 bit
 5) trace의 마지막 branch가 taken/not taken일 때의 next fetch address
 6) instruction traces
@@ -18,7 +18,7 @@ Trace cache는 다음과 같은 정보를 저장한다:
 Instruction cache에의 access와 병렬적으로, trace cache로 fetch address 및
 branch prediction 결과가 입력으로 들어간다. 해당 값은 상기 정보의 2), 3)과
 각각 비교되어 trace cache hit/miss가 결정된다.
-Trace cache hit인 경우 해당하는 instruction traces가 instruction cache 결과
+Trace cache hit의 경우 해당하는 instruction traces가 instruction cache 결과
 대신에 사용된다. Trace cache miss일 때에는 정상적으로 instruction cache에서
 fetch가 이루어지는 것과 동시에, 매 순간 fetch된 basic block과, branch 
 taken/not taken flag, # of branch가 line-fill buffer에 저장된다. 이때 
@@ -34,10 +34,43 @@ address가 기록된다.
 combination별로(at most 3 basic block의 경우 N, T, NN, NT, TN, TT, NNN, NNT, 
 NTN, NTT, TNN, TNT, TTN, TTT) target address를 저장한다(tree structure를 사용하여 
 common parent의 address는 중복 없이 저장). Branch predictor의 결과를 통해 
-상기 combination 중 probable한 combination을 선택하여 해당하는 address를 따라가며
-instruction들을 모아 contiguous한 instruction stream을 만들게 된다.
-BAC의 경우 predictor의 결과를 통해 brach combination을 선택하여 address를 받아,
-해당 address로부터 instruction stream을 follow하는 두 단계 접근이 필요하다. 또한
-instruction stream을 만들 때의 burden이 고려될 경우 cost는 늘어난다.
-두 번째 비교대상인 Collapsing buffer는 
+해당 address의 기록된 combination 중 일치되는 entry가 선택되어 해당 combination의 
+target address를 따라가며 instruction들을 모아 contiguous한 instruction stream을 만들게 된다. 
+만일 address miss가 일어날 경우 새로운 entry가 할당되어 flow가 기록되고, combination의 miss가
+일어날 경우에도 해당 combination의 flow는 기록된다.
+BAC의 경우 fetch address와 predictor 결과를 통해 branch combination을 선택하여 target address를 받는
+단계, 해당 target address로부터 instruction stream을 follow하는 두 단계 접근이 필요하다. 또한
+instruction stream을 만들 때의 burden(interchange, collapse 등)이 고려될 경우 cost는 늘어난다.
+두 번째 비교대상인 Collapsing buffer는 cache block 내에서 실제 수행이 되지 않을
+instruction 부분을 masking한 후, successor address를 통해 다음 block에 접근하는
+방식으로 cache block을 모은 후 쓸데없는 부분을 collapse한다. 이때 사용되는
+정보로는 cache line 내 instruction들의 valid 여부 bit과 successor address 등이 있다.
+CB 방식의 경우 successor가 current block과 다른 bank에 존재해야 함은 물론,
+inter-block branch의 경우 각 bank별 접근이 serial하게 이루어져야 하는 단점을 가진다.
 
+Instruction buffer의 크기와 superscalar dispath degree만이 limitation이 되도록 다른 요소를
+suppress한 경우에 한정하여 sequential fetch, trace cache, branch address cache 및 collapse 
+buffer에 SPEC92, IBS benchmark를 실행한 결과를 통해 trace cache가 대부분의 testcase에서 
+최상의 IPC를 보임을 확인할 수 있다.
+
+- 장단점
+본 논문은 superscalar processor 디자인에 필수적인 요소인 instruction fetch width
+증가를 위해 기존의 fetch unit에 변경을 가하지 않고도 추가가 가능한 구조를 제안했다는
+것에 의의를 가진다. Prefix matching을 통해 trace의 일부를 사용하거나, branch
+prediction bit을 cache indexing에 추가적으로 사용하는 등 vanilla trace cache가 가질
+수 있는 구조적 단점을 상쇄할 수 있는 다양한 응용 기능 추가가 상대적으로 용이하다는
+점 또한 장점으로 작용한다. 
+
+다만 indeterminite jump의 경우 target address가 execution 이전에 결정날 수 없다는 점은 
+기록 가능한 instruction trace의 폭을 줄일 것으로 보인다.
+Trace cache miss 시에 line-fill buffer를 통해 instruction stream이 저장되는데, 이와 같이
+이전 miss를 처리하는 중에 새로운 miss가 나타날 가능성을 고려해야 한다. 해당 상황을 
+해결하기 위한 방안으로 논문이 제시하는 방법은 new miss를 무시하거나(instruction 
+flow graph의 path는 자주 중복되는 특성이 있으므로 이는 이후 동일한 miss를 불러들일 가능성이 있다),
+line-fill buffer가 빌 때까지 기다리거나(이는 stall을 불러들일 수 있다), concurrent miss
+를 위해 여러 개의 buffer를 유지하는 방법 등을 제시한다. 어떤 방법이든 추가적인 latency
+burden 혹은 cost burden을 불러들일 수 있기 때문에 더 좋은 방안 모색이 필요해 보인다.
+Instruction trace를 저장한다는 특성 탓에, 동일한 instruction이 primary cache와 trace cache에
+동시에 존재할 수 있는 가능성이 있고, 동일 line 내에 동일 instruction이 들어갈 가능성 또한
+있어 중복을 제하면서도 이전 다른 방법과 같이 (indirect 방식으로 instruction에 접근함으로써) multiple 
+stage를 거쳐야만 하는 단점을 없앨 수 있다면 좋은 구조가 될 수 있을 것으로 생각된다.
