@@ -1,0 +1,43 @@
+- trace cache: a low latency approach to high bandwidth instruction fetching
+
+- 요약
+본 논문은 매 cycle multiple basic blocks fetch를 위해 고안된, dynamic instruction
+stream을 caching하여 이후에 동일한 fetch address 및 branch prediction 결과가
+주어졌을 때 기존의 instruction cache에 접근하는 대신 해당하는 contiguous 
+multiple basic blocks를 곧바로 사용할 수 있게 하는 구조를 고안하고, 해당 구조가
+기존에 연구되었던 동일 목적의 다른 구조에 비해 가지는 장점에 대해 논한다.
+
+Trace cache는 다음과 같은 정보를 저장한다:
+1) valid bit
+2) trace 시작 address
+3) 매 brach별 taken/not taken flag bits
+4) # of branch와, 마지막 instruction이 branch인지를 나타내는 bit
+5) trace의 마지막 branch가 taken/not taken일 때의 next fetch address
+6) instruction traces
+
+Instruction cache에의 access와 병렬적으로, trace cache로 fetch address 및
+branch prediction 결과가 입력으로 들어간다. 해당 값은 상기 정보의 2), 3)과
+각각 비교되어 trace cache hit/miss가 결정된다.
+Trace cache hit인 경우 해당하는 instruction traces가 instruction cache 결과
+대신에 사용된다. Trace cache miss일 때에는 정상적으로 instruction cache에서
+fetch가 이루어지는 것과 동시에, 매 순간 fetch된 basic block과, branch 
+taken/not taken flag, # of branch가 line-fill buffer에 저장된다. 이때 
+unconditional branch일 경우에도 conditional과 마찬가지로(always taken) 처리된다.
+maximum # of instruction/basic block를 채웠을 경우, 혹은 indeterminite jump
+(func. return, trap, indirect jump 등 target address가 taken/not taken 두 케이스로
+나뉘지 않는 경우)를 만난 경우 기록은 중지된다. 해당 traces는 일전에 기록된
+control info.와 함께 trace cache에 추가되고, 마지막 branch의 taken/not taken 
+address가 기록된다.
+
+본 구조는 기존에 제안되었던 대표적인 두 방법과 비교되었다.
+비교대상의 첫 구조는 Branch address cache로, 이는 branch taken/not taken 결과의 
+combination별로(at most 3 basic block의 경우 N, T, NN, NT, TN, TT, NNN, NNT, 
+NTN, NTT, TNN, TNT, TTN, TTT) target address를 저장한다(tree structure를 사용하여 
+common parent의 address는 중복 없이 저장). Branch predictor의 결과를 통해 
+상기 combination 중 probable한 combination을 선택하여 해당하는 address를 따라가며
+instruction들을 모아 contiguous한 instruction stream을 만들게 된다.
+BAC의 경우 predictor의 결과를 통해 brach combination을 선택하여 address를 받아,
+해당 address로부터 instruction stream을 follow하는 두 단계 접근이 필요하다. 또한
+instruction stream을 만들 때의 burden이 고려될 경우 cost는 늘어난다.
+두 번째 비교대상인 Collapsing buffer는 
+
