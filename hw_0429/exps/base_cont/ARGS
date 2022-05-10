@@ -1,0 +1,2 @@
+/home/hejung/venv3/bin/python train.py --tfrec si84/ --output exps/base_cont --warm-start exps/base/model-7000.ckpt
+{"tfrec": "si84/", "val_tfrec": null, "batch_size": 32, "eval_step": 100, "save_step": 1000, "val_step": 1000, "train_step": 30000, "begin_lr": 0.0001, "val_lr_update": 3, "output": "exps/base_cont", "warm_start": "exps/base/model-7000.ckpt"}
