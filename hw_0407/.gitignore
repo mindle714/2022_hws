@@ -1,8 +1,0 @@
-exps/
-tfrec/
-triplet.tfrec/
-__pycache__/
-vocab
-*.png
-*.log
-*.result
