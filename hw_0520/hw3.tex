@@ -15,18 +15,47 @@ Yonsei University.}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\linewidth]{hw3_1_1}
-    \caption{result of prob1.m}
+    \caption{result of prob1.m. each row shows the original image and its magnitude 
+    within frequency domain.}
     \label{fig:1}
 \end{figure}
 
-In prob1.m, each row contains the spatial domain image and its fft output.
-At first row, given input image consists of half black and half white, 
-applying 2-dimensional fft and shifting the zero frequency component to the center
-results of right image. It can be seen from the frequency domain image that the given
-image contains horizontal frequency component, which stands for vertical edge.
+In prob1.m, each row contains the spatial domain image and magnitude of its fourier transform output. 
+Fourier transform is the transformation which converts spatial(pixel) domain image into complex-valued 
+frequency domain image.
+Given each image from the first column of \figurename{\ref{fig:1}}, 2-dimensional fft(fast fourier transform)
+is applied followed by shifting the zero frequency component to the center of the image.
+Extracting magnitude from the complex-valued frequency domain image $\omega$ can be calculated as follows:
+\[\omega = \mathcal{F}(image)\]
+\[magnitude(\omega) = \sqrt{Real(\omega)^2 + Imag(\omega)^2}\]
+Second column of \figurename{\ref{fig:2}} shows each magnitude of given $\omega$. Log scale is applied on
+magnitude for better visualization.
+
+At first row, given input image consists of half black and half white dividing the image vertically.
+From the fact that the image is constant with respect to the vertial direction and abrupt change occurs
+along horizontal direction, especially at the center of the image, it can be expected that the frequency
+component is concentrated onto the horizontal line. It can be seen in the magnitude plot that it surely
+contains horizontal frequency elements, which stands for vertical edge.
+
 At second row, given input image of white square on the center, it can be seen from
 the shifted 2-d fft result that the image contains both horizontal and vertical frequency
-component. Rotating the second original image also affects the frequency component angle.
+component. In third row, it can be visually shown that rotating the spatial domain image also
+results the frequency domain image to be rotated accordingly.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{hw3_1_2}
+    \caption{box filter in spatial domain and the corresponding frequency domain function}
+    \label{fig:8}
+\end{figure}
+
+Another characteristic that can be found in second, third row of \figurename{\ref{fig:1}} is 
+that in frequency domain the value fluctuates across the lines. It can be understood from the fact 
+that the fourier transform of a box filter is a sinc function (\figurename{\ref{fig:8}}). 
+Slicing the second spatial domain image in \figurename{\ref{fig:1}}
+across the horizontal/vertical directions generates 1-d box-shaped signal, so it can be expected that 
+the resulting frequency domain output of the given image will have fluctuations corresponding to the crossings
+of a sinc function. 
 
 \section*{problem 2: phase and magnitude}
 
@@ -40,7 +69,7 @@ component. Rotating the second original image also affects the frequency compone
 
 hw3\_2.m reads image, calculate magnitude/phase after applying 2d fast fourier transform(fft2)
 onto the image, shifting the zero frequency component to the center of the image.
-Given complex-valued frequency domain image $\omega$, magnitude, phase can be calculated as follows:
+As in problem 1, given complex-valued frequency domain image $\omega$, magnitude, phase can be calculated as follows:
 \[\omega = \mathcal{F}(image)\]
 \[magnitude(\omega) = \sqrt{Real(\omega)^2 + Imag(\omega)^2}\]
 \[phase(\omega)) = tan^{-1}\frac{Imag(\omega)}{Real(\omega)}\]
@@ -91,9 +120,15 @@ magnitude and mandrill's phase looks like mandrill imge.
 be seen that only the phase information is swapped while having same magnitude.
 From the figures, it is shown that phase information is more important than magnitude in terms
 of recognizing the object semantic and its structure; magnitude is applied so that the overall
-image level is adjusted to the targetting image. In bottom-left of \figurename{\ref{fig:3}},
-though the image is perceived as the clown image, it lost some intensity informations compared
-to the original clown. 
+image level is adjusted to the target image. In bottom-left of \figurename{\ref{fig:3}},
+though the image is perceived as the clown image, it lost some overall intensity informations compared
+to the original clown. Same goes with the bottom-right of \figurename{\ref{fig:3}}. Darkened left 
+eye comes from the dark background of the original clown image.
+
+It can be also seen that the details are lost due to the phase-magnitude mismatch. 
+Comparing top-right and bottom-left of \figurename{\ref{fig:3}}, detail loss such as stripes on the wall
+is found. Even for the mandrill case, detailed fur is hard to recognize compared to the original image.
+
 
 \section*{problem 4: notch filter}
 

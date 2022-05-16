@@ -10,8 +10,9 @@ subplot(1,3,1);
 imshow(img);
 
 subplot(1,3,2);
-imagesc(log(mag_img));
-colormap(gray);
+%imagesc(log(mag_img));
+%colormap(gray);
+fftshow(mag_img, 'log');
 
 subplot(1,3,3);
 imagesc(phase_img);

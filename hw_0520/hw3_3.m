@@ -44,8 +44,9 @@ subplot(4,3,1);
 imshow(img1);
 
 subplot(4,3,2);
-imagesc(log(mag_img1));
-colormap(gray);
+%imagesc(log(mag_img1));
+%colormap(gray);
+fftshow(mag_img1, 'log');
 
 subplot(4,3,3);
 imagesc(phase_img1);
@@ -55,8 +56,9 @@ subplot(4,3,4);
 imshow(img2);
 
 subplot(4,3,5);
-imagesc(log(mag_img2));
-colormap(gray);
+%imagesc(log(mag_img2));
+%colormap(gray);
+fftshow(mag_img2, 'log');
 
 subplot(4,3,6);
 imagesc(phase_img2);
@@ -66,8 +68,9 @@ subplot(4,3,7);
 imshow(img1_p2);
 
 subplot(4,3,8);
-imagesc(log(mag_img1_trans));
-colormap(gray);
+%imagesc(log(mag_img1_trans));
+%colormap(gray);
+fftshow(mag_img1_trans, 'log');
 
 subplot(4,3,9);
 imagesc(phase_img1_trans);
@@ -77,8 +80,9 @@ subplot(4,3,10);
 imshow(img2_p1);
 
 subplot(4,3,11);
-imagesc(log(mag_img2_trans));
-colormap(gray);
+%imagesc(log(mag_img2_trans));
+%colormap(gray);
+fftshow(mag_img2_trans, 'log');
 
 subplot(4,3,12);
 imagesc(phase_img2_trans);

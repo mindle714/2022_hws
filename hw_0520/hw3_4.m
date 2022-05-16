@@ -10,8 +10,9 @@ subplot(2,2,1);
 imshow(img);
 
 subplot(2,2,2);
-imagesc(log(mag_img));
-colormap(gray);
+%imagesc(log(mag_img));
+%colormap(gray);
+fftshow(mag_img, 'log');
 
 filt_spatial = zeros(size(mag_img));
 filt_spatial(129, :) = 1;
@@ -34,8 +35,9 @@ subplot(2,2,3);
 imshow(img_filt);
 
 subplot(2,2,4);
-imagesc(log(mag_img_filt));
-colormap(gray);
+%imagesc(log(mag_img_filt));
+%colormap(gray);
+fftshow(mag_img_filt, 'log');
 
 img_filt_sub = img - img_filt;
 f_img_filt_sub = fftshift(fft2(img - img_filt));
@@ -46,8 +48,9 @@ subplot(3,2,1);
 imshow(img);
 
 subplot(3,2,2);
-imagesc(log(mag_img));
-colormap(gray);
+%imagesc(log(mag_img));
+%colormap(gray);
+fftshow(mag_img, 'log');
 
 img3 = imread("pattern_v3.tif");
 img3 = im2double(rgb2gray(img3(:,:,1:3)));
@@ -59,8 +62,9 @@ subplot(3,2,3);
 imshow(img3);
 
 subplot(3,2,4);
-imagesc(log(mag_img3));
-colormap(gray);
+%imagesc(log(mag_img3));
+%colormap(gray);
+fftshow(mag_img3, 'log');
 
 img2 = 1.-(img3-img);
 f_img2 = fftshift(fft2(img2));
@@ -71,30 +75,37 @@ subplot(3,2,5);
 imshow(img2);
 
 subplot(3,2,6);
-imagesc(log(mag_img2));
-colormap(gray);
+%imagesc(log(mag_img2));
+%colormap(gray);
+fftshow(mag_img2, 'log');
 
 figure(3)
 subplot(2,3,1);
-imagesc(log(mag_img));
-colormap(gray);
+%imagesc(log(mag_img));
+%colormap(gray);
+fftshow(mag_img, 'log');
 
 subplot(2,3,2);
-imagesc(log(mag_img - mag_img_filt));
-colormap(gray);
+%imagesc(log(mag_img - mag_img_filt));
+%colormap(gray);
+fftshow(mag_img - mag_img_filt, 'log');
 
 subplot(2,3,3);
-imagesc(log(mag_img_filt));
-colormap(gray);
+%imagesc(log(mag_img_filt));
+%colormap(gray);
+fftshow(mag_img_filt, 'log');
 
 subplot(2,3,4);
-imagesc(log(mag_img));
-colormap(gray);
+%imagesc(log(mag_img));
+%colormap(gray);
+fftshow(mag_img, 'log');
 
 subplot(2,3,5);
-imagesc(log(mag_img3));
-colormap(gray);
+%imagesc(log(mag_img3));
+%colormap(gray);
+fftshow(mag_img3, 'log');
 
 subplot(2,3,6);
-imagesc(log(mag_img2));
-colormap(gray);
+%imagesc(log(mag_img2));
+%colormap(gray);
+fftshow(mag_img2, 'log');
