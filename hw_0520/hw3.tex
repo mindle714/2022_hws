@@ -20,26 +20,27 @@ Yonsei University.}
     \label{fig:1}
 \end{figure}
 
-In prob1.m, each row contains the spatial domain image and magnitude of its fourier transform output. 
-Fourier transform is the transformation which converts spatial(pixel) domain image into complex-valued 
+\figurename{\ref{fig:1}} contains the result of running prob1.m.
+In \figurename{\ref{fig:1}}, each row contains the spatial domain image and magnitude of its fourier transform output. 
+Fourier transform is the transformation which converts spatial (pixel) domain image into complex-valued 
 frequency domain image.
-Given each image from the first column of \figurename{\ref{fig:1}}, 2-dimensional fft(fast fourier transform)
+Given each image from the first column of \figurename{\ref{fig:1}}, 2-dimensional fft (fast fourier transform)
 is applied followed by shifting the zero frequency component to the center of the image.
 Extracting magnitude from the complex-valued frequency domain image $\omega$ can be calculated as follows:
 \[\omega = \mathcal{F}(image)\]
 \[magnitude(\omega) = \sqrt{Real(\omega)^2 + Imag(\omega)^2}\]
-Second column of \figurename{\ref{fig:2}} shows each magnitude of given $\omega$. Log scale is applied on
+Second column of \figurename{\ref{fig:1}} shows each magnitude of given $\omega$. Log scale is applied on
 magnitude for better visualization.
 
-At first row, given input image consists of half black and half white dividing the image vertically.
+At first row, the input image consists of half black and half white dividing the image vertically.
 From the fact that the image is constant with respect to the vertial direction and abrupt change occurs
 along horizontal direction, especially at the center of the image, it can be expected that the frequency
 component is concentrated onto the horizontal line. It can be seen in the magnitude plot that it surely
 contains horizontal frequency elements, which stands for vertical edge.
 
 At second row, given input image of white square on the center, it can be seen from
-the shifted 2-d fft result that the image contains both horizontal and vertical frequency
-component. In third row, it can be visually shown that rotating the spatial domain image also
+the shifted 2-d fft magnitude result that the image contains both horizontal and vertical frequency
+components. In third row, it can be visually shown that rotating the spatial domain image also
 results the frequency domain image to be rotated accordingly.
 
 \begin{figure}[h]
@@ -50,7 +51,7 @@ results the frequency domain image to be rotated accordingly.
 \end{figure}
 
 Another characteristic that can be found in second, third row of \figurename{\ref{fig:1}} is 
-that in frequency domain the value fluctuates across the lines. It can be understood from the fact 
+that in frequency domain the magnitude intensity fluctuates along the lines. It can be understood from the fact 
 that the fourier transform of a box filter is a sinc function (\figurename{\ref{fig:8}}). 
 Slicing the second spatial domain image in \figurename{\ref{fig:1}}
 across the horizontal/vertical directions generates 1-d box-shaped signal, so it can be expected that 
@@ -67,7 +68,7 @@ of a sinc function.
     \label{fig:2}
 \end{figure}
 
-hw3\_2.m reads image, calculate magnitude/phase after applying 2d fast fourier transform(fft2)
+hw3\_2.m reads image, calculate magnitude/phase after applying 2 dimensional fft
 onto the image, shifting the zero frequency component to the center of the image.
 As in problem 1, given complex-valued frequency domain image $\omega$, magnitude, phase can be calculated as follows:
 \[\omega = \mathcal{F}(image)\]
@@ -75,7 +76,7 @@ As in problem 1, given complex-valued frequency domain image $\omega$, magnitude
 \[phase(\omega)) = tan^{-1}\frac{Imag(\omega)}{Real(\omega)}\]
 For better visualization, plotted magnitude is log-scaled.
 \figurename{\ref{fig:2}} is the magnitude/phase plot of the image.
-It can be seen that most of the magnitude is concentrated on the center of the image.
+It can be seen that most of the magnitude intensity is concentrated on the center of the image.
 Also, phase image seems to have random values.
 
 \section*{problem 3: phase vs. magnitude}
@@ -89,8 +90,9 @@ Also, phase image seems to have random values.
     \label{fig:3}
 \end{figure}
 
-hw3\_3.m reads mandrill and clown image, swaps their phase information and reconstruct the image.
-Given magnitude $mag$ and phase $ph$, complex-valued frequency domain image can be calculated as follows:
+hw3\_3.m reads mandrill and clown image, swaps their phase information, then reconstruct the image.
+Given magnitude $mag$ and phase $ph$, complex-valued frequency domain image $\omega$ and the corresponding 
+spatial domain image can be calculated as follows:
 \[\omega = mag * (cos(ph) + sin(ph) * 1j)\]
 \[image = \mathcal{F}^{-1}(\omega)\]
 
@@ -98,10 +100,12 @@ It can be simply seen that the new $\omega$ has magnitude $mag$ and phase $ph$:
 \[magnitude(\omega) = \sqrt{Real(\omega)^2 + Imag(\omega)^2}\]
 \[= \sqrt{(mag * cos(ph))^2 + (mag * sin(ph))^2}\]
 \[= \sqrt{mag^2 * (cos^2(ph) + sin^2(ph))}\]
-\[= \sqrt{mag^2} = mag\] 
+\[= \sqrt{mag^2}\]
+\[ = mag\] 
 \[phase(\omega) = tan^{-1}\frac{Imag(\omega)}{Real(\omega)}\]
 \[= tan^{-1}\frac{sin(ph)}{cos(ph)}\]
-\[= tan^{-1}(tan(ph)) = ph\]
+\[= tan^{-1}(tan(ph))\]
+\[ = ph\]
 
 Result of swapping the phase can be found in \figurename{\ref{fig:3}}.
 It can be seen that the bottom-left image, consists of mandrill's magnitude and clown's phase,
@@ -112,7 +116,8 @@ magnitude and mandrill's phase looks like mandrill imge.
     \centering
     \includegraphics[width=\linewidth]{hw3_3_2}
     \caption{magnitude, phase of images in \figurename{\ref{fig:3}}. Each row stands for
-    top-left(mandrill), top-bottom(clown), bottom-left and bottom-right as ordered}
+    top-left(mandrill), top-bottom(clown), bottom-left and bottom-right image in \figurename{\ref{fig:3}} 
+    in their order}
     \label{fig:4}
 \end{figure}
 
@@ -120,17 +125,31 @@ magnitude and mandrill's phase looks like mandrill imge.
 be seen that only the phase information is swapped while having same magnitude.
 From the figures, it is shown that phase information is more important than magnitude in terms
 of recognizing the object semantic and its structure; magnitude is applied so that the overall
-image level is adjusted to the target image. In bottom-left of \figurename{\ref{fig:3}},
-though the image is perceived as the clown image, it lost some overall intensity informations compared
-to the original clown. Same goes with the bottom-right of \figurename{\ref{fig:3}}. Darkened left 
-eye comes from the dark background of the original clown image.
+image intensity level is adjusted to the target image. 
+
+In bottom-left of \figurename{\ref{fig:3}}, though the image is perceived as the clown image, 
+it lost some overall intensity informations compared to the original clown. 
+The magnitude of the original and transformed image can be checked from the second, third row of 
+\figurename{\ref{fig:4}}. It can be seen that the transformed image has less horizontal/vertical
+frequency components than the original image. Thus the intensity variations from the original clown
+image is smoothed out. Same goes with the bottom-right of \figurename{\ref{fig:3}}. By having
+magnitude of bigger horizontal/vertial frequency components, the output mandrill has more intensity
+variations compared to the original one.
 
 It can be also seen that the details are lost due to the phase-magnitude mismatch. 
-Comparing top-right and bottom-left of \figurename{\ref{fig:3}}, detail loss such as stripes on the wall
-is found. Even for the mandrill case, detailed fur is hard to recognize compared to the original image.
-
+Comparing top-right and bottom-left of \figurename{\ref{fig:3}}, details such as stripes on the wall
+are found to be lost. Even for the mandrill case, detailed fur is hard to be recognized compared to the original image.
 
 \section*{problem 4: notch filter}
+
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{hw3_4_3}
+    \caption{comparison between the notch filter and the groundtruch grid pattern. top row: original image,
+    notch filter applied when generating \figurename{\ref{fig:5}} and result after applying the filter 
+    respectively. bottom row: same as above except the filter is from the groundtruch grid pattern}
+    \label{fig:7}
+\end{figure*}
 
 \begin{figure}[h]
     \centering
@@ -141,13 +160,20 @@ is found. Even for the mandrill case, detailed fur is hard to recognize compared
     \label{fig:5}
 \end{figure}
 
-hw3\_4.m reads pattern.tif, transform into complex-valued frequency domain, filter out grid pattern
-by notch filter and inverse-transform to be able to be seen in spatial domain. 
+hw3\_4.m reads pattern.tif, transforms the image into complex-valued frequency domain, filters out grid pattern
+by applying notch filter and inverse-transform the filtered frequency domain image to be able to be seen in spatial domain. 
+
+Notch filter is a type of band-stop filter that attenuates frequencies within a specific range while
+passing all other frequencies unchanged. The range to be masked out can be decided manually, or with 
+intensity threshold. 
+
 \figurename{\ref{fig:5}} shows the result of applying notch filter onto the noisy image.
 From the magnitude of the original image, it can be seen that there exists outstanding
 vertial/horizontal lines which partially represent the grid pattern overlaid onto the original
-image. After applying notch filter masking out the vertical/horizontal lines excluding the center,
-it can be seen that the grid pattern is smoothed out.
+image. Thus notch filter is designed to mask out the vertical/horizontal lines excluding the center, 
+as can be seen in top-middle of \figurename{\ref{fig:7}}. After applying the filter onto the frequency
+domain of the original image, it can be seen that the grid pattern is smoothed out. The filtered
+image can be found in bottom-right of \figurename{\ref{fig:5}}.
 
 \begin{figure}[h]
     \centering
@@ -158,28 +184,20 @@ it can be seen that the grid pattern is smoothed out.
     \label{fig:6}
 \end{figure}
 
-\figurename{\ref{fig:6}} contains the groundtruth grid pattern and target filtering result.
+\figurename{\ref{fig:6}} contains the groundtruth grid pattern and desired filtering result.
 The groundtruth grid pattern is constructed from pattern.tif using public paint applications.
 It can be seen from the middle row of the \figurename{\ref{fig:6}} that the grid pattern mainly consists
-of vertical/horizontal elements within the magnitude perspective. Subtracting the image from the
+of vertical/horizontal elements within the magnitude perspective. Subtracting original image from the
 grid pattern generates cleaner image, with having lower intensity on vertical/horizontal lines from
 the view of magnitude.
 
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=\linewidth]{hw3_4_3}
-    \caption{comparison between the notch filter and the groundtruch grid pattern. top row: original image,
-    notch filter applied when generating \figurename{\ref{fig:5}} and result after applying the filter 
-    respectively. bottom row: same as above except the filter is from the groundtruch grid pattern}
-    \label{fig:7}
-\end{figure*}
-
 \figurename{\ref{fig:7}} shows the difference between the notch filter which is applied to 
 \figurename{\ref{fig:5}} and the groundtruth filter. It can be seen that both the notch
-filter and the groundtruth filter contains vertial/horizontal line component within its
+filter and the groundtruth filter contains vertial/horizontal line components within its
 magnitude plot but there exists other frequency components contributing to the grid pattern
 in the groundtruth plot whereas no other components exist in the notch filter.
-Further improvement would be achieved when considering the detailed frequency pattern 
+Current notch filter output generates blurred artifacts (bottom-left of \figurename{\ref{fig:5}}), but further 
+improvement would be achieved when considering the detailed frequency pattern 
 within the grid onto the notch filter.
 
 \end{document}
