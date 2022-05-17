@@ -1,0 +1,5 @@
+- the mips r10000 superscalar mimcroprocessor
+
+- 요약
+
+- 장단점

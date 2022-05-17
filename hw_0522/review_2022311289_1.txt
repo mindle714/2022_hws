@@ -1,0 +1,72 @@
+- the alpha 21264 microprocessor
+
+- 요약
+본 논문은 1998년 출시된 DEC의 superscalar RISC microprocessor인 Alpha 21264의
+구조에 대해 설명하고 있다. Maximum 4 IPC와 out-of-order execution을 지원하고,
+branch prediction 등의 speculative execution을 통해 성능을 극대화한다. 메모리 또한
+on-chip/off-chip cache의 사용, parallel memory reference 지원으로 높은 bandwidth를
+자랑한다.
+21264는 7단계의 pipeline으로 이루어져 있다. 첫 단계인 fetch stage는 매 cycle 4 instructio을
+execution engine에 전달한다. 이때, 높은 성능의 line/way, branch prediction이 사용되어 실 수행
+stream의 instruction이 fetch stage에서 접근되어진다. 
+
+- fetch stage
+Instruction cache는 64KB의 2-way set-associative cache로 구성된다.
+
+Line/way predictor는 다음 instruction의 line/way를 예측하는 데 사용되며 높은 정확도를 가지고
+loop terminator와 같이 자주 접할 수 있는 branch나 direct register addressing 방식의 함수 call 등의 상황에서 유용하다.
+또한 2-bit hysteresis counter로, 에러가 여러 번 발생했을 시에만 training이 진행되어 overfit을 예방한다.
+Line/way predictor 결과로 instruction을 fetch하는 동시에 instruction decode, branch prediction, 
+validity check (tag comparison) 가 이루어진다. Instruction cache miss 시에는 4*64B의 data가 하위 메모리
+로부터 prefetch된다.
+
+Branch predictor는 hybrid 방식으로 구현되어, global history로 index되는 4096-entry의 2-bit saturating counter 
+global branch predictor와 local history로 index되는 2-level local branch predictor, 그리고 이 두 
+branch predictor 중 하나를 선택하는 chooser로 구성되어 있다. 매번 올바른 branch direction으로의 학습이 이루어진다.
+
+- rename stage
+WAW, WAR 등의 false dependency resolve를 위한 register renaming이 rename stage에서 이루어진다.
+각각의 write-reference에 unique register가 할당되어, instruction retire/commit 이후에만 해당 register는
+user-visible한 상태가 된다. User-visible register과 internal register간의 관계는 map CAM에 저장된다.
+31 integer/floating point user-visible register에 추가적으로, misspeculation 시의 revert를 위한 41 integer/floating point
+register가 존재하여 speculative result 저장에 사용된다.
+
+- issue stage
+Issue queue는 integer/floating point queue가 존재하며, 매 cycle queue로부터 available instruction이 선택되어 functional unit에 전달된다.
+Register scoreboard에는 다양한 instruction들의 progress에 따른 internal register의 status가 저장되고, functional unit/load 결과가
+available한 경우 scoreboard가 해당 register를 필요로 하는 queue 안의 모든 instruction에 notify하여 data가 resolve된 instruction은 issue된다.
+Instruction은 queue에 들어가기 전에 한두개의 arbiter에 assign되어, 해당 arbiter가 매 cycle 제일 오래된 instruction을 issue한다.
+In-order retirement를 위해 instruction들은 fetch order에 따른 circular in-flight window에 할당되고 해당 순간의 register 값 또한 
+saved map state에 저장된다. 한 instruction은 이전 instruction들이 retire되기 전까지는 retire되지 않는 것으로 programmer에게는 
+in-order execution과 같이 보이도록 한다. 또한 exception이 발생한 경우 fetch 순으로 미래 instruction은 squash되고 saved map state를 통해
+register state가 restore된다.
+
+- execute stage
+execution pipeline은 RF의 위아래에 배치된다. Integer RF는 중복된 entry를 갖는 두 cluster로 나뉘어, integer instruction execution은 4-way가 support된다.
+이는 cluster간의 result synchronization latency 비용을 감수하게 하나 이로써 더 빠른 수행이 가능하다. 그러나 실질적인 cost는 그리 크지 않은데,
+그 이유로는, 많은 operation은 상하 pipeline 중 하나에서만 수행이 가능하고(load/store은 하위 pipeline, shift는 상위 pipeline 등),
+critical path 상의 instruction들은 보통 동일한 cluster에 할당되기 때문이다. 이로써 4-way의 장점을 가지면서 비용이 적인 구조가 가능하다.
+Floating point의 경우 하나의 cluster만을 가진다.
+  RF 위와 아래의 pipeline에는 각각의 arbiter 존재하여,
+integer instruction은 각각 issue시에 상하 pipeline 중 어느 pipeline을 사용할지 선택되고, 2개의 cluster 중 어느 cluster에서 execute될 지는 dynamically 결정된다.
+
+- memory stage
+data cache는 64KB의 2-way set-associative 구조를 가진다.
+매 cycle의 phase 마다 data cache에 접근하는 것으로, 매 cycle, integer execution pipe로부터 2 memory reference가 가능하다.
+32 LDQ, STQ를 통해 in-flight load/store tracking이 가능하고, 8 MAF entry를 통해 in-flight cache miss를 track할 수 있다. 
+Load hit/miss predictor는 recent load의 hit/miss history를 tracking하는 4-bit counter로 이루어져 있어 그 중 MSB가 predictor로 사용된다.
+
+Load/store instruction은 fetch order에 따라 LDQ, STQ에 쌓이고 retire 시에 queue에서 제거된다.
+Store 시에, data는 해당 instruction이 retire될 때까지 speculative store buffer에 저장되었다가 retire 이후에 data cache에 저장된다.
+Load 시에 data는 data cache, speculative store data buffer 혹은 하위 level memory로부터 얻을 수 있다.
+Load 시에는 data cache tag/array 접근 이후 cycle에서 data bus에서의 접근이 가능하다. 또한 cache tag 접근과 data array
+접근, data bus 사용은 독립적으로 이루어질 수도 있으며, 이는 data cache miss 상황에서 data cache tag를 사용하지
+않음으로써 해당 cycle에 다른 cache fill을 가능케 한다.
+RAW hazard의 경우, load/store wait table을 통해 특정 load가 delay되도록 만듦으로써 해결된다.
+Integer load miss의 경우, 전 instruction pipeline이 재시작되기보다, 두 integer issue cycle이 squash된다.
+
+8 MAF entry에의 reference는 BIU interface를 통해 외부 cache/system에 consult된다.
+L2 cache는 instruction/data 공용의 direct-mapped 1~16MB 크기를 가진다.
+System pin bus는 address-out/address-in으로 나뉘어 단순한 구조, 적은 pin 갯수를 가지면서도 high bandwidth를 제공한다.
+
+- 장단점
