@@ -1,0 +1,25 @@
+- Squeeze-and-Excitation(SE) network
+SE network is a network which converts input feature into
+statistic feature and excite the aggregated statistic feature.
+Say, given input feature of size [H x W x C],
+channel-wise statistics can be aggregated with global average pooling.
+By the pooling, the height and width information is all averaged
+onto the single skewed [C] vector. This step is called squeeze.
+On excitation step, the skewed statistic features are broadcast
+to the original input feature and they are multiplied
+(channel-wise multiplication) so that the output feature is of same size with input.
+By applying squeeze-and-excitation, channel-wise informations
+are aggregated onto the output matrix.
+
+- Depthwise separable convolution
+Depthwise separable convolution is a kind of convolution
+that seprates vanilla convolution into depthwise convolution and
+pointwise convolution, also well known as 1x1 convolution.
+At depthwise convolution, each channel plane of given input [H x W] 
+is regareded as the separate input feature of channel 1 [H x W x 1]
+so that the convolution is applied on each plane.
+At pointwise convolution, the channelwise information aggregation occurs.
+with kernel size of 1 x 1, the pointwise convolution defines affine
+operation on each channel dimension.
+By separating the original convolution into two, great deal of 
+complexity savings occur.

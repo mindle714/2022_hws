@@ -1,0 +1,28 @@
+- similarites of WaveNet, SampleRNN and WaveRNN
+All three models are auto-regressive model; they depend on their previous output.
+Their inputs are time-domain raw samples. For WaveNet and SampleRNN,
+both models are of hierarchical structure, which can efficiently model
+the long dependencies among the samples. For SampleRNN and WaveRNN,
+both model utilizes recurrent layer as their components.
+
+- differences between WaveNet and SampleRNN
+One of the biggest difference would be that WaveNet is based on
+convolutional networks, whereas SampleRNN is based on recurrent networks.
+On WaveNet, dilated convolution is used to further increase the receptive
+field of the model, whereas on SampleRNN different tiers of levels from sample level
+to frame level covers variety range of the given input.
+
+- differences between SampleRNN and WaveRNN
+On SampleRNN, each sample is generated with respect to the hierarchical
+depdencies upon the previous samples using multi-layer RNN. In WaveRNN,
+single-layer RNN is used and instead, dual soft max is used to estimate a sample.
+Batch sample generation by subscaling of the given sequence enables WaveRNN
+to be decoded faster.
+
+- differences between WaveNet and WaveRNN
+As the differences between WaveNet and SampleRNN, unline WaveNet having 
+convolutional layers as its main component, SampleRNN consists of recurrent layer.
+Also, as in the differences between SampleRNN and WareRNN, hierarchical layer is used
+within WaveNet whereas WaveRNN utilizes single recurrent layer with dual softmax and
+subscaling.
+
