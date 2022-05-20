@@ -3,6 +3,10 @@ from scipy.fftpack import fft, dct, idct
 import cv2
 np.set_printoptions(precision=2)
 
+#dct_type=1
+#dct_opt=dict(type=dct_type, norm='ortho')
+dct_opt=dict(norm='ortho')
+
 def _dct(e):
   # return cv2.dct(e/255.)
   return dct(dct(e, axis=0, **dct_opt), axis=1, **dct_opt)
@@ -10,10 +14,6 @@ def _dct(e):
 def _idct(e):
   # return cv2.idct(e/255.)
   return idct(idct(e, axis=0, **dct_opt), axis=1, **dct_opt)
-
-#dct_type=1
-#dct_opt=dict(type=dct_type, norm='ortho')
-dct_opt=dict(norm='ortho')
 
 _in = np.array([
   [164, 157, 209, 149, 132, 182, 129, 142],
@@ -50,14 +50,14 @@ print(_din_shift_quant)
 _din_shift_quant_deq = _din_shift_quant * _quant
 print(_din_shift_quant_deq)
 
-_in_shift_quant_deq = _idct(_din_shift_quant_deq)
+_in_shift_quant_deq = np.round(_idct(_din_shift_quant_deq))
 print(_in_shift_quant_deq)
 
 _in_shift_des = _in_shift_quant_deq + 128.
 print(_in_shift_des)
 
 print(_in_shift_des - _in)
-print(np.sqrt(np.sum((_in_shift_des - _in)**2)))
+print(np.sqrt(np.mean((_in_shift_des - _in)**2)))
 
 import matplotlib.pyplot as plt
 fig = plt.figure()
