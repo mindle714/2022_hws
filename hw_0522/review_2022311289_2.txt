@@ -1,5 +1,56 @@
 - the mips r10000 superscalar mimcroprocessor
 
 - 요약
+본 논문은 1996년 출시된 MTI/SGI의 superscalar MIPS IV microprocessor MIPS 
+R10000의 구조에 대해 설명하고 있다. 
+R10000은 6개의 pipeline으로 나뉘며, instruction fetch가 stage 1~3을 차지한다. 
+stage 1에서는 4 instruction fetch 및 alignment가 이루어진다. 
+stage 2에서는 instruction decode, register renaming
+이 이루어지며 branch/jump의 target address 계산 또한 이루어진다. stage 3에서는
+instruction이 queue에 저장되어 operand가 준비될 때까지 기다리게 된다.
+operand가 resolve되면 stage 4에서 execution이 시작되고, integer operation인 경우
+1 stage, load/store의 경우 2 stage, floating point operation의 경우 3 stage가 
+execution에 소요된다. execution 다음 stage에서 RF로의 write back이 이루어진다
+
+- fetch stage
+32KB의 2-way set-associative instruction cache와 8-entry의 TLB가 사용된다.
+Word alignment에 상관없이 16-word instruction cache line으로부터 4 instruction이
+추출되는데, 이는 sense amplifier와 mux의 사용을 통해 가능하다. 
+
+- decode stage
+Branch predictor는 512-entry의 2-bit algorithm 방식이 사용된다.
+compatibility를 위해 jump/branch 직후의 instruction 수행 기능 또한 포함되어 있다.
+Jump/branch가 taken일 경우 delay slot 이후의 instruction은 버려지게 되며 
+1 branch bubble cycle이 생긴다.
+Branch stack에는 4-entry의 branch address candidate과 해당하는 integer/floating-point
+map table이 저장된다. 이는 prediction이 틀렸을 경우의 roll-back을 위해 사용된다.
+매 instruction마다 branch entry 각각에 해당하는 4-bit branch mask를 가져,
+해당 instruction이 어떤 branch에 dependent한지를 나타낸다. 이는 misprediction
+시 instruction abort를 위해 사용된다. 
+Instruction decode는 4 instruction이 parallel하게 진행되며 instruction queue에 쌓이게 된다.
+Register renaming은 register dependency resolve를 위해 사용되고,
+address queue를 통해 memory address dependency를 관리한다. Address queue에는
+program-order로 load/store instruction이 저장되며 branch misprediction 시에는 mispredicted
+path의 instruction들은 제거된다. Address queue의 각 entry가 어떤 다른 entry와
+동일한 cache set에 접근하는지, 그리고 store instruction에의 주소를 load하는지를 
+저장하는 matrices 또한 관리되어, 불필요한 cache thrashing을 막는다.
+
+Register renaming은 logical register를 physical register로 mapping함으로써 이루어진다.
+Logical register 값의 수정이 일어나는 instruction마다 physical register가 할당
+되기 때문에, 매 physical register는 할당된 이후 늘 한 번씩만 값이 쓰여져 이후 수정되지 않으며,
+physical registers에는 commit된 값과 아직 commit되지 않은 값이 모두 포함되어 있다.
+Physical register 할당을 위해서는 현재 빈 physical register 목록을 가지는 free list를 관리한다.
+Instruction은 out-of-order로 수행되고, in-order로 graduate(retire)되며 그 이후
+기존의 temporary 결과값이 commit된다. Exception 발생 등의 상황에서는 이전 register
+값으로 roll-back된다. Active list에는 logical register와 이전 physical register
+mapping이 저장되어, active list에서 이전 mapping 정보를 가져오는 것으로 register
+값 복구가 가능하다.
+
+- issue~execution stage
+Decode된 instruction은 instruction queue에 저장되며, ALU에 issue될 때에
+queue로부터 release된다. 특정 ALU에만 수행 가능한 instruction의 경우 해당 ALU에
+priority를 가진다. Busy bit table에는 각 physical register의 valid 여부가 저장되는데,
+해당 table을 통해 instruction의 operand가 ready인지 확인한다. 모든 operand가
+ready인 경우 execution unit으로 issue가 진행된다.
 
 - 장단점
