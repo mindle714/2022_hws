@@ -1,4 +1,4 @@
-- the mips r10000 superscalar mimcroprocessor
+- the mips r10000 superscalar microprocessor
 
 - 요약
 본 논문은 1996년 출시된 MTI/SGI의 superscalar MIPS IV microprocessor MIPS R10000의 구조에 대해 설명하고 있다. 
