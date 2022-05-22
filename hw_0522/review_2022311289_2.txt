@@ -1,16 +1,14 @@
 - the mips r10000 superscalar mimcroprocessor
 
 - 요약
-본 논문은 1996년 출시된 MTI/SGI의 superscalar MIPS IV microprocessor MIPS 
-R10000의 구조에 대해 설명하고 있다. 
+본 논문은 1996년 출시된 MTI/SGI의 superscalar MIPS IV microprocessor MIPS R10000의 구조에 대해 설명하고 있다. 
 R10000은 6개의 pipeline으로 나뉘며, instruction fetch가 stage 1~3을 차지한다. 
 stage 1에서는 4 instruction fetch 및 alignment가 이루어진다. 
-stage 2에서는 instruction decode, register renaming
-이 이루어지며 branch/jump의 target address 계산 또한 이루어진다. stage 3에서는
-instruction이 queue에 저장되어 operand가 준비될 때까지 기다리게 된다.
-operand가 resolve되면 stage 4에서 execution이 시작되고, integer operation인 경우
+stage 2에서는 instruction decode, register renaming이 이루어지며 branch/jump의 target address 계산 또한 이루어진다. 
+stage 3에서는 instruction이 queue에 저장되어 operand가 준비될 때까지 기다리게 된다.
+Operand가 resolve되면 stage 4에서 execution이 시작되고, integer operation인 경우
 1 stage, load/store의 경우 2 stage, floating point operation의 경우 3 stage가 
-execution에 소요된다. execution 다음 stage에서 RF로의 write back이 이루어진다
+execution에 소요된다. Execution 다음 stage에서 RF로의 write back이 이루어진다.
 
 - fetch stage
 32KB의 2-way set-associative instruction cache와 8-entry의 TLB가 사용된다.
@@ -43,8 +41,7 @@ Physical register 할당을 위해서는 현재 빈 physical register 목록을 
 Instruction은 out-of-order로 수행되고, in-order로 graduate(retire)되며 그 이후
 기존의 temporary 결과값이 commit된다. Exception 발생 등의 상황에서는 이전 register
 값으로 roll-back된다. Active list에는 logical register와 이전 physical register
-mapping이 저장되어, active list에서 이전 mapping 정보를 가져오는 것으로 register
-값 복구가 가능하다.
+mapping이 저장되어, active list에서 이전 mapping 정보를 가져오는 것으로 register값 복구가 가능하다.
 
 - issue~execution stage
 Decode된 instruction은 instruction queue에 저장되며, ALU에 issue될 때에
@@ -54,3 +51,21 @@ priority를 가진다. Busy bit table에는 각 physical register의 valid 여�
 ready인 경우 execution unit으로 issue가 진행된다.
 
 - 장단점
+본 논문에서 소개하는 MIPS R10000는 branch prediction, speculative execution 및
+out-of-order execution을 통해 프로그램 성능을 극대화하고 hierarchical nonblocking
+memory 구조를 통해 memory 접근 cost를 최소화하도록 설계되었다는 점에서 좋은 구조로
+생각된다. Unaligned cache fetching, address queue의 entry-by-entry matrices
+를 통한 cache thrashing 최소화 및 data bypassing 등 다양한 구조를 차용하여 다양한
+상황 하에서의 성능 최적화가 이루어졌다는 점에서, 다양한 프로그램 variation에 효율적으로
+대응될 수 있는 구조라고 생각된다.
+
+Branch predictor의 구조가 상대적으로 단순하고 accuracy 또한 Spec92 integer program
+하에서 87%인 것은, 더욱 개선될 여지를 나타낸다.
+
+매 logical register 수정 시에 서로 다른 physical register가 할당되는 점은 장단을
+가진다. 이는 physical register 값이 한번 작성된 이후 constant가 되게 하기 때문에
+register dependency resolve 과정이 단순화되고 또한 exception 시의 roll-back logic
+또한 간단해질 수 있다는 장점을 가지는 반면, 동일한 register의 temporary 값이 서로
+다른 physical region을 차지함으로써 많은 physical register가 필요하며 sparse한
+physical register 관리를 위한 free list 관리가 필요하다는 단점을 가진다. 또한
+register roll-back시에 동일 register에 여러 번 값이 쓰이며 roll-back 과정이 느려질 수 있다.
