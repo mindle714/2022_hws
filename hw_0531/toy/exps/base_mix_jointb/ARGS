@@ -1,0 +1,2 @@
+/usr/bin/python3 train.py --tfrec tfrec_mix_jointb --vocab vocab --output exps/base_mix_jointb
+{"tfrec": "tfrec_mix_jointb", "vocab": "vocab", "val_tfrec": null, "batch_size": 64, "eval_step": 100, "save_step": 1000, "val_step": 1000, "train_step": 100000, "begin_lr": 0.0001, "val_lr_update": 3, "output": "exps/base_mix_jointb"}
