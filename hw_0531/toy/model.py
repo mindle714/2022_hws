@@ -48,16 +48,16 @@ class tdnn(tf.keras.layers.Layer):
 
   def build(self, input_shape):
     self.frames = [
-      tf.keras.layers.Conv1D(64, 5),
-      tf.keras.layers.Conv1D(64, 3, dilation_rate=2),
-      tf.keras.layers.Dense(64)
+      tf.keras.layers.Conv1D(32, 5),
+      tf.keras.layers.Conv1D(32, 3, dilation_rate=2),
+      tf.keras.layers.Dense(32)
     ]
     self.frame_bns = [tf.keras.layers.BatchNormalization() \
       for _ in range(len(self.frames))]
 
     self.segments = [
-      tf.keras.layers.Dense(64),
-      tf.keras.layers.Dense(64)
+      tf.keras.layers.Dense(32),
+      tf.keras.layers.Dense(32)
     ]
     self.segment_bns = [tf.keras.layers.BatchNormalization() \
       for _ in range(len(self.segments))]

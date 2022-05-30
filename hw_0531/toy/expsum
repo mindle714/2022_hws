@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+for exp in exps/*/; do
+  expname="$(echo $exp | sed 's/exps\///g')"
+  ls -ahtlr $exp/model-*.ckpt.data* | tail -n1 | cut -d' ' -f5- | \
+    awk '{printf "%20s %s\n", "'$expname'", $0}'
+done

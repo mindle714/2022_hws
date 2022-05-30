@@ -1,6 +1,1 @@
-exps/
-__pycache__/
-tfrec*/
-ns_eval/
-*.eval
-*.ns_eval
+__pycache__

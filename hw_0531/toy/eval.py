@@ -5,6 +5,7 @@ parser.add_argument("--eval-list", type=str, required=True)
 parser.add_argument("--eval-type", type=str, required=False,
   default="id", choices=["id", "vr"])
 parser.add_argument("--print-norm", action="store_true")
+parser.add_argument("--suffix", type=str, required=False, default="eval")
 args = parser.parse_args()
 
 import os
@@ -67,9 +68,13 @@ if args.eval_type == "id":
     return "{:.1f}KB".format(bsize / float(1024))
 
   mdl_size = os.path.getsize(args.ckpt + ".data-00000-of-00001")
-  print("{}({}) overall pass {}/{}({:.3f}%)".format(
-    args.ckpt, get_size(mdl_size),
-    pcount, len(evals), float(pcount)/(len(evals))*100))
+  expname = expdir.split("/")[-1]
+  epoch = os.path.basename(args.ckpt).replace(".", "-").split("-")[1]
+
+  with open("{}-{}.{}".format(expname, epoch, args.suffix), "w") as f:
+    f.write("{}({}) overall pass {}/{}({:.3f}%)\n".format(
+      args.ckpt, get_size(mdl_size),
+      pcount, len(evals), float(pcount)/(len(evals))*100))
     
 else:
   xvecs = {}
