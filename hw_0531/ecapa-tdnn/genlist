@@ -1,21 +1,24 @@
 #!/bin/bash
 
-spk="$(cat /home/speech/2022_hws/hw_0407/train.list \
+spk="$(cat /home/hejung/2022_hws/hw_0407/train.list \
   | sort -k1 -n | cut -d' ' -f1 | uniq | head -n100)"; 
 for s in $spk; do 
   echo $s 1>&3
-  cat /home/speech/2022_hws/hw_0407/train.list \
-    | sort -k1 -n | grep "^$s " | shuf | head -n20 > .tmp.list
-  head -n15 .tmp.list;
-  tail -n5 .tmp.list 1>&2
+  cat /home/hejung/2022_hws/hw_0407/train.list \
+    | sort -k1 -n | grep "^$s " | shuf | head -n500 > .tmp.list
+  len="$(wc -l .tmp.list | awk '{print $1}')"
+  train_len="$(echo $len | awk '{print int($1*0.9)}')"
+  eval_len=$((len-train_len))
+  head -n$train_len .tmp.list;
+  tail -n$eval_len .tmp.list 1>&2
 done > train.list 2> eval.list 3> vocab
 rm .tmp.list
 
 trainwc=$(wc -l train.list | awk '{print $1}')
 evalwc=$(wc -l eval.list | awk '{print $1}')
-cat /home/speech/demand/16k.list \
-  /home/speech/musan/noise.list \
-  /home/speech/musan/music.list | shuf \
+cat /home/hejung/demand/16k_split_5s.list \
+  /home/hejung/musan/noise_split_5s.list \
+  /home/hejung/musan/music_split_5s.list | shuf \
   | head -n$((trainwc+evalwc)) > .tmp.list
 
 head -n$trainwc .tmp.list > ns_train.list

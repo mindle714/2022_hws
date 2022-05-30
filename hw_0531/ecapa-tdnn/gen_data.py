@@ -1,12 +1,13 @@
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--train-list", type=str, required=True) 
-parser.add_argument("--noise-list", type=str, required=False, default=None) 
+parser.add_argument("--noise-list", type=str, required=False, default=None)
 parser.add_argument("--min-snr", type=int, required=False, default=10)
 parser.add_argument("--max-snr", type=int, required=False, default=10)
-parser.add_argument("--vocab", type=str, required=True) 
+parser.add_argument("--vocab", type=str, required=True)
 parser.add_argument("--num-chunks", type=int, required=False, default=100)
 parser.add_argument("--samp-len", type=int, required=False, default=8192)
+parser.add_argument("--no-remainder", action='store_true')
 parser.add_argument("--output", type=str, required=True) 
 parser.add_argument("--apply-jointb", action='store_true') 
 args = parser.parse_args()
@@ -44,82 +45,126 @@ if args.noise_list is not None:
 
 import warnings
 import tensorflow as tf
+import multiprocessing
+import numpy as np
+import copy
 import soundfile
 import tqdm
-import numpy as np
+
+def add_noise(pcm, noise, snr_db):
+  ns_pcm = copy.deepcopy(pcm)
+
+  if args.apply_jointb:
+    f_orig = librosa.stft(ns_pcm)
+    m_orig = magnitude(f_orig)
+    m_orig = librosa.amplitude_to_db(m_orig)
+
+  pcm_en = np.mean(ns_pcm**2)
+  noise_en = np.maximum(np.mean(noise**2), 1e-9)
+  snr_en = 10.**(snr_db/10.)
+
+  noise *= np.sqrt(pcm_en / (snr_en * noise_en))
+  ns_pcm += noise
+  noise_pcm_en = np.maximum(np.mean(ns_pcm**2), 1e-9)
+  ns_pcm *= np.sqrt(pcm_en / noise_pcm_en)
+
+  if args.apply_jointb:
+    f_ns = librosa.stft(ns_pcm)
+    m_ns = magnitude(f_ns); ph_ns = phase(f_ns)
+    m_ns = librosa.amplitude_to_db(m_ns)
+
+    m_ns_new = jointbilatFil.jointBilateralFilter(
+      np.expand_dims(m_ns, -1), np.expand_dims(m_orig, -1))
+    m_ns_new = np.squeeze(m_ns_new, -1)
+    m_ns_new = librosa.db_to_amplitude(m_ns_new)
+
+    ns_pcm = librosa.istft(polar(m_ns_new, ph_ns), length=ns_pcm.shape[0])
+
+  return ns_pcm
+
+def get_feat(_pcm, _spk, _samp_len, noise, snr_db): 
+  _ref = copy.deepcopy(_pcm)
+  if noise is not None:
+    _pcm = add_noise(_pcm, noise, snr_db)
+
+  pcm_feat = tf.train.Feature(float_list=tf.train.FloatList(value=_pcm))
+  spk_feat = tf.train.Feature(int64_list=tf.train.Int64List(value=[vocab[_spk]]))
+
+  feats = {'pcm': pcm_feat, 'speaker': spk_feat}
+  ex = tf.train.Example(features=tf.train.Features(feature=feats))
+  return ex.SerializeToString()
+
+def get_feats(pcm, _spk, noise, snr_db): 
+  exs = []
+  num_seg = max((pcm.shape[0] - samp_len) // hop_len + 1, 0)
+
+  for pcm_idx in range(num_seg):
+    _pcm = pcm[pcm_idx*hop_len: pcm_idx*hop_len+samp_len]
+    _noise = None
+    if noise is not None:
+      _noise = noise[pcm_idx*hop_len: pcm_idx*hop_len+samp_len]
+
+    ex = get_feat(_pcm, _spk, samp_len, _noise, snr_db)
+    exs.append(ex)
+
+  rem_len = pcm[num_seg*hop_len:].shape[0]
+  if (not args.no_remainder) and rem_len > 0:
+    def pad(_in):
+      return np.concatenate([_in,
+        np.zeros(samp_len-_in.shape[0], dtype=_in.dtype)], 0)
+
+    _pcm = pad(pcm[num_seg*hop_len:])
+    _noise = None
+    if noise is not None:
+      _noise = pad(noise[num_seg*hop_len:])
+
+    ex = get_feat(_pcm, _spk, rem_len, _noise, snr_db)
+    exs.append(ex)
+
+  return exs
 
 num_chunks = min(len(train_list), args.num_chunks)
 writers = [tf.io.TFRecordWriter(os.path.join(
     args.output, "train-{}.tfrecord".format(idx))) for idx in range(num_chunks)]
 
 chunk_idx = 0; chunk_lens = [0 for _ in range(num_chunks)]
-ignored = 0
+hop_len = args.samp_len//2; samp_len = args.samp_len
+num_process = 8
 
-for idx, _list in tqdm.tqdm(enumerate(train_list), total=len(train_list)):
-  if len(_list.split()) != 2:
-    warnings.warn("failed to parse {} at line {}".format(_list, idx))
-    continue
+for bidx in tqdm.tqdm(range(len(train_list)//num_process+1)):
+  blist = train_list[bidx*num_process:(bidx+1)*num_process]
+  if len(blist) == 0: break
 
-  spk, wav = _list.split()
-  if spk not in vocab:
-    warnings.warn("vocab {} missing {}".format(args.vocab, spk))
-    continue
+  blist_spk = [e.split()[0] for e in blist]
+  blist_pcm = [e.split()[1] for e in blist]
 
-  pcm, sr = soundfile.read(wav)
-  if pcm.shape[0] < args.samp_len:
-    ignored += 1
-    continue
-
+  pcms = [soundfile.read(e)[0] for e in blist_pcm]
+  spks = blist_spk
+  snr_dbs = np.random.uniform(args.min_snr, args.max_snr, len(blist))
+  
+  noises = [None for _ in range(len(blist))]
   if args.noise_list is not None:
-    if args.apply_jointb:
-      f_orig = librosa.stft(pcm)
-      m_orig = magnitude(f_orig)
-      m_orig = librosa.amplitude_to_db(m_orig)
+    nlist = noise_list[bidx*num_process:(bidx+1)*num_process]
+    noises = [soundfile.read(e)[0] for e in nlist]
+  
+    for nidx in range(len(noises)):
+      pcm = pcms[nidx]; noise = noises[nidx]
+      if pcm.shape[0] >= noise.shape[0]:
+        noise = np.repeat(noise, (pcm.shape[0]//noise.shape[0]+1))
+        noise = noise[:pcm.shape[0]]
+      else:
+        pos = np.random.randint(0, noise.shape[0]-pcm.shape[0]+1)
+        noise = noise[pos:pos+pcm.shape[0]]
+      noises[nidx] = noise
 
-    soundfile.write(os.path.join(args.output, "{}_orig.wav".format(idx)), pcm, 16000)
+  with multiprocessing.Pool(num_process) as pool:
+    exs = pool.starmap(get_feats, zip(pcms, spks, noises, snr_dbs))
 
-    snr_db = np.random.uniform(args.min_snr, args.max_snr)
-    noise, _ = soundfile.read(noise_list[idx])
-
-    noise = np.repeat(noise, (pcm.shape[0]//noise.shape[0]+1))
-    noise = noise[:pcm.shape[0]]
-
-    pcm_en = np.mean(pcm**2)
-    noise_en = np.maximum(np.mean(noise**2), 1e-9)
-    snr_en = 10.**(snr_db/10.)
-
-    noise *= np.sqrt(pcm_en / (snr_en * noise_en))
-    pcm += noise
-    noise_pcm_en = np.maximum(np.mean(pcm**2), 1e-9)
-    pcm *= np.sqrt(pcm_en / noise_pcm_en)
-    soundfile.write(os.path.join(args.output, "{}_ns.wav".format(idx)), pcm, 16000)
-
-    if args.apply_jointb:
-      f_ns = librosa.stft(pcm)
-      m_ns = magnitude(f_ns); ph_ns = phase(f_ns)
-      m_ns = librosa.amplitude_to_db(m_ns)
-
-      m_ns_new = jointbilatFil.jointBilateralFilter(
-        np.expand_dims(m_ns, -1), np.expand_dims(m_orig, -1))
-      m_ns_new = np.squeeze(m_ns_new, -1)
-      m_ns_new = librosa.db_to_amplitude(m_ns_new)
-
-      pcm = librosa.istft(polar(m_ns_new, ph_ns), length=pcm.shape[0])
-      soundfile.write(os.path.join(args.output, "{}_ns_new.wav".format(idx)), pcm, 16000)
-
-  hop_len = args.samp_len//2
-  for pcm_idx in range((pcm.shape[0]-args.samp_len)//hop_len):
-    _pcm = pcm[pcm_idx*hop_len : pcm_idx*hop_len+args.samp_len]
-
-    pcm_feat = tf.train.Feature(float_list=tf.train.FloatList(value=_pcm))
-    spk_feat = tf.train.Feature(int64_list=tf.train.Int64List(value=[vocab[spk]]))
-    feats = {'pcm': pcm_feat, 'speaker': spk_feat}
-
-    ex = tf.train.Example(features=tf.train.Features(feature=feats))
-    writers[chunk_idx].write(ex.SerializeToString())
-
-    chunk_lens[chunk_idx] += 1
-    chunk_idx = (chunk_idx+1) % num_chunks
+  for ex in exs:
+    for _ex in ex:
+      writers[chunk_idx].write(_ex)
+      chunk_lens[chunk_idx] += 1
+      chunk_idx = (chunk_idx+1) % num_chunks
 
 for writer in writers:
   writer.close()
@@ -133,5 +178,5 @@ with open(args_file, "w") as f:
 os.chmod(args_file, S_IREAD|S_IRGRP|S_IROTH)
 
 import shutil
-for origin in [os.path.abspath(__file__)]:
+for origin in [os.path.abspath(__file__), args.train_list]:
   shutil.copy(origin, args.output)
