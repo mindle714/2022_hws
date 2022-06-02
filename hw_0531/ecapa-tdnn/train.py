@@ -12,9 +12,9 @@ tf.random.set_seed(seed)
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("--tfrec", type=str, required=True) 
+parser.add_argument("--tfrecs", nargs="+", default=[]) 
+parser.add_argument("--weights", nargs="+", default=[]) 
 parser.add_argument("--vocab", type=str, required=True) 
-parser.add_argument("--val-tfrec", type=str, required=False, default=None)
 parser.add_argument("--batch-size", type=int, required=False, default=64) 
 parser.add_argument("--eval-step", type=int, required=False, default=100) 
 parser.add_argument("--save-step", type=int, required=False, default=1000) 
@@ -25,17 +25,28 @@ parser.add_argument("--val-lr-update", type=float, required=False, default=3)
 parser.add_argument("--output", type=str, required=True) 
 args = parser.parse_args()
 
-import json
-tfrec_args = os.path.join(args.tfrec, "ARGS")
-with open(tfrec_args, "r") as f:
-  samp_len = json.loads(f.readlines()[-1])["samp_len"]
+if len(args.tfrecs) == 0: sys.exit(0)
+assert len(args.tfrecs) == len(args.weights)
+weights = [int(e) for e in args.weights]
+weights = weights / np.sum(weights)
 
-if args.val_tfrec is not None:
-  val_tfrec_args = os.path.join(args.val_tfrec, "ARGS")
-  with open(val_tfrec_args, "r") as f:
-    val_samp_len = json.loads(f.readlines()[-1])["samp_len"]
-  if val_samp_len != samp_len:
-    sys.exit('validation data has sample length {}'.format(val_samp_len))
+import json
+samp_len = None
+mix_lens = []
+
+for tfrec in args.tfrecs:
+  tfrec_args = os.path.join(tfrec, "ARGS")
+  with open(tfrec_args, "r") as f:
+    _json = json.loads(f.readlines()[-1])
+    _samp_len = _json["samp_len"]
+
+    _mix_len = 0
+    if "mixup_multiplier" in _json:
+      _mix_len = _json["mixup_multiplier"]
+    
+    if samp_len is None: samp_len = _samp_len
+    assert samp_len == _samp_len
+    mix_lens.append(_mix_len)
 
 vocab = [e.strip() for e in open(args.vocab).readlines()]
 
@@ -73,15 +84,22 @@ if gpus:
 import parse_data
 import glob
 
-tfrec_list = glob.glob(os.path.join(args.tfrec, "train-*.tfrecord"))
-dataset = parse_data.gen_train(tfrec_list, samp_len,
-  batch_size=args.batch_size, seed=seed)
+datasets = []
+for tfrec, mix_len in zip(args.tfrecs, mix_lens):
+  tfrec_list = glob.glob(os.path.join(tfrec, "train-*.tfrecord"))
+  
+  if mix_len == 0:
+    dataset = parse_data.gen_train_v1(tfrec_list,
+      samp_len, mix_len, len(vocab),
+      batch_size=args.batch_size, seed=seed)
+  else:
+    dataset = parse_data.gen_train_v2(tfrec_list,
+      samp_len, mix_len, len(vocab),
+      batch_size=args.batch_size, seed=seed)
 
-val_dataset = None
-if args.val_tfrec is not None:
-  val_tfrec_list = glob.glob(os.path.join(args.val_tfrec, "train-*.tfrecord"))
-  val_dataset = parse_data.gen_val(val_tfrec_list, samp_len,
-    batch_size=args.batch_size, seed=seed)
+  datasets.append(dataset)
+
+dataset = tf.data.Dataset.sample_from_datasets(datasets, weights=weights, seed=seed)
 
 lr = tf.Variable(args.begin_lr, trainable=False)
 # lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
@@ -92,7 +110,7 @@ import model
 m = model.tdnn(len(vocab))
 
 specs = [val.__spec__ for name, val in sys.modules.items() \
-  if isinstance(val, types.ModuleType)]
+  if isinstance(val, types.ModuleType) and not ('_main_' in name)]
 origins = [spec.origin for spec in specs if spec is not None]
 origins = [e for e in origins if e is not None and os.getcwd() in e]
 
@@ -106,9 +124,9 @@ log_writer = tf.summary.create_file_writer(logdir)
 log_writer.set_as_default()
 
 @tf.function
-def run_step(step, pcm, spk, training=True):
+def run_step(step, pcm, target, training=True):
   with tf.GradientTape() as tape, log_writer.as_default():
-    loss = m((pcm, spk), training=training)
+    loss = m((pcm, target), training=training)
     loss = tf.math.reduce_mean(loss)
     tf.summary.scalar("loss", loss, step=step)
 
@@ -134,34 +152,13 @@ prev_val_loss = None; stall_cnt = 0
 for idx, data in enumerate(dataset):
   if idx > args.train_step: break
 
-  loss = run_step(tf.cast(idx, tf.int64), data["pcm"], data["speaker"])
+  loss = run_step(tf.cast(idx, tf.int64),
+    data["pcm"], data["target"])
   log_writer.flush()
 
   if idx > 0 and idx % args.eval_step == 0:
     logger.info("gstep[{}] loss[{:.2f}] lr[{:.2e}]".format(
       idx, loss, lr.numpy()))
-
-  if val_dataset is not None and (idx > 0 and idx % args.val_step == 0):
-    val_loss = 0; num_val = 0
-    for val_data in val_dataset:
-      val_loss += run_step(tf.cast(idx, tf.int64),
-        val_data["s1"], val_data["s2"], val_data["mix"], training=False)
-      num_val += 1
-    val_loss /= num_val
-
-    if prev_val_loss is None:
-      prev_val_loss = val_loss
-    else:
-      if prev_val_loss < val_loss: stall_cnt += 1
-      else: stall_cnt = 0
-
-    if stall_cnt >= args.val_lr_update:
-      lr.assign(lr / 2.)
-      stall_cnt = 0
-    
-    logger.info("gstep[{}] val-loss[{:.2f}] lr[{:.2e}]".format(
-      idx, val_loss, lr.numpy()))
-    prev_val_loss = min(prev_val_loss, val_loss)
 
   if idx > 0 and idx % args.save_step == 0:
     modelname = "model-{}.ckpt".format(idx)

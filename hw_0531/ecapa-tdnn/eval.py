@@ -24,7 +24,7 @@ with open(exp_args, "r") as f:
   jargs = json.loads(f.readlines()[-1])
   vocab = {e.strip():idx for idx, e in enumerate(open(jargs["vocab"]).readlines())}
 
-  with open(os.path.join(jargs["tfrec"], "ARGS")) as f2:
+  with open(os.path.join(jargs["tfrecs"][0], "ARGS")) as f2:
     jargs2 = json.loads(f2.readlines()[-1])
     samp_len = int(jargs2["samp_len"])
 
@@ -77,6 +77,10 @@ if args.eval_type == "id":
       pcount, len(evals), float(pcount)/(len(evals))*100))
     
 else:
+  expname = expdir.split("/")[-1]
+  epoch = os.path.basename(args.ckpt).replace(".", "-").split("-")[1]
+  f = open("{}-{}.{}".format(expname, epoch, args.suffix), "w")
+
   xvecs = {}
   for idx, _line in enumerate(evals):
     if len(_line.split()) < 3:
@@ -103,9 +107,10 @@ else:
     enroll_xvec = sum(enroll_xvec) / len(enrolls)
     fa_xvec = get_xvec(fa); ta_xvec = get_xvec(ta)
 
-    print("{} target".format(cos_sim(enroll_xvec, ta_xvec)))
-    print("{} nontarget".format(cos_sim(enroll_xvec, fa_xvec)))
+    f.write("{} target\n".format(cos_sim(enroll_xvec, ta_xvec)))
+    f.write("{} nontarget\n".format(cos_sim(enroll_xvec, fa_xvec)))
 
+  '''
   xvecs_val = []; xvecs_tgt = []; xvecs_idx = []; accum = 0
   for idx, spk in enumerate(xvecs):
     xvecs_val += xvecs[spk]
@@ -126,6 +131,7 @@ else:
   epoch = os.path.basename(args.ckpt).replace(".", "-").split("-")[1]
   plt.savefig('{}-{}-vr.png'.format(expname, epoch))
   plt.clf()
+  '''
 
   if args.print_norm:
     def l2_norm(e):

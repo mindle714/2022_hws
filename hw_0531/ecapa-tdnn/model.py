@@ -48,16 +48,16 @@ class tdnn(tf.keras.layers.Layer):
 
   def build(self, input_shape):
     self.frames = [
-      tf.keras.layers.Conv1D(32, 5),
-      tf.keras.layers.Conv1D(32, 3, dilation_rate=2),
-      tf.keras.layers.Dense(32)
+      tf.keras.layers.Conv1D(64, 5),
+      tf.keras.layers.Conv1D(64, 3, dilation_rate=2),
+      tf.keras.layers.Dense(64)
     ]
     self.frame_bns = [tf.keras.layers.BatchNormalization() \
       for _ in range(len(self.frames))]
 
     self.segments = [
-      tf.keras.layers.Dense(32),
-      tf.keras.layers.Dense(32)
+      tf.keras.layers.Dense(64),
+      tf.keras.layers.Dense(64)
     ]
     self.segment_bns = [tf.keras.layers.BatchNormalization() \
       for _ in range(len(self.segments))]
@@ -67,9 +67,6 @@ class tdnn(tf.keras.layers.Layer):
   def call(self, inputs, training=None):
     pcm, ref = inputs
     x = mel_filterbank(pcm)
-
-    if ref is not None:
-      ref = tf.squeeze(ref, -1)
 
     # cmvn; TODO need to consider online cmvn
     # m, v = tf.nn.moments(x, axes=1, keepdims=True)
@@ -88,7 +85,7 @@ class tdnn(tf.keras.layers.Layer):
     x = self.softmax(x)
 
     if ref is not None:
-      loss = tf.nn.sparse_softmax_cross_entropy_with_logits(ref, x)
+      loss = tf.nn.softmax_cross_entropy_with_logits(ref, x)
       loss = tf.math.reduce_mean(loss)
       return loss
     

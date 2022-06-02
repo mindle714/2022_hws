@@ -10,6 +10,8 @@ parser.add_argument("--samp-len", type=int, required=False, default=8192)
 parser.add_argument("--no-remainder", action='store_true')
 parser.add_argument("--output", type=str, required=True) 
 parser.add_argument("--apply-jointb", action='store_true') 
+parser.add_argument("--mixup-multiplier", type=int, required=False, default=1) 
+parser.add_argument("--apply-cutmix", action='store_true') 
 args = parser.parse_args()
 
 if args.apply_jointb:
@@ -38,6 +40,9 @@ os.makedirs(args.output, exist_ok=True)
 
 train_list = [e.strip() for e in open(args.train_list).readlines()]
 vocab = {e.strip():idx for idx, e in enumerate(open(args.vocab).readlines())}
+
+import random
+random.shuffle(train_list)
 
 if args.noise_list is not None:
   noise_list = [e.strip() for e in open(args.noise_list).readlines()]
@@ -87,12 +92,15 @@ def get_feat(_pcm, _spk, _samp_len, noise, snr_db):
   if noise is not None:
     _pcm = add_noise(_pcm, noise, snr_db)
 
+  '''
   pcm_feat = tf.train.Feature(float_list=tf.train.FloatList(value=_pcm))
   spk_feat = tf.train.Feature(int64_list=tf.train.Int64List(value=[vocab[_spk]]))
 
   feats = {'pcm': pcm_feat, 'speaker': spk_feat}
   ex = tf.train.Example(features=tf.train.Features(feature=feats))
   return ex.SerializeToString()
+  '''
+  return {'pcm': _pcm, 'speaker': [vocab[_spk]]}
 
 def get_feats(pcm, _spk, noise, snr_db): 
   exs = []
@@ -159,9 +167,50 @@ for bidx in tqdm.tqdm(range(len(train_list)//num_process+1)):
 
   with multiprocessing.Pool(num_process) as pool:
     exs = pool.starmap(get_feats, zip(pcms, spks, noises, snr_dbs))
+  
+  exs_flat = []
+  while True:
+    ignored = 0
+    for idx in range(len(exs)):
+      ex = exs[idx]
+      if len(ex) == 0:
+        ignored += 1
+        continue
+      exs_flat.append(ex.pop(0))
+    if ignored == len(exs): break
 
-  for ex in exs:
-    for _ex in ex:
+  for idx in range(len(exs_flat)//args.mixup_multiplier):
+    _exs = exs_flat[idx*args.mixup_multiplier:(idx+1)*args.mixup_multiplier]
+    _exs_spk = sum([e['speaker'] for e in _exs], [])
+
+    if len(_exs_spk) == len(set(_exs_spk)):
+      mixup_weights = np.random.uniform(size=args.mixup_multiplier)
+      mixup_weights /= np.sum(mixup_weights)
+
+      if not args.apply_cutmix:
+        _pcm = sum([e['pcm'] * w for e, w in zip(_exs, mixup_weights)])
+
+      else:
+        _pcms = []; pcm_pos = 0
+        for idx, (e, w) in enumerate(zip(_exs, mixup_weights)):
+          _len = int(args.samp_len * w)
+          if idx == (args.mixup_multiplier - 1):
+            _len = args.samp_len - pcm_pos
+
+          epcm = e['pcm'][pcm_pos:pcm_pos+_len]
+          _pcms.append(epcm)
+          pcm_pos += _len
+
+        _pcm = np.concatenate(_pcms, 0)
+
+      pcm_feat = tf.train.Feature(float_list=tf.train.FloatList(value=_pcm))
+      spks_feat = tf.train.Feature(int64_list=tf.train.Int64List(value=_exs_spk))
+      mixup_feat = tf.train.Feature(float_list=tf.train.FloatList(value=mixup_weights))
+
+      feats = {'pcm': pcm_feat, 'speakers': spks_feat, 'mixup_weights': mixup_feat}
+      ex = tf.train.Example(features=tf.train.Features(feature=feats))
+      _ex = ex.SerializeToString()
+
       writers[chunk_idx].write(_ex)
       chunk_lens[chunk_idx] += 1
       chunk_idx = (chunk_idx+1) % num_chunks
