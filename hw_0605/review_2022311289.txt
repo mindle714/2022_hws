@@ -4,13 +4,12 @@
 본 논문은 1995년 출시된 HP사의 PA-RISC 2.0 ISA를 가지는 PA-8000 RISC CPU에 대해 설명하고 있다.
 PA-8000은 4-way superscalar microprocessor로, speculative execution과 instruction reorder buffer를 통한
 instruction reordering, large external primary cache, runway system bus를 지원한다.
-PA 2.0은 64 bit functional unit과 mode bit을 통해 32 bit backward compatibility 및 faster throughput을 제공한다.
 56 entry instruction reorder buffer는 모든 instruction에의 register renaming을 지원한다.
 Integer operation으로는 2개의 64 bit ALU, shift/merge unit을 가지고 floating point operation으로는
-2개의 FMAC, divide/sqrt unit을 가진다. 이때 divide/sqrt unit만이 pipeline되지 않는다.
-이러한 functional unit에 발맞추어, 2개의 address adder, dual port의 96 entry TLB 및 cache가 제공된다.
+2개의 FMAC, divide/sqrt unit을 가진다. 이러한 functional unit에 발맞추어, 2개의 address adder, 
+dual port의 96 entry TLB 및 cache가 제공된다.
 
-Branch operation을 위하여는 32 entry branch target address cache와 2가지 mode의 branch prediction module이 지원된다.
+Branch operation을 위하여는 32 entry branch target address cache와 2가지 mode의 branch prediction scheme이 제공된다.
 Fully associative branch target address cache는 taken으로 예측된 branch의 target address를 저장하여, 이후 동일한
 branch address를 만날 시 해당하는 target address를 제공한다. 만일 untaken으로 예측된 branch entry가 BTAC에 존재할 경우
 해당 entry는 제거된다.
@@ -40,7 +39,7 @@ ALU/memory buffer 내의 instruction들은 모든 operand들이 ready된 oldest 
 2 memory execution이 가능하다. Execution 결과는 temporary rename register에 저장되어, instruction이 retire되는 순간 general
 register에 결과가 저장되고 state가 commit된다. Retire unit은 2 ALU or floating-point instruction과 2 memory instruction을 가질 수 있다.
 
-IRB에서 가질 수 있는 instruction dependency는 크게 operand dependency, carry borrow dependency 그리고 address dependency로 나뉠 수 있다.
+IRB에서 가질 수 있는 instruction dependency는 크게 operand dependency, carry borrow dependency 그리고 address dependency로 나뉜다.
 Operand dependency는 RAW depdendency를 의미하며, 자주 발생하는 특성을 가진다. Instruction이 buffer에 추가될 때, IRB는 해당 instruction의
 source operand에 write하는 가장 최신 instruction을 찾아내어, 해당 operand를 특정 rename register에서 받아올지를 저장한다.
 Instruction이 execute될 때에, 해당 instruction의 rename register number가 launch bus를 통해 IRB 전반에 broadcast되어, dependent instruction
@@ -48,8 +47,36 @@ Instruction이 execute될 때에, 해당 instruction의 rename register number�
 IRB는 functional unit에 instruction 정보를 전달함으로써 operand를 다른 f/u 혹은 rename/general register 중 어디에서 받아올지, 결과를 어느
 rename register에 저장할지를 알린다. 만일 instruction launch 시에 dependent한 결과가 rename register로부터 general register에 옮겨졌을 경우,
 rename register의 color bit을 통해 valid 여부를 확인한다.
-
-
-
+PSW의 Carry borrow bit을 사용하는 instruction들은 Carry borrow dependency를 가진다.
+IRB entry 중 마지막 valid entry에 PSW의 일부를 사용하고 있음을 나타내는 정보가 저장된다. IRB에 instruction들이 들어갈 때마다,
+해당 정보가 새로이 들어온 instruciton들에 전파된다. 만일 CB bit을 사용하는 instruction이 수행 가능해지면, 해당 instruction은
+이후의 entry에 data가 available함을 알리고, 또한 본인이 CB bit을 사용하고 있음을 알리는 slot number를 같이 보낸다. 만일 CB bit을 사용하지
+않을 경우 본인이 상위 entry로부터 받은 정보를 pass한다. CB bit을 사용하는 마지막 instruction 수행이 완료되었다는 신호를 받을 경우
+dependency는 사라져 dependency 관련 정보는 지워진다. 이러한 dependency clearing 방식은 broadcast 방식에 비해 사용하는 영역이 작아,
+비록 performance 상으로는 뒤쳐지나 상대적으로 자주 발생하지 않는 CB dependency resolve를 위해 사용되었다.
+Address dependency는 address reorder buffer을 통해 resolve된다. Store-to-load dependency를 위한 comparator를 포함하고, primary miss 이후
+secondary miss 시에는 main memory에의 request가 skip된다.
 
 - 장단점
+본 논문에서 소개하는 PA-8000은 instruction reordering with two load/store pipe,
+branch prediction, single-level off-chip cache 및 runway bus를 통해 고성능의
+processor를 만들어 냈다는 점에서 효율적인 구조로 생각된다. 큰 IRB를 통해 동시에 많은
+instruction들이 수행되며 cache miss 등의 latency가 overlap되는 등 많은 performance 
+gain을 이루어냈다. 
+
+Static/dynamic mode branch prediction 구성은 PBO compile된 프로그램이 profile 정보를
+사용하여 최소한의 cost로 높은 accuracy를 얻을 수 있게 한 점에서 효율적으로 보인다.
+Profile되지 않은 program이라 하더라도 profile된 shared library 사용 시에 branch history
+table을 어지럽히지 않으면서 profiling의 이득을 볼 수 있다는 점 또한 장점으로 생각된다.
+다만 dynamic mode branch scheme의 경우 3-bit shift register의 단순한 구조를 가져,
+더욱 발전된 구성의 dynamic branch predictor를 적용할 경우의 성능 향상이 기대된다.
+
+Single-level off-chip cache 사용은 이전의 HP PA-7100LC와는 차이를 보인다.
+System cost 최소화의 측면에서, data cache에의 영향을 최소화하는 동시에 instruction
+fetch bandwidth를 적당히 유지하고자 PA-7100LC에는 on-chip instruction cache가 포함되었다.
+그러나 PA-8000은, real-world application 상에서는 on-chip에서 가능한 것 이상의 cache size가 성능
+극대화에 필요하다는 사실에 따라 off-chip cache 구조를 채택하게 되었다. 이러한 off-chip 구조가
+on-chip 대비 가질 수 있는 latency로는 branch misprediction이 꼽히는데, 이러한 penalty
+최소화를 위해서 큰 IRB가 대안으로 사용되었다. 이처럼, processor의 목적에 따른 cache design 및
+IRB를 통한 penalty 최소화는 cache 구조를 단순화하면서도 실 performance 상에서 이득을 볼 수 있는
+좋은 선택으로 생각된다.
