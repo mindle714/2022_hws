@@ -1,0 +1,21 @@
+- the hp pa-8000 risc cpu
+
+- 요약
+본 논문은 1995년 출시된 HP사의 PA-RISC 2.0 ISA를 가지는 PA-8000 RISC CPU에 대해 설명하고 있다.
+PA-8000은 4-way superscalar microprocessor로, speculative execution과 instruction reorder buffer를 통한
+instruction reordering, large external primary cache, runway system bus를 지원한다.
+PA 2.0은 64 bit functional unit과 mode bit을 통해 32 bit backward compatibility 및 faster throughput을 제공한다.
+56 entry instruction reorder buffer는 모든 instruction에의 register renaming을 지원한다.
+Integer operation으로는 2개의 64 bit ALU, shift/merge unit을 가지고 floating point operation으로는
+2개의 FMAC, divide/sqrt unit을 가진다. 이때 divide/sqrt unit만이 pipeline되지 않는다.
+이러한 functional unit에 발맞추어, 2개의 address adder, dual port의 96 entry TLB 및 cache가 제공된다.
+
+Branch operation을 위하여는 32 entry branch target address cache와 2가지 mode의 branch prediction module이 지원된다.
+Fully associative branch target address cache는 taken으로 예측된 branch의 target address를 저장하여, 이후 동일한
+branch address를 만날 시 해당하는 target address를 제공한다. 만일 untaken으로 예측된 branch entry가 BTAC에 존재할 경우
+해당 entry는 제거된다.
+Branch prediction은 dynamic, static의 2가지 mode로 동작한다. Mode bit은 TLB entry에 저장되어 page별 branch prediction
+scheme이 결정된다. Dynamic mode에서 instruction fetch unit은 
+
+
+- 장단점
