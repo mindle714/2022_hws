@@ -15,7 +15,41 @@ Fully associative branch target address cache는 taken으로 예측된 branch의
 branch address를 만날 시 해당하는 target address를 제공한다. 만일 untaken으로 예측된 branch entry가 BTAC에 존재할 경우
 해당 entry는 제거된다.
 Branch prediction은 dynamic, static의 2가지 mode로 동작한다. Mode bit은 TLB entry에 저장되어 page별 branch prediction
-scheme이 결정된다. Dynamic mode에서 instruction fetch unit은 
+scheme이 결정된다. Dynamic mode는 256 entry of 3-bit shift register branch history table을 통해 해당 branch의 마지막 
+3 iteration 결과 중 우세한 쪽을 선택한다. 해당 table은 branch instruction이 retire될 때 update된다.
+Static mode는 backward branch는 taken, forwrad branch는 untaken으로 예측한다. Compare and branch instruction에는
+hint가 encode되어 branch 행방을 가늠할 수 있게 한다. PBO compile은 code segment를 rearrange하거나 hint가 더해진 branch를
+사용하는 것으로 branch 경향성을 HW에 전달할 수 있다.
+
+Cache로는 single-level direct mapped off-chip instruction/data cache를 사용한다.
+Data cache tag는 두 쌍이 존재하여 독립적인 2 access가 가능하다. Small on-chip cache를 사용하는 대신 instruction reorder
+buffer로 cache latency를 줄일 수 있고 실질적으로 on-chip cache를 사용해서 얻는 성능적 이점은 상대적으로 적은 반면 
+design complexity는 크기 때문에 flat off-chip cache 구조를 채택하였다.
+최대 10 pending data cache miss, 1 instruction cache miss, 1 instruction cache prefetch가 지원된다.
+
+56 entry instruction reorder buffer는 28 entry의 ALU buffer와 28 entry의 memory buffer로 이루어져 있다. 이러한 buffer는
+instruction의 dependency를 추적하여 ready된 instruction이 곧장 수행될 수 있도록 한다.
+또한 IRB는 branch misprediction 시에 잘못 fetch된 instruction들을 flash-invalidate함으로써 추가 cycle 낭비를 최소화한다.
+IRB의 사용은 data cache miss 시에도 다른 instruction들이 수행 가능하도록 하고, 여러 data cache miss가 overlap되도록 하여
+memory latency를 최소화한다. 상기 서술된 바와 같이 IRB window 크기는 performance에 비례하는데, PA 8000은 동시대 여타 
+processor보다 40% 큰 IRB entry를 가진다.
+Instruction은 우선 sort unit을 통해 ALU buffer 혹은 memory buffer로 route된다. Instruction cache로부터 매 cycle 4 instruction들이
+fetch된다. ALU/memory buffer에 동시에 allocate되는 instruction으로는 branch 혹은 computation/memory component를 같이 사용하는
+LDWM instruction 등이 있다. 해당 instruction의 경우 두 instruction으로 나뉘어 각각의 buffer에 들어간다.
+ALU/memory buffer 내의 instruction들은 모든 operand들이 ready된 oldest instruction 순으로 수행되며, 매 cycle 2 ALU execution,
+2 memory execution이 가능하다. Execution 결과는 temporary rename register에 저장되어, instruction이 retire되는 순간 general
+register에 결과가 저장되고 state가 commit된다. Retire unit은 2 ALU or floating-point instruction과 2 memory instruction을 가질 수 있다.
+
+IRB에서 가질 수 있는 instruction dependency는 크게 operand dependency, carry borrow dependency 그리고 address dependency로 나뉠 수 있다.
+Operand dependency는 RAW depdendency를 의미하며, 자주 발생하는 특성을 가진다. Instruction이 buffer에 추가될 때, IRB는 해당 instruction의
+source operand에 write하는 가장 최신 instruction을 찾아내어, 해당 operand를 특정 rename register에서 받아올지를 저장한다.
+Instruction이 execute될 때에, 해당 instruction의 rename register number가 launch bus를 통해 IRB 전반에 broadcast되어, dependent instruction
+의 dependency가 resolve된다. 해당 과정은 1 cycle이 걸리기 때문에, dependent instruction은 parent instruction 직후에 수행이 가능하다.
+IRB는 functional unit에 instruction 정보를 전달함으로써 operand를 다른 f/u 혹은 rename/general register 중 어디에서 받아올지, 결과를 어느
+rename register에 저장할지를 알린다. 만일 instruction launch 시에 dependent한 결과가 rename register로부터 general register에 옮겨졌을 경우,
+rename register의 color bit을 통해 valid 여부를 확인한다.
+
+
 
 
 - 장단점
