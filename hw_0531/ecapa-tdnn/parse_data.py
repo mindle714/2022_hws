@@ -28,8 +28,8 @@ def gen_train_v1(tfrec_list, pcm_len, mix_len, vocab, batch_size=16, seed=1234):
 
   dataset = dataset.map(parse_func_v1(pcm_len, mix_len))
   dataset = dataset.map(hot_ref_v1(vocab))
-  dataset = dataset.batch(batch_size)
-  dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+  #dataset = dataset.batch(batch_size)
+  #dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
   return dataset
 
 def parse_func_v2(pcm_len, mix_len):
@@ -64,6 +64,6 @@ def gen_train_v2(tfrec_list, pcm_len, mix_len, vocab, batch_size=16, seed=1234):
 
   dataset = dataset.map(parse_func_v2(pcm_len, mix_len))
   dataset = dataset.map(hot_ref_v2(vocab))
-  dataset = dataset.batch(batch_size)
-  dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+  #dataset = dataset.batch(batch_size)
+  #dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
   return dataset

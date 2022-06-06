@@ -100,6 +100,8 @@ for tfrec, mix_len in zip(args.tfrecs, mix_lens):
   datasets.append(dataset)
 
 dataset = tf.data.Dataset.sample_from_datasets(datasets, weights=weights, seed=seed)
+dataset = dataset.batch(args.batch_size)
+dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
 lr = tf.Variable(args.begin_lr, trainable=False)
 # lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(

@@ -12,9 +12,10 @@ parser.add_argument("--output", type=str, required=True)
 parser.add_argument("--apply-jointb", action='store_true') 
 parser.add_argument("--mixup-multiplier", type=int, required=False, default=1) 
 parser.add_argument("--apply-cutmix", action='store_true') 
+parser.add_argument("--mix-magnitude", action='store_true') 
 args = parser.parse_args()
 
-if args.apply_jointb:
+if args.apply_jointb or args.mix_magnitude:
   import jointbilatFil
   import librosa
 
@@ -188,7 +189,24 @@ for bidx in tqdm.tqdm(range(len(train_list)//num_process+1)):
       mixup_weights /= np.sum(mixup_weights)
 
       if not args.apply_cutmix:
-        _pcm = sum([e['pcm'] * w for e, w in zip(_exs, mixup_weights)])
+        if not args.mix_magnitude:
+          _pcm = sum([e['pcm'] * w for e, w in zip(_exs, mixup_weights)])
+
+        else:
+          max_idx = np.argmax(mixup_weights)
+          mag = None; ph = None
+
+          for idx, e in enumerate(_exs):
+            f = librosa.stft(e['pcm'])
+            _mag = magnitude(f)
+            _mag = librosa.amplitude_to_db(_mag)
+
+            if mag is None: mag = np.zeros_like(_mag)
+            mag += mixup_weights[idx] * _mag
+            if idx == max_idx: ph = phase(f)
+    
+          mag = librosa.db_to_amplitude(mag)
+          _pcm = librosa.istft(polar(mag, ph), length=args.samp_len)
 
       else:
         _pcms = []; pcm_pos = 0
