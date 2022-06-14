@@ -1,4 +1,4 @@
-function [rhos, thetas] = myHoughLines(H, nLines)
+function [rhos, thetas] = myHoughLines_wonms(H, nLines)
 %{
 H_flat = reshape(H,1,size(H,1) * size(H,2));
 [~, idx] = sort(H_flat, 'descend');
@@ -16,9 +16,8 @@ peaks = zeros(nLines, 2);
 num_peaks = 0;
 thres = 0.3*max(H(:));
 %thres = 0.5*max(H(:));
-%window = fix(size(H) / 50);
-%radius = fix(window / 2);
-radius = [4 4];
+window = fix(size(H) / 50);
+radius = fix(window / 2);
 
 for i=1:nLines
     [val, idx] = max(H(:));
@@ -31,6 +30,8 @@ for i=1:nLines
     peaks(num_peaks, 1) = r_idx;
     peaks(num_peaks, 2) = c_idx;
 
+    H(r_idx, c_idx) = 0;
+    %{
     % neighborhood suppression
     for j=r_idx-radius(1):r_idx+radius(1)
         for k=c_idx-radius(2):c_idx+radius(2)
@@ -40,6 +41,7 @@ for i=1:nLines
             H(j,k) = 0;
         end
     end
+    %}
 end
 
 peaks = peaks(1:num_peaks,:);
