@@ -13,7 +13,9 @@ nLines    = 50;
 
 imglist = dir(sprintf('%s/*.jpg', datadir));
 
-for i = 1:numel(imglist)
+imgidx = 1;
+f = figure();
+for i = 1:3%numel(imglist)
     
     %read in images%
     [path, imgname, dummy] = fileparts(imglist(i).name);
@@ -29,7 +31,7 @@ for i = 1:numel(imglist)
     [Im] = myEdgeFilter(img, sigma);   
     [H,rhoScale,thetaScale] = myHoughTransform(Im, threshold, rhoRes, thetaRes);
 
-    subplot(1,2,1);
+    subplot(3,2,imgidx+1);
     [rhos, thetas] = myHoughLines(H, nLines);
     lines = houghlines(Im>threshold, 180*(thetaScale/pi), rhoScale, [rhos,thetas],'FillGap',5,'MinLength',30);
     
@@ -39,7 +41,7 @@ for i = 1:numel(imglist)
     end     
     imshow(img2);
 
-    subplot(1,2,2);
+    subplot(3,2,imgidx);
     [rhos, thetas] = myHoughLines_wonms(H, nLines);
     lines = houghlines(Im>threshold, 180*(thetaScale/pi), rhoScale, [rhos,thetas],'FillGap',5,'MinLength',30);
     
@@ -49,6 +51,8 @@ for i = 1:numel(imglist)
     end     
     imshow(img2);
 
-    disp(1);
+    imgidx = imgidx+2;
 end
-    
+x_width=100 ;y_width=100;
+set(f, 'PaperPosition', [0 0 x_width y_width]);
+saveas(f,'ttt.png')

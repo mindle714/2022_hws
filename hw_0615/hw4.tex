@@ -39,7 +39,47 @@ Magnitude, angle gradient of the image $M$, $\alpha$ can be calculated with the 
 Lastly, with non-maximum suppression (NMS), weak magnitude within a window is suppressed, producing thinner edge components.
 NMS is processed as follows: for each pixel position $(x,y)$, its magnitude gradient $M(x,y)$ is compared with the magnitude of
 its neighboring pixels in direction $\alpha(x,y)$ within a window. If $M(x,y)$ is smaller than any of the magnitudes along the
-gradient line, $M(x,y)$ is suppressed. 
+gradient line, $M(x,y)$ is suppressed.
+
+Algorithm\ref{alg:1} shows the pseudo code for the NMS logic. For the implementation, angle gradient $\alpha$ is rounded to
+one of 8-directions, east, north-east, north, north-west, west, south-west, south, south-east and then based on the direction,
+the magnitudes of the pixels along the direction are compared with the center magnitude value to decide whether to suppress the
+center magnitude gradient or not.
+
+\begin{algorithm}
+    \caption{non-maximum suppression}
+    \label{alg:1}
+    \KwIn{$M$ of size $(M,N)$}
+    \KwIn{$\alpha$ of size $(M,N)$}
+    $processed_M = M$\;
+    \For{$i = 1:M$}{
+        \For{$j = 1:N$}{
+            round angle $\alpha(i,j)$ by one of the direction:
+            {east, north-east, north, north-west, west, south-west, south, south-east}\;
+            \If{rounded angle is east or west}{
+                \If{$M(i,j) < M(i,j+1)$ or $M(i,j) < M(i,j-1)$}{
+                    $processed_M(i,j) = 0$\;
+                }
+            }
+            \If{rounded angle is north-east or south-west}{
+                \If{$M(i,j) < M(i+1,j-1)$ or $M(i,j) < M(i-1,j+1)$}{
+                    $processed_M(i,j) = 0$\;
+                }
+            }
+            \If{rounded angle is north or south}{
+                \If{$M(i,j) < M(i+1,j)$ or $M(i,j) < M(i-1)$}{
+                    $processed_M(i,j) = 0$\;
+                }
+            }
+            \If{rounded angle is north-west or south-east}{
+                \If{$M(i,j) < M(i+1,j+1)$ or $M(i,j) < M(i-1,j-1)$}{
+                    $processed_M(i,j) = 0$\;
+                }
+            }
+        }
+    }
+    return $processed_M$\;
+\end{algorithm}
 
 \begin{figure}[h]
     \centering
@@ -51,6 +91,24 @@ gradient line, $M(x,y)$ is suppressed.
 \figurename{\ref{fig:2}} contains the edge detection results of the given image with or without the NMS postprocessing.
 It can be seen that compared to the original(left), postprocessed image(right) has much thinner edge components.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{hw4_1_3}
+    \caption{partial results of edge filtering step by step; first row: original image, second row:
+    result of applying gaussian filter onto the image, third row: magnitude gradient of the smoothed image,
+    fourth row: after applying NMS onto the magnitude image}
+    \label{fig:10}
+\end{figure}
+
+\figurename{\ref{fig:10}} shows the partial results of applying matlab/myEdgeFilter.m step by step.
+Applying gaussian filter generates smoothed image, followed by convolving Sobel masks and calculating magnitude of
+the gradients. By NMS along the gradient line, the thick edge components become thinner.
+
+Output edge component results given several images can be found in \figurename{\ref{fig:1}}.
+It can be seen that various types of edges, ranging from straight lines to curves, isolated components like circles,
+are successfully extracted. Remaining results of the edge detection from the images in data/ can be found in
+results/*\_01edge.png. 
+
 \section*{problem 2: the hough transform}
 
 Matlab code matlab/myHoughTransform.m contains hough transform routine given edge image, threshold for ignoring small edge
@@ -59,8 +117,8 @@ Standard Hough Transform(SHT) that uses the parametric representation of a line 
 \[\rho = x * cos(\theta) + y*sin(\theta)\]
 
 here $\rho$ is the distance between the line and the origin, $\theta$ is the angle of the projection from the origin to the line. 
-\figurename{\ref{fig:3}} depicts the parametrization of a line in both planes. It can be seen that each point in xy-plane
-can be represented as a sinusoiadal curve.  
+\figurename{\ref{fig:3}} depicts the parametrization of a line in both planes. It can be seen that every line candidates that 
+passes through each point in xy-plane can be represented as a sinusoidal curve in $\rho\theta$-plane.  
 
 \begin{figure}[h]
     \centering
@@ -69,40 +127,97 @@ can be represented as a sinusoiadal curve.
     \label{fig:3}
 \end{figure}
 
-Hough transform given thresholded edge filter response starts with building valid $\rho$ and $\theta$ values with
-the resolution parameters; followed by the MATLAB implementation, in matlab/houghTransform.m, max/min value for 
-the $rho$ is defined as:
-\[D = \sqrt{(h-1)^2 + (w-1)^2}\]
-\[min_{\rho} = -res_{\rho} * ceil(D / res_{\rho}) , \quad max_{\rho} = res_{\rho} * ceil(D / res_{\rho}) \]
-where $h$, $w$ is the height, width of the given image and $res_{\rho}$ is the resolution unit of the $rho$.
-Thus, the valid values for $\rho$ and $\theta$ are defined as below. Notice that $\theta$ is in degree unit in below equation.
-\[scale_{\rho} = min_{\rho}:res_{\rho}:max_{\rho}\]
-\[scale_{\theta} = -90:res_{\theta}:90-res_{\theta}\]
+As can be seen in \figurename{\ref{fig:3}}, intersection of the sinusoidal curves in $\rho\theta$-plane represents the common
+line that passes through the points in $xy$-plane; The main goal for hough transformation is to find the maximum intersection 
+occurs among the various sinusoidal curves mapped from points in $xy$-plane so that the line that penetrates most of the points
+in $xy$-plane can be found. 
 
-The hough transform matrix $H$ is $length(scale_{\theta}) \times length(scale_{\rho})$. Initially,
-$H$ is set to zero. Then, for every pixel position $(x,y)$ in edge response, $\rho = x * cos(\theta) + y * sin(\theta)$ is calculated
+However it can be too exhaustive to find every intersections because $\rho$ and $\theta$ are both continuous values;
+thus practical hough transform implementation given thresholded edge filter response starts with 
+building valid $\rho$ and $\theta$ values with the resolution parameters. 
+
+Followed by the MATLAB 
+implementation, in matlab/houghTransform.m, max/min values for the $\rho$ are defined as:
+\[D = \sqrt{(h-1)^2 + (w-1)^2}\]
+\[min_{\rho} = -res_{\rho} * ceil(D / res_{\rho})\]
+\[max_{\rho} = res_{\rho} * ceil(D / res_{\rho}) \]
+where $h$, $w$ is the height, width of the given image and $res_{\rho}$ is the resolution unit of the $\rho$.
+Thus, the valid values for $\rho$ and $\theta$, referred as $scale_{\rho}$ and $scale_{\theta}$ are 
+defined as below. Notice that $\theta$ is degree value in below equation.
+\[scale_{\rho} = min_{\rho}:res_{\rho}:max_{\rho}\]
+\[scale_{\theta} = -90^\circ:res_{\theta}:90^\circ-res_{\theta}\]
+
+$scale_{\theta}$ ranges from $-90^\circ$ to $90^\circ$ so that the line angle can cover every direction; if the 
+parametric representation is of linear equation as:
+\[y = ax + b\]
+then it would have been impossible to parameterize vertical line, having infinite slope in linear equation.
+
+With the valid list of $\rho$ and $\theta$ defined as $scale_{\rho}$ and $scale_{\theta}$, 
+to find the intersections in $\rho\theta$-plane, mapping a continuous
+sinusoidal curve of $\rho\theta$-plane into quantized points in $sclae_{\rho}$, $scale_{\theta}$ and 
+accumulate each points so to find the maximum intersection is needed.
+
+Accumulation of intersections on quantized $\rho\theta$-plane works as follows: the hough transform matrix $H$ is defined as 
+$length(scale_{\theta}) \times length(scale_{\rho})$, initially set to zero.
+Then, for every pixel position $(x,y)$ in the given edge response image, $\rho = x * cos(\theta) + y * sin(\theta)$ is calculated
 for every $\theta$ in $scale_{\theta}$. $\rho$ is approximated as the value in $scale_{\rho}$, and $H(i_{\theta}, i_{\rho})$ is 
 increased by 1 where $scale_{\theta}(i_{\theta}) = \theta$, $scale_{\rho}(i_{\rho}) = \rho$. 
+
+Resulting matrix $H$ contains the hough transform accumulator containing the number of intersections found in quantized 
+$\rho\theta$-plane, in other words, the number of votes for having a line with the given parameter $\rho$, $\theta$ in 
+$xy$-plane thoughout the edge response image.
+
+\begin{algorithm}
+    \caption{acuumulation on parametric representation}
+    \label{alg:3}
+    \KwIn{$Image$ of size $(M,N)$}
+    \KwIn{$scale_{\rho}$}
+    \KwIn{$scale_{\theta}$}
+    $H = zeros(length(scale_{\theta}), length(scale_{\rho})))$\;
+    \For{$i = 1:M$}{
+        \For{$j = 1:N$}{
+            \If{$Image(i,j)$}{
+                \For{$theta\_idx = 1:length(scale_{\theta})$}{
+                    $theta = scale_{\theta}(theta\_idx)$\;
+                    $rho = (n-1) * cos(theta) + (m-1) * sin(theta)$\;
+                    convert $rho$ into scale index $rho\_idx$\;
+                    $H(theta\_idx, rho\_idx) = H(theta\_idx, rho\_idx) + 1$\;
+                }
+            }
+        }
+    }
+    return $H$\;
+\end{algorithm}
+Algorithm\ref{alg:3} contains the pseudo-code routine for accumulating intersections as described above.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{hw4_2_2}
-    \caption{edge response and its hough transform of the given image. $res_{\rho} = 2$, $res_{\theta} = 2^{\circ}$}
+    \caption{edge response and its hough transform of the given image. $res_{\rho} = 2$, $res_{\theta} = 2^{\circ}$
+    is used for hough transformation}
     \label{fig:4}
 \end{figure}
 
-\figurename{\ref{fig:4}} depicts the hough transform given the edge response image. In $\theta$ range $-40 ~ -20$, high accumulation
-is observed which can be one of the major lines. 
+\figurename{\ref{fig:4}} depicts the hough transform given edge response images. Depending on the image, the range
+containing high accumulator value differs. In first row of \figurename{\ref{fig:4}}, at $\theta$ range from $-40^\circ$ to $-20^\circ$, high accumulation
+is observed which can be one of the major lines. On the other hand, at third row, high accumulations are largely observed
+in $\theta$ range from $-40^\circ$ to $60^\circ$. This can indicate two things; there can be many noisy edge responses, or
+it can produce some thick lines. To reduce unwanted noisy lines, postprocessing can be done in next section.
+
+Remaining results of the hough transformation from the images in data/ can be found in
+results/*\_03hough.png. 
 
 \section*{problem 3: finding lines}
 
-Matlab code matlab/myHoughLines.m accepts the hough transform matrix $H$ and number of peaks to be extracted as input
+Matlab code matlab/myHoughLines.m accepts the hough transform matrix $H$ and the number of peaks to be extracted as input
 arguments and returns the peak coordinates within $H$. The peak in $\rho\theta$ plane corresponds to a line in $xy$ plane.
+
 Naive implementation of returning $\rho\theta$ indices of top $N$ values in $H$ where $N$ refers to the maximum number of
 peaks to be found can generate thick lines, unwanted noises. Non-maximum suppression on $\rho\theta$ plane can help with
 thinner lines while suppressing noisy lines. NMS can be done as follows: For each iteration, select the index 
 $(i_{\rho} i_{\theta})$ from $H$ having the maximum value, and then set $H(i, j)$ as $0$ where $(i, j)$ is the indices 
 within the window centered at $(i_{\rho}, i_{\theta})$.
+
 Detailed algorithm can be found in Algorithm\ref{alg:2}.
 
 \begin{algorithm}
@@ -131,14 +246,25 @@ Detailed algorithm can be found in Algorithm\ref{alg:2}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{hw4_3_1}
-    \caption{results of extracting peaks from $H$ given an image. 
-    left: NMS postprocessing is applied on peak extraction; right: no postprocessing is done}
+    \includegraphics[width=0.85\linewidth]{hw4_3_1}
+    \caption{results of extracting peaks from $H$ given images. 
+    left: without applying NMS postprocessing; right: after applying NMS}
     \label{fig:5}
 \end{figure}
 
+As can be seen in Algorithm\ref{alg:2}, the default threshold for excluding the peaks below is set to $0.3 * max(H)$
+and the default window size to be considered as "neighborhood" is set to $9 \times 9$. Thus changing these parameters
+can affect the result of selected lines; if the threshold is too high or too low, it may exclude some lines or add 
+unwanted minor lines. Growing the window size can be effective if the lines in the original image is scattered 
+through entire image; if there exists lines that are close enough, with big window size, the lines can be skipped 
+due to the suppression. On the other side, with smaller window size, the effect of NMS can be diminished; it might 
+not remove the overlapped lines that are essentially the same. Adjusting the parameters on extracting the lines 
+heavily depends on the images.
+
 \figurename{\ref{fig:5}} shows the effect of applying NMS on peak extraction. It can be seen from
 the left of \figurename{\ref{fig:5}} that the lines become thinner with some noisy lines suppressed.
+Remaining results of the line detection from the images in data/ can be found in
+results/*\_04lines.png. 
 
 \section*{problem 4: hough circle transform}
 
@@ -147,8 +273,9 @@ is based on circular equation. Given center point of a circle $(a, b)$ and $r$ a
 can be defined as:
 \[(x-a)^2 + (y-b)^2 = r^2\]
 
-By the equation, $xy$-plane can be mapped to 3-dimensional $(a, b, r)$ space. As in \figurename{\ref{fig:6}},
-a circle in $xy$-plane is mapped to the surface of an inverted cone having apex $(x, y, 0)$.
+By the circular equation above, $xy$-plane can be mapped to 3-dimensional $(a, b, r)$ space. 
+As in \figurename{\ref{fig:6}}, possible circular candidates passing through the points in 
+$xy$-plane can be mapped to the surface of an inverted cone having apex $(x, y, 0)$.
 
 \begin{figure}[h]
     \centering
@@ -158,8 +285,9 @@ a circle in $xy$-plane is mapped to the surface of an inverted cone having apex 
 \end{figure}
 
 As in SHT, finding maximum intersections between the surfaces of the cones in $(a, b, r)$ space can be inverted
-to the strong circular component in $xy$-plane. However, since the parametric space is 3-dimensional, the process of
-finding maximum intersections can be divided into two stages; first, with predefined radius, find the optimal center
+to the strong circular component in $xy$-plane. However, since the parametric space is 3-dimensional, there can be
+several implementations for finding the parameter $(a, b, r)$. One of the implementation divides the process of
+finding maximum intersections into two stages; first, with predefined radius, find the optimal center
 of the circles from $ab$-plane, then find the optimal radius given the circle centers from $r$-line. 
 
 \begin{figure}[h]
@@ -173,6 +301,9 @@ of the circles from $ab$-plane, then find the optimal radius given the circle ce
 \figurename{\ref{fig:7}} shows the example of mapping between $xy$-plane and $ab$-plane with known radius $r$.
 As in SHT, maximum intersection from the parametric representations, depicted as red dots in $ab$-plane,
 can be inverted back to $xy$-plane defining the center of major circles from the scattered data.
+Though this implementation need to have predefined radius to find the circle center and the accuracy of
+detecting every circles in the image can depend on the hyperparameter, the process is done on either 2-dimensional
+$ab$-plane or 1-dimensional $r$-line, making the implementation tractable with small memory footprint. 
 
 In case the radius is unknown, iterating over 3-dimensional parametric space to find the maximum intersections
 is also possible, while 3-dimensional accumulation is costly in terms of both memory and latency. 
@@ -196,5 +327,6 @@ parametric space defines both the radius $r$ and the center of the circle $(a, b
 
 The example of applying CHT onto the image of multiple circles is shown in \figurename{\ref{fig:9}}. It can be 
 seen that both circle center and its radius is approximated precisely.
+Based on the parametric representation, ellipse, or any other form of structure would be able to be detected.
 
 \end{document}

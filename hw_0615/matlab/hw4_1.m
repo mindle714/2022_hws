@@ -13,8 +13,8 @@ nLines    = 50;
 
 imglist = dir(sprintf('%s/*.jpg', datadir));
 
+imgidx = 1;
 for i = 1:numel(imglist)
-    
     %read in images%
     [path, imgname, dummy] = fileparts(imglist(i).name);
     img = imread(sprintf('%s/%s', datadir, imglist(i).name));
@@ -29,10 +29,10 @@ for i = 1:numel(imglist)
     [Im1] = myEdgeFilter(img, sigma);
     [Im2] = myEdgeFilter_wonms(img, sigma);
 
-    subplot(1,2,1);
+    subplot(3,2,imgidx);
     imshow(img); %imshow(Im2);
-    subplot(1,2,2);
+    subplot(3,2,imgidx+1);
     imshow(Im1);
-    disp(1);    
+    imgidx = imgidx + 2;
 end
     

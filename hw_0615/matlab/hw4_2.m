@@ -13,7 +13,9 @@ nLines    = 50;
 
 imglist = dir(sprintf('%s/*.jpg', datadir));
 
-for i = 1:numel(imglist)
+imgidx = 1;
+f = figure();
+for i = 1:3%numel(imglist)
     
     %read in images%
     [path, imgname, dummy] = fileparts(imglist(i).name);
@@ -28,33 +30,18 @@ for i = 1:numel(imglist)
     %actual Hough line code function calls%  
     [Im] = myEdgeFilter(img, sigma);   
 
-    subplot(2,2,1);
+    subplot(3,2,imgidx);
     imshow(Im>threshold);
 
-    subplot(2,2,2);
+    subplot(3,2,imgidx+1);
     [H,rhoScale,thetaScale] = myHoughTransform(Im, threshold, 2, deg2rad(2));
     Ht = H';
     imshow(Ht/max(Ht,[],'all'),[],'XData',rad2deg(thetaScale),'YData',rhoScale,...
             'InitialMagnification','fit');
     xlabel('\theta'), ylabel('\rho');
     axis on, axis normal, hold on;
-
-    subplot(2,2,3);
-    [H,rhoScale,thetaScale] = myHoughTransform(Im, threshold, 2, deg2rad(0.5));
-    Ht = H';
-    imshow(Ht/max(Ht,[],'all'),[],'XData',rad2deg(thetaScale),'YData',rhoScale,...
-            'InitialMagnification','fit');
-    xlabel('\theta'), ylabel('\rho');
-    axis on, axis normal, hold on;
-
-    subplot(2,2,4);
-    [H,rhoScale,thetaScale] = myHoughTransform(Im, threshold, 1, deg2rad(2));
-    Ht = H';
-    imshow(Ht/max(Ht,[],'all'),[],'XData',rad2deg(thetaScale),'YData',rhoScale,...
-            'InitialMagnification','fit');
-    xlabel('\theta'), ylabel('\rho');
-    axis on, axis normal, hold on;
-
-    disp(1);
+    imgidx = imgidx + 2;
 end
-    
+x_width=100 ;y_width=100;
+ set(f, 'PaperPosition', [0 0 x_width y_width]);
+saveas(f,'ttt.png')    
