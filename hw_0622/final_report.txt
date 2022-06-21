@@ -201,58 +201,20 @@ Addition, subtraction, multiplication의 operation을 수행하며, 구현 방�
 FPU는 굉장이 복잡하여 보통 integer unit보다 몇 배는 크다.
 SIMD unit은 동일한 operation을 주어진 입력 group에 동시에 수행하는 유닛을 일컫는다.
 유명한 SIMD instruction set으로는 x86의 SSE 등이 있다.
-
--- Result Bypassing
- the result of a computation does not update the machine 
-state until the commit stage, which may be many cycles after the result was generated. The result of 
-the computation becomes speculatively available after the write-back stage, though.
--> improve performance, dependent instructions can execute speculatively by reading their source operands from the noncommitted machine state
-
---- Bypass in a Small Out-of-Order Machine
---- Multilevel Bypass for Wide Out-of-Order Machines
---- Bypass for In-Order Machines
---- Organization of Functional Units
-
-클러스터링 스킵
--- Clustering
---- Clustering the Bypass Network
---- Clustering with Replicated Regitser Files
---- Clustering with Distributed Issue Queue and Register Files
+Result bypassing은 결과값이 commit stage를 통해 state에 업데이트되기 전에 값을 사용함으로써 cycle을 절약하고 성능을 높이는 방식이다.
 
 - The Commit Stage
--- Introduction
-Most current processors are based on an execution model based on sequence of instructions where 
-one instruction is executed right after the previous one completes. Therefore, processors behave 
-as if they would be executing instructions one after the other in the original sequential order
-instructions may modify the processor state in an order different than the sequential order
 
-The most common solution for existing processors in order to emulate the sequential execution of 
-instructions is to implement an additional stage called commit at the end of the pipeline
-A processor operates with two separate states: the architectural state and the speculative state
+프로세서는 외부적으로 instruction을 sequential하게 수행한다. 그러나 내부적으로는 out of order 수행을 통해 
+sequential order와는 다른 state를 만들어 낼 수 있다. 이러한 경우에 sequential order를 emulate하기 위한 방법으로는 
+commit stage를 pipeline의 말단에 두고 프로세서가 architectural state와 speculative state의 두 state에서 기능하게 하는 방법이 있다.
+Architectural state는 instruction이 commit된 경우에만 업데이트되어 프로세서가 sequential하게 수행되는 것처럼 보이게 한다.
+이와 달리 speculative state에는 architectural state에 더해 in-flight modification 또한 포함된다.
 
-The architectural state is updated at commit as if the processor would execute instructions in 
-sequential order. By contrast, the speculative state implies the architectural state plus the modifications 
-performed by the instructions that are in-flight in the processor
+P6과 같은 프로세서의 경우에는 reorder buffer 및 retire register file(RRF)를 통해 speculative state와 architectural state를 구현한다.
+Instruction의 수행 결과는 ROB에 저장되고 commit되는 순간에 해당 값은 RRF로 옮겨진다. 상기 본 것과 같이, 이와 같은 ROB with RRF 방식은
+read after issue 방식의 source operand 접근 방식에는 불리하다.
 
--- Architectural State Management
-The architectural state comprises the memory state plus the value of every logical register.
-As part of the architectural state, the memory cannot be modified until an instruction commits. The reason is that we cannot propagate memory updates to the rest of the system (devices, 
-other cores, etc.) until we are sure that the updates are correct
-
---- Architectural State Based on a Retire Register File
-Processors like the P6 implement a reorder buffer (ROB) where instructions store the produced 
-values until they retire and become part of the architectural state. Then, the values are copied into 
-a register file with as many entries as logical registers available. This register file stores the architectural state for every logical register and is usually called retire register file (RRF
-
-r, implementing an ROB-based architecture with RRF where consumers read their 
-source operands after issue complicates this notification. In this case, the commit logic does have to 
-notify the invalidation of the ROB entry not only to the allocation stage but also to all instructions 
-residing in pipeline stages between allocation and issue, including instructions in the issue queue. 
-Then, each of these instructions should check whether the notification affects to any of their sources 
-and update their information accordingly in order to read their sources from the right place when 
-they are issued.
-
---- Architectural State Based on a Merged Register File
 MIPS R10000, Alpha 21264나 Intel Pentium 4의 경우에는 architectural state와 speculative state가 동일한 register file에 저장되는
 merged register file을 구현하고 있다. 이때, RF내 value 값은 (ROB 구현 때와 같이) 위치를 이동하지 않으므로, read-after-issue
 시에도 renaming table과 in-flight instruction에 위치 변경에 대한 notify를 필요로 하지 않는다.
@@ -260,14 +222,9 @@ Resource reclamation 시에도, ROB entry는 instruction이 commit된 직후 rec
 사용되는지 확인 후에 reclaim해야 한다. 즉, instruction A에 의해 할당받아진 register는 A보다 이후에 나타나는 instruction B가 
 A와 동일한 logical registser에 값을 적을 때에야 reclaim이 가능해진다.
 
-In a nutshell, whereas ROBbased architectures take advantage of the ROB entry that is assigned sequentially to store the produced values, the register file-based architectures require an additional list on renaming that stores 
-the register file identifiers that are available
-
--- Recovery of the Speculative State
 speculative state는 branch misprediction이나 younger instruction에서의 exception 발생 시에 수정사항을 undo해한다.
 이는 ROB 방식이냐 merged RF 방식이냐에 따라 구현 방식이 달라진다.
 
---- Recovery from a Branch Misprediction
 Branch misprediction 시에 speculative state에는 잘못된 path로의 fetch, rename 및 execute가 이루어진 invalid state가 저장된다.
 즉 branch misprediction이 발견될 경우 speculative state 및 PC는 wrong path 이전의 상태로 되돌아가야 한다.
 Recovery 과정은 크게 front-end recovery와 back-end recovery의 두 부분으로 나뉜다. Front-end recovery는 잘못 fetch된 instruction의
@@ -276,17 +233,8 @@ reorder buffer 등의 buffer에 잘못 포함된 instruction들을 제거하는 
 잘못 allocation된 resource 또한 reclaim되어야 한다. Front-end recovery는 Back-end recovery보다 빨리 끝나기 때문에 
 correct path에서의 fetch부터 allocation 이전까지와 back-end recovery는 overlap될 수 있다.
 
----- Handling Branch Mispredictions on an ROB-Based Architecture with RRF
-Retire register file을 가지는 ROB 방식의 구조에서
-
-hen a branch misprediction is encountered in an Intel Pentium Pro, the processor does not 
-recover the speculative state until all instructions previous to the mispredicted branch and also this 
-branch have been committed. At this point, it is guaranteed that the architectural state in the RRF 
-represents the application state after the execution of the mispredicted branch. Then, the renaming 
-table at the allocation stage is restored by making all its entries to point the values in the RRF in 
-order to begin the renaming of instructions from the correct path.
-
----- Handling Branch Mispredictions on a Merged Register File
+Retire register file을 가지는 ROB 방식의 구조에서는 mispredicted branch 자신 및 그 이전의 instruction들이 모두 
+commit되기 전에 recovery가 수행되지 않는다.
 Merged register file 방식에서는, renaming table의 수정 log가 저장된다. Branch misprediction이 발생할 경우,
 해당 log를 역산함에 따라 올바른 state를 찾을 수 있다. Log 역산의 속도를 빠르게 하기 위해 MIPS R10000과 Alpha 21264는
 주기적으로 checkpoint를 만들어 log 역산 거리를 줄인다. 
