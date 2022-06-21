@@ -49,360 +49,158 @@ clock frequency가 작아짐에 따라 적용하기 힘든 구조가 되었다.
 Cache를 여러 개의 bank로 나누는 방식의 multibanking 구조 또한 존재한다. 이때 동일한 bank에의 접근은 bank conflict을 일으키며,
 서로 다른 bank에의 접근은 한 cycle 내에서 이루어 질 수 있다. 본 구조가 현재 많은 프로세서 구조에서 채택하고 있는 방식이다.
 
--- Instruction Caches
---- Multiported vs. Single Ported
-프로그램 instruction은 보통 메인 메모리 내에 consecutive하게 저장되므로, implemented as single ported caches
---- Lockup Free vs. Blocking
-not lockup-free caches, All instructions implicitly depend on their previous in-program order instruction
--> no performance benefit in implementing lockup-free instruction caches
---- Other Considerations
+Instruction cache의 경우 program instruction이 가지는 여러 특성 탓에 data cache와는 다른 구조적 선택이 가능하다.
+프로그램 instruction은 보통 메인 메모리 내에 consecutive하게 저장되므로, single port cache로도 한 block 내에서 여러 instruction을 issue하는 것이 가능하다. 또한 대부분의 instruction들은 프로그램 순서에 따라 본인 이전의 instruction에 dependent하기 때문에
+lockup-free instruction cache를 쓰는 것에서 성능상 이점을 얻기가 힘들다.
 
 - The Instruction Fetch Unit
--- Instruction Cache
---- Trace Cache
-there is an alternative organization that stores the instructions in dynamic order, and it is 
-known as trace cache [36].
 
--- Branch Target Buffer
-To predict the outcome of a branch, the branch unit has to predict its target address, and in 
-case of conditional branches, whether the branch is to be taken.
-Most branch instructions encode their target address relative to their location (a.k.a. program 
-counter relative, or PC relative for short) by means of an offset.
+Instruction fetch unit은 instruction을 feed하는 역할의 unit으로, instruction cache 및 fetch address 계산 logic으로 이루어져 있다.
+Instruction cache 구현 방식 중에는 instruction의 dynamic order를 저장함으로써 fetch 시의 effective bandwidth를 늘리는 방식의 trace cache가 존재한다.
+매 cycle instruction을 fetch하는 데에 있어 큰 장애물 중 하나는 branch instruction으로, 이는 실행 완료 전까지 올바른 fetch address를
+알지 못하게 한다. 이를 타개하기 위해 사용하는 방법 중 하나는 branch prediction으로, 이는 branch가 taken일지 아닐지를 예측한다.
+추가로, branch target buffer (BTB)를 사용하여 branch의 targeet address 또한 예측한다.
 
--- Return Address Stack
-a hardware LIFO structure, where every time the processor fetches a subroutine 
-call, the address of the next instruction is pushed in. When a return instruction is fetched (or is predicted to be fetched by the BTB), the most recent entry of the RAS is popped out and used as the 
-target address prediction for the return instruction
+Branch의 결과 예측에는, 해당 branch가 taken일지 아닐지에 대한 예측과 더불어 해당 branch의 target address에 대한 예측이 필요하다.
+대부분의 branch instruction은 target address를 PC relative하게 정의하므로, target address 계산은 해당 instruction이 fetch된 이후 가능하다.
+이러한 bubble cycle을 없애기 위해서는 target address 예측이 필요하고, 이는 보통 fetch address를 index로 하는 table, BTB를 가짐으로써 이루어진다.
+Branch execution 이후에 target address가 해당 table에 저장되어, 다음 동일 branch 수행 시에 사용된다.
+Subroutine 상에서의 target address는 Return Address Stack이라는 별도의 LIFO 구조에 저장된다. 프로세서가 subroutine call을 fetch할 때마다
+다음 instruction의 address가 해당 stack에 push되고, return instruction을 만날 경우 RAS의 top entry가 pop되어 예측된 target address로써 사용된다.
 
--- Conditional Branch Prediction
---- Static Prediction
-with profiling -> collecting the most frequent outcome 
-of each branch for a particular run and using it as the prediction
-without profiling -> loop closing branches will be taken.
-to predict the same outcome for all branches
-
---- Dynamic Prediction
-A simple and quite commonly used predictor 
-in the past consists of a table that contains 2n
- entries of 2 bits each
+Branch가 taken일지 아닐지에 관한 prediction인 conditional branch prediction은 static prediction과 dynamic prediction으로 나뉜다.
+Static prediction은 profiling 정보를 사용하는 경우 각 branch의 most frequent outcome을 사용하거나, 단순히 loop closing branch를 taken으로, 그 외에는
+not taken으로 예측하는 방식 등으로 prediction을 할 수 있다.
+Dynamic prediction은 프로그램의 수행 정보를 바탕으로 branch의 결과를 예측하는 방식을 일컫는다. 단순하게는 2 bit의 entry들로 이루어진 table을 만들어
+PC 값으로 table index를 계산하고 2 bit entry로는 finite-state machine을 구축하여 주어진 주소값에서 예상되는 다음 결과값을 계산하도록 할 수 있다. 
+이러한 방식의 predictor는 local information만을 사용하는 local branch predictor이고, 이와 달리 global history를 사용하여 prediction을 하는
+global branch prediction 및 local, global 두 방식을 같이 사용하여 예측 성능을 높이는 hybrid 방식 또한 존재한다. 
 
 - Decode
--- RISC Decoding
-Most RISC processors have a fixed instruction length, which makes finding the boundaries of the instructions in the fetch buffer and 
-passing the raw bits of the instructions to the decoders trivial. The only thing that we need is the 
-index inside the fetch buffer of the first instructions (it may not be aligned to the beginning of the 
-buffer), which is easy to obtain from the low-order bits of the PC.
 
--- The x86 ISA
-The x86 is a variable-length, CISC instruction set
-An x86 instruction constists of up to four prefix bytes (optional), a mandatory opcode that 
-can be from 1 to 3 bytes, and an optional addressing specifier consisting of the ModR/M byte and 
-maybe the SIB (scale-index-base) byte. Some instructions may also require a displacement (up to 
-4 bytes) or an immediate field (also up to 4 bytes).
+Decode stage에서는 instruction의 semantic을 파악하여 어떤 execution을 수행해야 할 것인가에 대한 정보를 얻을 수 있다. Decode unit은 주어지는 byte stream
+을 valid instruction으로 나누는 것에서부터 시작하고, 해당 작업은 ISA에 따라 complexity가 크게 바뀌게 된다.
 
--- Dynamic Translation
-Nowadays, all modern out-of-order x86 microprocessors dynamically translate the x86 instructions into an internal RISC-like instruction format. In particular, Intel calls these internal 
-instructions micro-operations, or μops for short
-
--- High-Performance x86 Decoding
- the process has been split into two decoupled phases: the intstruction length decoder (the 
-“predecode” phase) and the dynamic translation to μops phase (the “decode” phase).
-to hide bubbles in the ILD that may appear when complex x86 encodings arise 
-and to also allow the ILD to proceed when complex translations are required from the dynamic 
-translation unit.
-
---- The Instruction Length Decoder
---- The Dynamic Translation Unit
+대부분의 RISC 프로세서는 고정된 길이의 instruction 길이를 가지는데, 이로써 byte stream으로부터 instruction을 추출하는 일은 RISC 상에서는 간단한 작업이 된다.
+이와 반대로, x86은 variable-length의 CISC instruction set이다. x86 instruction은 최대 4 bytes 길이의 prefix(optional), 1 ~ 3bytes의 필수 opcode, 
+addressing specifier(optional)를 가진다. 추가로 displacement(~ 4bytes), intermediate field(~ 4bytes) 더해지기도 한다.
+이와 같은 instruction을 decode할 시에는 instruction length를 파악하는 것이 우선된다. 또한 operand 추출에도 다양한 가능성이 고려되어야 한다.
+이처럼 복잡한 구조 탓에 최신 x86 프로세서에서 decoding은 여러 cycle을 소모하게 된다.
+최신의 out-of-order x86 프로세서는 x86 instruction을 dynamically translate하여 내부적으로 RISC-like format으로 변환하여 사용하고 있다.
+Intel에서는 이러한 내부 instruction을 micro-operation으로 칭하고 있다. 이러한 변환은 instruction을 parallel하게 수행할 수 있게 한다.
+Intel Nehalem 구조에서는 decoding phase가 instruction length decoder phase와 dynamic translation to micro-ops phase로 나뉨을 확인할 수 있다.
+이렇게 phase를 분리함으로써 length decoder phase 내부의 bubble을 숨기는 한편 두 phase의 동시 수행을 가능하게 하였다.
 
 - Allocation
-Out-of-order processors have a much more modest target. They dynamically get rid of all 
-name dependences but only for the in-flight instructions. Since typical instruction window size is 
-around a hundred instructions, providing a different storage location for them is affordable. In this 
-chapter, we are going to focus on register operands. Renaming is also applied to memory operands, 
-as described in Chapter 6, when talking about the issue of memory instructions
 
--- Renaming through the Reorder Buffer
-e, register values are stored in the reorder buffer and the architectural register file. The 
-reorder buffer (ROB) stores the results of noncommitted instructions, whereas the architectural 
-register file stores the latest committed value for each architectural register. There is a rename table 
-that indicates for every architectural register whether its latest definition is in the ROB or the architectural register file. 
-In order to facilitate the access to operands in the ROB, the rename table 
-also contains an additional field in the former case that indicated the location in the ROB where 
-the operand is (see Figure 5.2).
-When an instruction executes, its value is stored in the ROB. When it later commits, the 
-value is copied from the ROB to the architectural register file. Note that a given operand may reside 
-on two different locations in its lifetime. This may introduce some extra complexity to the scheme 
-to read operands, as discussed below
+Allocation phase에서는 register renaming과 instruction dispatch가 이루어진다.
+Register renaming을 통해서는 in-flight instruction의 name dependency를 resolve할 수 있다. 여기에는 register 재사용에 따른 false dependency를 포함한다.
+Instruction dispatch는 이후 execution을 위한 resource allocation을 일컫는다.
+Register renaming의 구현 방식은 크게 renaming through the reorder buffer, renaming through a rename buffer 그리고 merged register file의 세 가지로 나뉜다.
 
--- Renaming through a Rename Buffer
-The motivation is the fact that an important 
-percentage of the executed instructions (around one third, although it varies a lot across applications 
-and ISAs) does not produce any register result. In the previous rename scheme, each entry in the 
-ROB has a field to store a register result, which implies that about one third of this storage is wasted. 
-The idea of the rename buffer scheme is to have a separate structure for the result of in-flight (i.e., 
-noncommitted) instructions. In this way, only instructions that produce a result consume a storage 
-location. Like the reorder buffer scheme, results are first stored in the rename buffer and moved to 
-the architectural register file when the instruction commits. When an instruction is renamed, if it 
-requires a rename buffer entry and there is not any one available, the instruction is stalled until an 
-entry becomes available (deadlock cannot happen since older instructions that are in flight cannot 
-depend on the stalled one, so eventually, they will commit and free the rename buffer entries that 
-they allocated).
-This scheme is used by the IBM Power3 processor, among other
+Renaming through the reorder buffer는 register value를 reorder buffer(ROB)와 architectural register file에 저장하는 방식을 일컫는다.
+ROB에는 commit되지 않은 instruction 결과가 기록되고 architectural register file에는 마지막으로 commit된 register 결과가 작성된다.
+또한 rename table을 통해 매 architectural register의 값이 ROB에 저장되어 있는지 architectural register file에 저장되어 있는지를 확인할 수 있다.
+Instruction이 수행되고 나면 해당 결과는 ROB에 저장되고, commit 시에 architectural register file로 복사된다. 
+Renaming through a rename buffer 방식은, 많은 수의 instruction이 register result를 만들어 내지 않는다는 점에서 착안하여, instruction의 result 저장을 위한
+별도의 structure(rename 를 가진다. 이를 통해 output result를 가지는 instruction에만 storage가 allocate된다.
 
--- Merged Register File
-there is a single register file that stores both speculative and committed values
-d. Free registers are kept track of in a free list
-Allocated registers are in use 
-and may contain a committed value, a speculative value or no value at all (in the case that it has 
-been allocated but its results have not been produced yet). In addition, there is a register map table 
-that stores the latest assignment (physical register identifier) for each architectural register (see 
-Figure 5.3)
+Merged Register File은 speculative, commited value 모두를 하나의 physical register file에 저장하는 방식이다. 각 register는 free 혹은 allocated 상태로 존재하며
+free register는 free list를 통해 관리된다. Register 값으로는 commited value, speculative value 혹은 none(allocate된 이후 result가 작성되기 이전)의 값이 
+저장될 수 있다. 추가로 register map table이 존재하여 architectural register에 해당하는 physical register id가 저장된다.
+Instruction renaming 시에, rename map을 통해 operand에의 접근이 이루어지며, 해당 instruction이 register 결과값을 가질 시에는 free physical register가 
+allocate되어 결과값이 저장되고 rename map table 또한 업데이트된다. Physical register release는 해당 값이 더 이상 사용되지 않을 때 가능하다. 즉, 
+동일한 architectural destination register를 가지는 instruction의 commit 순간에, 해당 architectural register에의 mapping을 가지고 있던 physical register의 
+release가 이루어진다.
 
--- Register File Read
-There are two alternatives: read before issue and read after issue.
-read before issue: e, the register file is read right before instructions are 
-dispatched to the issue queue, and the values are stored in the issue queue. Obviously, not all the 
-operands are available at that time, so only those available are read, and the rest are marked as nonavailable in the issue queue. Nonavailable operands later are obtained through the bypass network, 
-and the register file is not accessed again.
-, read after issue, the issue queue stores the identifiers of the register source 
-operands, and the operands are actually read after the instruction is issued to be executed. Operands 
-that have just been produced and could not be written yet in the register file are obtained through 
-the bypass network. 
+Reorder buffer와 rename buffer의 경우 merged register file에서와 같은 free list 관리가 필요없다는 점이 장점으로 꼽힌다. 
+Merged register file의 경우, ROB 방식의 경우 register 값이 처음에는 ROB, 다음에는 architectural register file에 작성되는 것과 달리, 
+register 값이 한번 작성되고 이후에는 수정되지 않는다는 장점을 가진다. 또한 ROB의 경우 operand 값의 위치가 ROB, architectural register file 두 곳 중 하나에서
+올 수 있는 것에 반해 merged register file에서는 operand 값을 언제나 동일한 location으로부터 읽을 수 있다는 장점이 있다. 
 
--- Reccovery in Case of Misspeculation
-d. Chapter 8 discusses how this recovery is performed
+Register renaming scheme과 함께 고려되어야 하는 부분은 "언제 register값을 읽느냐"이다. 여기에는 read before issue, read afer issue의 두 가지 방식이 존재한다.
+Read before issue의 경우 instruction이 issue queue로 dispatch되기 전에 register file로부터 값을 읽는다. 이때 존재하지 않는 operand의 경우 unavailable bit이 mark되고
+bypass network를 통해 operand를 읽어들인다. 이 방식은 register file에 적은 port만을 필요로 하는 장점을 가지나, issue queue에 operand value까지 같이 저장해야 하기 때문에
+storage 측면의 cost가 추가된다. 또한, operand 값을 register file에서 읽어 issue queue에 적고, issue queue에서 또 값을 읽어 execution unit으로 보내는 식의 data
+flow로 energy 낭비를 일으킨다. Read after issue의 경우 issue queue에는 operand 값 대신 register id만이 저장되어 실질적으로 값을 읽는 시점은 instruction이 execution
+unit으로 issue된 이후이다. 이는 register file에 추가적인 port를 필요로 하지만 중복된 operand 읽고 쓰기를 줄일 수 있다.
 
--- Comparison of the Three Schemes
-ROB -> simple, no need for free list
-merged register file has a more complex management scheme; It requires a free list 
-of physical register
-the merged register file has two main advantages. First, register values are 
-written just once and never move, whereas for the other two schemes, they are written twice, first 
-in the reorder buffer or rename buffer and later in the architectural register file. This extra activity 
-represents additional energy consumption. Second, in the merged register file, all source operands 
-come from a single location, whereas in the other two schemes, they may come from two different 
-locations (the architectural register file or the reorder buffer/rename buffer). Having a single location reduces the amount of interconnect that is needed and potentially may be beneficial in terms of 
-area spent by the interconnect between the register file and the functional units.
-Finally, the merged register file scheme can be used with the two read approaches described 
-above (read before issue and read after issue) with no significant differences regarding its implementation. On the other hand, the reorder buffer and rename buffer schemes are more appropriate 
-Allocation 45
-for read before issue and present some challenges if one wants to use them together with read after 
-issue. In particular, the challenge comes from the fact that the register values eventually move from 
-one location (reorder buffer or rename buffer) to another (architectural register file). In the readafter-issue scheme, the issue queue stores the identifier of the source operands. If when an instruction is renamed, a source operand is in the reorder buffer or the rename buffer, the issue queue will 
-store a pointer to that location. If the instruction that produces this source operand commits before 
-the operand is read by the consumer, the value will be moved to the architectural register file, and 
-the pointer stored in the issue queue will not be correct anymore, since this entry may be allocated 
-by a different instruction. In order to correct it, it would be necessary to do an associative search in 
-the issue queue for every committed instruction to check if any entry is pointing to its destination 
-register. If this is the case, the pointer should be changed to the corresponding architectural register 
-file entry. All of this is very complex in hardware. The associative search is similar to the wakeup 
-logic described later and, on top of that, additional write ports would be required to store the new 
-pointer. Because of this, processors that use renaming through the reorder buffer or through the 
-rename buffer normally opt for the read-before-issue scheme
+Merged register file은 read before issue, read after issue의 두 가지 방식 모두에 적합한 renaming scheme이다. 그러나 reorder buffer나 rename buffer 방식의 
+경우 fead after issue에 적용되기 힘든 성질을 가진다. 이는 reorder/rename buffer 방식에서 register 값이 reorder/buffer로부터 architectural register file로 
+옮겨가기 때문이다. 한번 register id가 issue queue에 저장된 이후에 register 값이 옮겨지면 해당 id가 invalid해질 수 있기 때문이다.
 
 - The Issue Stage
--- Introduction
--- In-Order Issue Logic
-issues the instructions for execution in the same order they were fetched
 
--- Out-of-Order Issue Logic
-assuming a unified issue queue
-e first scenario -> instructions read their source operands before entering the issue queue like P6-like architectures
-second scenario -> source operands are read after they are issued for execution like in MIPS R10000 or Alpha 
-21264
+Issue stage에서는 instruction이 execution unit으로 issue된다. Issue 방식에는 in order, out of order의 두 가지 방식이 존재한다. 또한
+out of order issuing에는 많은 implementational choice가 존재한다.
 
---- Issue Process when Source Operands Are Read before Issue
-t it needs to hold the information from the instruction to perform the issue and the values from the 
-source operands that have been already produced
+In-order issue란 instruction이 fetch된 순서대로 execution unit에 issue하는 것을 말한다.
+이에 반해 instruction-level parallelism을 확보하기 위한 방안으로 out-of-order issue logic이 고안되었다.
+Issuing scenario는 source operand가 read before issue 방식인지 read after issue 방식인지에 따라 달라지는 양상을 보인다.
 
----- Issue Queue Allocation
-the instructions are first renamed at the renaming stage (a.k.a. allocation stage) and allocate and enter in the issue queue. In 
-case there are no available entries, the allocation stage is stalled
+Source operand가 read before issue 방식으로 접근되는 경우, issue queue에는 instruction issue를 위한 정보 및 source operand 값의 저장이 필요하다.
+또한 issue 내부적으로 issue queue allocation, instruction wakeup, instruction selection 및 issue queue reclamation의 과정을 거친다.
+Issue queue allocation 시에 instruction은 allocation stage를 거쳐 issue queue로 저장된다. Instruction wakeup는 source operand의 값이 나왔음을 알리는 과정이다.
+Instruction selection에서는 모든 source operand가 ready된 instruction 중 execute될 instruction이 결정되고, Entry reclamation에서는 issue queue entry가 reclaim된다.
 
----- Instruction Wakeup
-Wakeup is the event that notifies that one of the source operands 
-has been produced. This signal usually comprises the renaming ID of the produced value, the value 
-itself and a valid bit.
- it should be guaranteed that once a value is produced, 
-all its consumers will know that the data is already available. This could be done by setting to 1 the 
-aforementioned available bit at the renaming table
+Source operand가 read after issue 방식으로 접근될 때에는, issue queue에 source operand 값의 저장이 필요없어진다.
+즉, wakeup signal을 통해 operand 값을 forward할 필요가 없어진다. 또한 renaming stage와 issue queue allocation 사이에 필요한 stage도 줄게 된다.
+그 대신 wakeup과 execution 사이에 source operand를 읽기 위한 cycle이 추가된다.
 
----- Instruction Selection
-in charge of choosing the 
-subset of ready instructions in the issue queue that will be steered in a given cycle.
-can be selected if its source operands are ready and the execution resources it 
-requires are available.
+Memory disambiguation policy란 memory dependency를 resolve하기 위한 전략을 일컫는다. 전체 instruction의 30% 정도가 memory operation인 점에 따라, 
+memory disambiguation policy는 프로세서의 complexity 및 성능에 지대한 영향을 미친다.
 
----- Entry Reclamation
-Once an instruction has been selected and its data forwarded to the 
-functional units, its issue queue entry can be safely reclaimed
-
---- Issue Process when Source Operands Are Read after Issue
-The key difference between reading after issue and reading before issue is that reading after issue does not require the issue queue to store the source values -> the wakeup signal 
-does not need to forward the values, the number of 
-stages between the renaming stage and the issue queue allocation is reduced since data is not read 
-yet. However, the number of cycles between the wakeup and the execution stages is increased by 
-one cycle in order to read the source operands.
-
----- Read Port Reduction
-The area, power and access latency of the register file increases with 
-the number of read ports
-Alpha 21264 reduces the number of read ports per register 
-file by splitting it into two replicated physical register files with half the total number of read ports 
-each. 
-
---- Other Implementations for Out-of-Order Issue
----- Distributed Issue Queue
-distribute the functional 
-units in exection clusters where each of the clusters implements its own issue queue
-Intel Pentium 4 -> issue queue for memory op, nonmemory op
-
----- Reservation Stations
-Reservation stations are private buffers per functional unit that 
-store the instructions that are going to be executed on the specific functional unit and their input 
-values
-
--- Issue Logic for Memory Operations
-memory disambiguation policy: in charge of handling memory dependences
-critical for the performance and complexity of a processor design. Around 30% of the instructions executed by a processor are memory operations
-
---- Nonspeculative Memory Disambiguation
 이전 memory operation과의 dependency가 전부 해결되기 전까지 memory operation을 수행하지 않는 방식을 
 nonspeculative memory disambiguation 방식이라 한다. 이에는 total ordering, load ordering with store ordering, partial ordering
 의 세 종류가 있다.
-total ordering은 모든 memory access가 순서대로 실행된다.
+total ordering에서는 모든 memory access가 순서대로 실행된다.
 partial ordering에서는 모든 store만 순서대로 실행되고, load는 이전 store가 address를 계산하였다는 조건 하에서 out-or-order로 수행된다.
-load ordering and store ordering은 load와 store가 out of order로 수행되나, 모든 load 자체는 순서대로, 그리고 모든 stroe 또한 순서대로 수행된다.
+load ordering and store ordering에서는 load와 store가 out of order로 수행되나, 모든 load 자체는 순서대로, 그리고 모든 stroe 또한 순서대로 수행된다.
 
-does not allow executing a memory operation until we are sure it does not have 
-dependences with any previous memory operation.
-total ordering, load ordering with store ordering and partial ordering
-Total Ordering -> All memory accesses are processed in order.
-Partial Ordering -> All stores are processed in order, but loads execute out 
-					of order as long as all previous stores have computed 
-					their address.
-Load Ordering Store Ordering -> Execution between loads and stores is out of order, but 
-								all loads execute in order among them, and all stores 
-								execute in order among them.
-
----- Case Study 1: Load Ordering and Store Ordering on an AMD K6 Processor
 Load Ordering and Store Ordering의 구현 예시로는 AMD K8 프로세서가 있다.
 해당 프로세서는 load와 store를 위한 두 separate pipeline을 가진다.
 disambiguation stage에서 load는 store buffer에 저장된 store 중 본인보다 old하며 본인과 동일한
 address를 참고하는지 확인하여, 만일 old store를 만난다면 load pipeline은 stall된다.
 
-The AMD K6 processor implements two separate pipelines for load and store operations
-Load queue: this queue stores the load operations in program order
-Store queue: this queue stores the store operations in program order
-Store buffer: this buffer keeps the store operations in program order until they become the 
-oldest in-flight instruction in the processor, and then they proceed to update the memory
-
-In the case of a load, the load will compare its memory address with the addresses of the 
-stores in the store buffer that are older than it. Moreover, the load also will perform a partial 
-comparison with the store that is on the address generation stage in case this store is older. This comparison 
-is partial because this store does not have time to fully compute its address before the comparison 
-takes place. Therefore, only few bits are compared, and the load is considered dependent on this 
-store in case these bits match.
-Finally, the load checks the scheduler to be sure that there is no older store that has not computed its address yet. Then, the load and the whole load pipeline are stalled if the load hits with any 
-previous store or there are older stores on the issue queue.
-
----- Case Study 2: Partial Ordering on a MIPS R10000 Processor
+Partial ordering의 구현 예시로는 MIPS R10000이 있다.
+MIPS R10000은 하기의 두 matrix 구조를 manage한다.
 indetermination matrix: 16 x 16 lower triangular matrix로, 매 행과 열이 load/store queue entry를 의미한다.
-memory operation은 rename stage에서 해당하는 entry index의 열을 1로 세팅하고, address 계산 이후에 0으로 리셋된다. 
-memory operation은 indetermination matrix의 해당 entry index 행을 확인하여 1이 있으면 issue되지 못한다.
-
+                        memory operation은 rename stage에서 해당하는 entry index의 열을 1로 세팅하고, address 계산 이후에 0으로 리셋된다. 
+                        memory operation은 indetermination matrix의 해당 entry index 행을 확인하여 1이 있으면 issue되지 못한다.
 dependency matrix: 16 x 16 lower triangular matrix로, 매 행과 열이 load/store queue entry를 의미한다.
-이전 store에 dependent한 load가 있을 경우, load entry index의 depdendenty matrix 행에서, 
-각 column 중 dependency가 존재하는 store entry의 값을 1로 세팅한다. 
-store는 memory update 이후에 해당 entry index의 열을 0으로 리셋하고,
-load은  해당 entry index의 행에 1이 있을 경우 issue되지 못한다.
+                   이전 store에 dependent한 load가 있을 경우, load entry index의 depdendenty matrix 행에서, 
+                   각 column 중 dependency가 존재하는 store entry의 값을 1로 세팅한다. 
+                   store는 memory update 이후에 해당 entry index의 열을 0으로 리셋하고,
+                   load은  해당 entry index의 행에 1이 있을 경우 issue되지 못한다.
+상기의 두 matrix 구조를 통해 MIPS R10000은 partial ordering, 즉 동일 address를 refer하는 store에 dependent한 상태로 load를 수행하는 방식을 구현한다. 
 
-상기의 두 matrix 구조를 통해 MIPS R10000은 partial ordering을 구현한다. 
-
-indetermination matrix: this is a 16x16 half matrix where every column and row 
-represents an entry on the load/store queue. A memory operation sets all entries on its column 
-to 1 and resets them when it computes its address. Then, a memory operation cannot be 
-issued while there is a 1 on any position of its row belonging to an older memory operation. 
-
-Dependency matrix: this is a 16x16 matrix where every column and row represents an 
-entry on the load/store queue. A load that depends on previous stores set to 1 all entries on 
-its row for all the columns belonging to the stores it depends on. Then, it will not be able to 
-resume its execution until all entries on its row are reset. By contrast, a store resets all bits 
-on its column when it updates the memory.
-
---- Speculative Memory Disambiguation
-speculative memory disambiguation이란 주어진 memory operation이 다른 in-flight memory operation과의 memory dependency를 가지는지
+Speculative memory disambiguation이란 주어진 memory operation이 다른 in-flight memory operation과의 memory dependency를 가지는지
 예측하는 방식으로 실행되는 것을 일컫는다. 즉, in-flight store과의 dependency가 없다고 예상되어질 경우 이전 store이 address 계산을 끝날 때까지 load operation이 기다리지 않는다. 이는 성능의 향상을 가져올 수 있으나, 또한 misprediction 시의 recovery 방식 또한 필요로 한다.
 
-predicts whether a memory operation will have a dependence with another in-flight memory operation
-These processors boost performance by speculatively issuing loads that are predicted 
-not to be dependent on any previous in-flight store. Therefore, 
-load operations do not have to wait for all previous stores to compute its address. Note that since 
-this scheme speculates on the memory dependences, it may happen that we incur on mispredictions 
-that would end up on the incorrect execution of the application. Therefore, these processors require
-special hardware in order to identify these mispredictions and recover the execution
-
----- Case Study: Alpha 21264
 Speculative memory disambiguation 방식을 사용하는 예로는 Alpha 21264가 있다. Alpha 21264는
 wait table을 관리하는데, 이는 어떤 store에 dependent한 load를 만날 때에, 해당 load의 virtual address를 의미하는 
 table 내의 entry 값을 1로 세팅한다. fetch unit은 이 table을 읽어, 만일 1이 설정된 경우 speculative issue를 실행하지 않는다.
 또한 해당 table은 16,384 cycle마다 리셋되어 table 값이 1로 수렴하는 것을 막는다.
 
-Wait Table: This table implements 1024 entries of 1 bit indexed by virtual pc. Whenever 
-we identify that a load depends on a store it has overtaken, a store-load order trap is generated, 
-and this table is updated setting the entry representing the virtual address of the load 
-to 1. The fetch unit reads this table in order to tag the loads in case they have produced a 
-memory violation in the past. Then, these loads would not be speculatively issued anymore. 
-However, the wait table is reset every 16,384 cycles because we would end up with a table 
-full of ones otherwise
-
--- Speculative Wakeup of Load Consumers
-일단 스킵
-
 - Execute
-program results are calculated
-n instruction’s input 
-operands (also known as source operands) are send to the processor’s computational units along 
-with the operation encoded in the instruction. The processor operates on the sources of the instruction and produces the result of the computation
-naturally, the different types of operations have different complexity and, as a consequence, 
-different latency. For this reason, in contemporary microprocessors, the execute stage is not a single 
-pipeline stage, but several. 
 
--- Functional Units
---- The Integer Arithmetic and Logical Unit
-integer addition, subtraction과 같은 integer arithmetic operation과 더불어, AND, OR, NOT, XOR과 같은
+Execution stage에서는 instruction의 정보 및 operand를 통한 실질적인 computation이 이루어진다. 
+프로세서가 구현하는 각각의 operation마다 서로 다른 complexity를 가지기 때문에, 현시대의 프로세서는 execute stage를 여러 pipelined stage로 구현하고 있다.
+
+Integer Arithmetic and Logical Unit는 integer addition, subtraction과 같은 integer arithmetic operation과 더불어, AND, OR, NOT, XOR과 같은
 logical operation 기능을 제공한다.
-
---- Integer Multiplication and Division
-multiplication과 division은 높은 complexity와 필요 면적의 이유로 ALU와는 별도로 구현된다. 일부 프로세서에서는
+Multiplication과 division은 높은 complexity와 필요 면적의 이유로 ALU와는 별도로 구현된다. 일부 프로세서에서는
 FPU를 통한 integer multiplication, division 기능이 제공된다. 이를 위하여는 integer source가 floating-point로 변환된 후,
 최종 결과가 다시 integer로 변환되는 방식을 차용한다. 이는 high latency를 낳지만, 보통 integer multiplication과 division이 많이 
 사용되지 않는다는 점으로 미루어, 파워 및 면적 면에서의 이득이 크다고 생각되어지는 경우가 있다.
-
---- The Address Generation Unit
-generate a direct pointer to the address space of the program from the operands of a memory instruction
-
---- The Branch Unit
-branch unit은 branch, jump, function call, return 등의 control-flow instruction 수행 및 다음 instruction address(PC) 계산을 행하는 유닛이다. Control-flow instruction은, 프로그램의 수행 결과에 flow가 변하는 (branch) conditional flow와 늘 동일한 flow를 가지는 (jump)
+Branch unit은 branch, jump, function call, return 등의 control-flow instruction 수행 및 다음 instruction address(PC) 계산을 행하는 유닛이다. 
+Control-flow instruction은, 프로그램의 수행 결과에 flow가 변하는 (branch) conditional flow와 늘 동일한 flow를 가지는 (jump)
 unconditional flow로 나뉠 수 있다.
-
-responsible for executing the control-flow instructions (branches, jumps and 
-function calls/returns) and for producing the correct next instruction address (we will call this the Program Counter or PC for short here).
-
---- The Floating-Point Unit
-floating-point value를 RF 혹은 memory 입력으로 받아 floating-point 결과를 만들어 내는 유닛이다. addition, subtraction, multiplication의
-operation을 수행한다. 구현 방식에 따라, division, square root나 exponential 등의 complex operation 기능이 같이 제공되는 경우도 있다.
+Floating-Point Unit은 floating-point value를 RF 혹은 memory 입력으로 받아 floating-point 결과를 만들어 내는 유닛이다. 
+Addition, subtraction, multiplication의 operation을 수행하며, 구현 방식에 따라, division, square root나 exponential 등의 complex operation 기능이 같이 제공되는 경우도 있다.
 FPU는 굉장이 복잡하여 보통 integer unit보다 몇 배는 크다.
-
-operates on two floating-point values coming from the floating-point register file or the 
-memory and produces a floating-point result. A floating-point unit (FPU) performs arithmetic 
-operations such as addition, subtraction and multiplication
-
---- The SIMD Unit
 SIMD unit은 동일한 operation을 주어진 입력 group에 동시에 수행하는 유닛을 일컫는다.
 유명한 SIMD instruction set으로는 x86의 SSE 등이 있다.
-
-instructions that perform the same operation on a group of elements in parallel
 
 -- Result Bypassing
  the result of a computation does not update the machine 
