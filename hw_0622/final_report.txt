@@ -1,86 +1,53 @@
 프로세서마이크로아키텍처 기말고사 리포트
 
 - Caches
--- Address Translation
-physical address는 프로세서가 접근 가능한 address 범위를, virtual address는 application program이 보는
+
+Physical address는 프로세서가 접근 가능한 address 범위를, virtual address는 application program이 보는
 address 범위를 가진다. 이와 같은 분리를 통해 프로그램들은 physical memory 크기에 상관없이 수행가능하고
-multitasking 시에 다른 프로그램으로부터 메모리 분리가 가능하다. 
-The virtualization of the linear address space is handled through the processor’s paging mechanism. When using paging, the address space is divided into pages (typically 4–8 KB in size). A 
-page can reside either in the main memory or in the disk (a swapped-out page). The operating system maintains a mapping of virtual pages to physical pages through a structure called the page table. 
-The page table usually is stored in the main memory.
+multitasking 시에 다른 프로그램으로부터 메모리 분리가 가능하다.
+physical address로부터 virtual address로의 변환은 page 단위로(4~8KB) 이루어지며, mapping 정보는 page table에 저장된다.
+Address translation 성능은 전체 성능에 크게 영향을 미치므로, translation lookaside buffer (TLB)에 page table 정보가 caching된다.
 
--- Cache Structure Organization
-The data array logically is organized as a group of sets. Each set is a collection of blocks. The 
-number of blocks in a set is called the degree of associativity of the cache. We also say that a cache of 
-associativity N is an N-way associative cache. The i-th cache way is defined to be the collection of 
-the i-th blocks of all sets in a cache. A case with an associativity degree of 1 is called a direct mapped
-cache.
+Cache는 크게 tag array와 data array로 나뉜다. Data array에는 data 혹은 instruction이 저장되고, tag array는 data array entry의 
+주소 비교를 위해 사용된다. 각 array는 여러 set을 가지고 각 set은 block의 집합으로 이루어진다. 한 set에 포함된 block의 갯수를 
+해당 cache의 degree of associativity로 일컬으며 associativity N의 cache는 N-way associative cache라고도 부른다. 
+Associativity degree가 1인 cache는 direct mapped cache라고 한다.
+Cache는 주어진 memory address를 tag, index, offset의 세 부분으로 나누어, index 값 i에 따라 얻어진 tag array의 
+i번째 tag array set, N개의 tag array 값이 memory address의 tag part와 비교되어 cache hit 여부를 알아낸다. Cache hit의 상황에서
+i번째 data array set에서부터, hit이 일어난 set의 index를 이용한 multiplexing이 이루어지고, 마지막으로 memory address의 offset 값에
+따른 align이 이어진다.  
 
---- Parallel Tag and Data Array Access
-The address is compared with 
-the tag entries to find in which block of the set reside the data that we are looking for. This information is fed to a multiplexor at the output of the data array (the way multiplexor) that chooses one of 
-the blocks of the set. Finally, the offset part of the address is used to extract the appropriate bytes 
-from the chosen block (this process is called data alignment)
+구현상의 variation으로는 tag array와의 tag 비교와 더불어 data array와의 접근이 동시에 일어나는 구조 혹은 tag array와의 tag 비교
+이후에 data array에의 접근이 이루어지는 구조가 존재한다. Tag/data array에의 동시 접근은 serialized 접근에 비해 빠른 속도를 가지나,
+serialized 구조의 경우 data path에의 way multiplexor가 필요하지 않게 되고, tag array에의 critical path가 짧아지는 특성을 가진다.
+이는 더 적은 power consumption과 higher frequency를 가능케 한다. 이러한 구조적 특성에 따라, memory latency가 비교적 잘 숨겨지면서
+data cache가 processor frequency에 제일 주요한 영향을 끼치는 경우에는 순차적 구조 방식이 reasonable한 선택이 된다. Memory latency
+최소화를 우선시할 경우에는 동시 접근 구조를 채택해야 할 것이다.
+Associativity의 선택 또한 성능에 영향을 미친다. Direct mapped cache는 access 속도가 제일 빠르지만 conflict miss에 취약하다. 반대로, associativity가 높아지면 conflict miss는 줄지만 way multiplexor가 커짐에 따라 속도가 느려진다.
 
---- Serial Tag and Data Array Access
-where the tag array is accessed earlier than the data array
-After we access the tag array and perform 
-the tag comparison, we know exactly which of the ways of the data array we must access, so we can 
-change the organization of the cache to take advantage of this fact and remove the way multiplexor. 
-As can be seen in Figure 2.3, the per-way tag comparison signal can be used as a way read/write 
-enable for the data array (shown here as being merged with the decoder output before the array access). This way, the ways of the data array can share the same wires to the aligner. Another benefit 
-of this design is that it has lower energy consumption: the way-enable signal only activates the way 
-where the requested data resides.
+Memory request가 L1 cache에서 miss될 경우, 해당 request는 다음 level의 memory hierarchy로 forward된다. 
+이때, blocking cache system의 경우 해당하는 outstanding miss가 끝날 때까지 프로세서를 stall시킨다. 이는 간단히 구현 가능하나
+cache miss 시에 성능 저하를 가져오게 된다. 또다른 구현 방법으로는 cache miss가 진행되는 동안 instruction 수행을
+계속하는 방식이 있다. 이때 해당 miss에 종속되지 않는 instruction은 수행을 계속하도록 하고 dependent한 instruction에 한해
+blocking이 이루어진다. 이와 같은 방식을 nonblocking cache 혹은 lockup-free cache라고 한다.
+처음 고안된 lockup-free 방식은 Implicitly Addressed MSHR이다. 해당 방식에서 MSHR은 primary miss를 저장하고, 각 MSHR은 또한
+word별 miss information들을 저장한다. Secondary miss가 발생했을 경우 본인이 속하는 primary miss MSHR의 word entry 중 하나에 정보를
+저장하게 된다. 이와 같은 방식은 매 word 별 하나의 secondary miss밖에 기록하지 못한다는 단점을 가져, 이를 보완하기 위한 방식으로
+Explicitly Addressed MSHR이 고안되었다. 이는 각 MSHR field에 block offset information 정보를 추가함으로써, word별로 positional하게
+secondary miss 정보가 저장되어야 하는 필요성을 없앴다. 또다른 구현 방식으로는, 사용되지 않고 있는 cache block을 MSHR storage로
+이용하는 아이디어의 In-Cache MSHR이 존재한다. In-Cache MSHR에서 tag array는 transient bit를 추가적으로 가지게 되고, 이를 통해
+transient mode에서 tag array는 fetch되어 올 block의 address를, data array는 MSHR information을 가지게 된다.
 
-It is evident that each design presents different tradeoffs. The parallel tag and data array access design may have lower clock frequency and higher power, but it also requires one less cycle to 
-access the cache. For an out-of-order processor that can hide memory latency, if the data cache is 
-the determinant factor for the frequency of the processor, it makes sense to implement serial tag and 
-data accesses. On the other hand, for an in-order machine where memory latency is important, it 
-may make sense to access tags and data in parallel.
-
---- Associativity Considerations
-Direct mapped cache는 access 속도가 제일 빠르지만 conflict miss에 취약하다. 반대로, associativity가 높아지면
-conflict miss는 줄지만 way multiplexor가 커짐에 따라 속도가 느려진다.
-
--- Lockup-Free Caches
-A blocking cache system will stall the processor until the outstanding miss 
-is serviced. Although this solution has low complexity, stalling the processor on a cache miss can 
-severely degrade performance.
-
---- Implicitly Addressed MSHRs
-ch MSHR contains the data array block address of the pending 
-misses, along with a valid bit. The block address and the valid bit of an MSHR are set on a primary 
-miss. A comparator also is included, in order to match future misses with this MSHR in order to 
-record all secondary misses of a block in the same MSHR.
-can support only one outstanding 
-miss per word. A secondary miss on an already active word field will become a structural-stall miss
-
---- Explicitly Addressed MSHRs
-improves on the basic MSHR by adding block offset information to each MSHR field. Two misses 
-on the same word are allowed to occupy two different entries with the same block offset, inside the 
-same MSHR.
-
---- In-Cache MSHRs
-With in-cache MSHRs, the tag 
-array needs to hold one more bit per cache block, the transient bit, to indicate that the block is being 
-fetched. When in transient mode, the tag array holds the address of the block being fetched, and the 
-corresponding data array entry holds MSHR information
-
--- Multiported Caches
---- True Multiported Cache Design
-, all the control and data paths inside the cache are replicated.
-
---- Array Replication
- the arrays as well. Two alternatives are presented: replicating both the tag and data array (i.e., replicating the whole cache) 
-or replicating only the data array and maintaining a true dual-ported tag array.
-
---- Virtual Multiporting
-s time-division multiplexing to perform multiple accesses to a single-ported cache in a single 
-cycle
-
---- Multibanking
-g divides the cache into multiple small arrays (banks), each single ported.
-Multiple requests can be issued in a cycle if they access to different banks
+High execution bandwith를 위해 많은 프로세서들이 매 cycle 2 memory instruction들을 issue할 수 있음에 따라, dual-ported cache
+의 필요성 또한 대두되었다. Dual-port cache의 구현 방법으로는 우선 true dual-ported cache, array replication,
+virtual multiporting 그리고 multibanking 등 다양한 방법이 존재한다.
+True multiported cache에서는 모든 control/data path가 replicate된다. 이때 tag/data array는 replicate되지 않는다.
+Array 또한 replicate하는 방식 또한 존재하고, 이때 두 replica 사이의 synchronization이 성능상 문제로 자리잡는다.
+IBM Power2와 Alpha 21264에는 virtual multiporting이 구현되었다. Alpha 21264에서는 data array를 double-pump하는 방식으로, 즉
+cycle의 첫 half와 두 번째 half에 서로 다른 load를 진행함에 따라 2개의 read port를 가진 것과 같은 효과를 낸다. 이는
+clock frequency가 작아짐에 따라 적용하기 힘든 구조가 되었다.
+Cache를 여러 개의 bank로 나누는 방식의 multibanking 구조 또한 존재한다. 이때 동일한 bank에의 접근은 bank conflict을 일으키며,
+서로 다른 bank에의 접근은 한 cycle 내에서 이루어 질 수 있다. 본 구조가 현재 많은 프로세서 구조에서 채택하고 있는 방식이다.
 
 -- Instruction Caches
 --- Multiported vs. Single Ported
@@ -526,7 +493,6 @@ Merged register file 방식에서는, renaming table의 수정 log가 저장된�
 해당 log를 역산함에 따라 올바른 state를 찾을 수 있다. Log 역산의 속도를 빠르게 하기 위해 MIPS R10000과 Alpha 21264는
 주기적으로 checkpoint를 만들어 log 역산 거리를 줄인다. 
 
---- Recovery from an Exception
 Exception recovery는 commit 시에 이루어진다. 이는 해당 exception이 wrong path에의 결과가 아님을 확언하고,
 exceptional instruction 이전의 instruction들이 모두 수행 완료되어야 하기 때문이다. Exception recovery 시에는
 in-flight instruction들이 전부 flush되고, speculative state가 recover되며, instruction fetch는 exception handler
