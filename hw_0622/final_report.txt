@@ -1,0 +1,11 @@
+--- Nonspeculative Memory Disambiguation
+이전 memory operation과의 dependency가 전부 해결되기 전까지 memory operation을 수행하지 않는 방식을 
+nonspeculative memory disambiguation 방식이라 한다. 이에는 total ordering, load ordering with store ordering, partial ordering
+의 세 종류가 있다.
+total ordering은 모든 memory access가 순서대로 실행된다.
+partial ordering에서는 모든 store만 순서대로 실행되고, load는 이전 store가 address를 계산하였다는 조건 하에서 out-or-order로 수행된다.
+load ordering and store ordering은 load와 store가 out of order로 수행되나, 모든 load 자체는 순서대로, 그리고 모든 stroe 또한 순서대로 수행된다.
+Load Ordering and Store Ordering의 구현 예시로는 AMD K8 프로세서가 있다.
+해당 프로세서는 load와 store를 위한 두 separate pipeline을 가진다.
+disambiguation stage에서 load는 store buffer에 저장된 store 중 본인보다 old하며 본인과 동일한
+address를 참고하는지 확인하여, 만일 old store를 만난다면 load pipeline은 stall된다.
