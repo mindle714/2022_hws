@@ -42,6 +42,14 @@ ax.imshow(np.matmul(W.T, W), cmap='gray')
 
 plt.savefig('dct2.png')
 
+fig = plt.figure()
+
+ax = fig.add_subplot(1, 1, 1)
+ax.set_axis_off()
+ax.imshow(np.matmul(W, W.T), cmap='gray')
+
+plt.savefig('dct2_v2.png')
+
 from scipy.fftpack import fft, dct, idct
 
 dct_opt=dict(norm='ortho')

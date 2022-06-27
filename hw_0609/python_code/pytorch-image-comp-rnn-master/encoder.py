@@ -1,7 +1,7 @@
 import argparse
 
 import numpy as np
-from scipy.misc import imread, imresize, imsave
+from imageio import imread, imsave
 
 import torch
 from torch.autograd import Variable
@@ -19,7 +19,7 @@ parser.add_argument(
 parser.add_argument('--network', type=str, default='conv', help='type of network')
 args = parser.parse_args()
 
-image = imread(args.input, mode='RGB')
+image = imread(args.input, pilmode='RGB')
 image = torch.from_numpy(
     np.expand_dims(
         np.transpose(image.astype(np.float32) / 255.0, (2, 0, 1)), 0))

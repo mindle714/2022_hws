@@ -1,0 +1,40 @@
+#!/usr/bin/bash
+
+if false; then
+for epoch in $(seq 200 200 1000); do
+  suffix=$(printf "%08d" $epoch)
+
+  python3 test/draw_rd_v3.py \
+    --iter 11 \
+    --hyps test/decoded/conv-decoder_epoch_${suffix}.pth/ssim.csv \
+           test/decoded/lstm-decoder_epoch_${suffix}.pth/ssim.csv \
+           test/decoded/lstm_l1-decoder_epoch_${suffix}.pth/ssim.csv \
+           test/decoded/lstm_ssim-decoder_epoch_${suffix}.pth/ssim.csv \
+    --label conv lstm_mse lstm_l1 lstm_ssim --output ${epoch}.png
+done
+
+python3 test/compare.py \
+  --hyps test/decoded/conv-decoder_epoch_00001000.pth/kodim04/ \
+         test/decoded/lstm-decoder_epoch_00001000.pth/kodim04/ \
+  --labels "conv model of epoch 1000, iteration 0, 3, 6, 9, 12, 15" \
+           "lstm model of epoch 1000, iteration 0, 3, 6, 9, 12, 15" \
+  --output conv_lstm.png
+
+python3 test/compare_v2.py \
+  --hyps test/decoded/conv-decoder_epoch_00001000.pth/kodim04/ \
+         test/decoded/lstm-decoder_epoch_00001000.pth/kodim04/ \
+  --labels "conv, iteration 15" \
+           "lstm, iteration 15" \
+  --output conv_lstm_iter15.png
+fi
+  
+python3 test/draw_rd_v3.py \
+  --iter 11 \
+  --hyps test/decoded/lstm-decoder_epoch_00000050.pth/ssim.csv \
+         test/decoded/lstm-decoder_epoch_00000100.pth/ssim.csv \
+         test/decoded/lstm-decoder_epoch_00000200.pth/ssim.csv \
+         test/decoded/lstm-decoder_epoch_00000400.pth/ssim.csv \
+         test/decoded/lstm-decoder_epoch_00000600.pth/ssim.csv \
+         test/decoded/lstm-decoder_epoch_00000800.pth/ssim.csv \
+         test/decoded/lstm-decoder_epoch_00001000.pth/ssim.csv \
+  --label "50 epoch" "100 epoch" "200 epoch" "400 epoch" "600 epoch" "800 epoch" "1000 epoch" --output lstm.png

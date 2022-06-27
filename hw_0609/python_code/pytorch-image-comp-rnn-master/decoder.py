@@ -2,7 +2,7 @@ import os
 import argparse
 
 import numpy as np
-from scipy.misc import imread, imresize, imsave
+from imageio import imsave
 
 import torch
 from torch.autograd import Variable

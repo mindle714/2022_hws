@@ -155,7 +155,7 @@ def do_dct_compress(img, blk_func, ratio=0.25, blk_shape=(4,4), do_quant=False):
 
   return img_comp
 
-def plot_result(name, blk_func, do_quant):
+def plot_result(name, blk_func, do_quant, disp_err=False):
   title_opt = dict(fontsize=5)
   fig = plt.figure()
 
@@ -170,7 +170,12 @@ def plot_result(name, blk_func, do_quant):
 
     img_comp = do_dct_compress(img_lena, blk_func,
       ratio=ratio, blk_shape=(4,4), do_quant=do_quant)
-    ax.imshow(img_comp, cmap='gray')
+
+    if not disp_err:
+      ax.imshow(img_comp, cmap='gray')
+    else:
+      ax.imshow(img_comp - img_lena, cmap='gray')
+
     ax.set_title('block=(4,4), ratio={}\nrmse={:.2f}, psnr={:.2f}'.format(
       ratio, rmse(img_lena, img_comp), psnr(img_lena, img_comp)), **title_opt)
     
@@ -190,7 +195,12 @@ def plot_result(name, blk_func, do_quant):
     
     img_comp = do_dct_compress(img_lena, blk_func,
       ratio=ratio, blk_shape=(8,8), do_quant=do_quant)
-    ax.imshow(img_comp, cmap='gray')
+
+    if not disp_err:
+      ax.imshow(img_comp, cmap='gray')
+    else:
+      ax.imshow(img_comp - img_lena, cmap='gray')
+
     ax.set_title('block=(8,8), ratio={}\nrmse={:.2f}, psnr={:.2f}'.format(
       ratio, rmse(img_lena, img_comp), psnr(img_lena, img_comp)), **title_opt)
     
@@ -202,8 +212,11 @@ def plot_result(name, blk_func, do_quant):
   fig.tight_layout()
   plt.savefig('{}.png'.format(name))
 
-plot_result('zonal', zonal_dct_blk, False)
-plot_result('thres', thres_dct_blk, False)
+#plot_result('zonal', zonal_dct_blk, False)
+#plot_result('thres', thres_dct_blk, False)
 
 plot_result('zonal_quant', zonal_dct_blk, True)
 plot_result('thres_quant', thres_dct_blk, True)
+
+plot_result('zonal_quant_err', zonal_dct_blk, True, True)
+plot_result('thres_quant_err', thres_dct_blk, True, True)

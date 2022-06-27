@@ -1,0 +1,1752 @@
+Encoding test/images/kodim01.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.063860
+Iter: 01; Loss: 0.054671
+Iter: 02; Loss: 0.052069
+Iter: 03; Loss: 0.051170
+Iter: 04; Loss: 0.050737
+Iter: 05; Loss: 0.050466
+Iter: 06; Loss: 0.050278
+Iter: 07; Loss: 0.050146
+Iter: 08; Loss: 0.050043
+Iter: 09; Loss: 0.049966
+Iter: 10; Loss: 0.049909
+Iter: 11; Loss: 0.049871
+Iter: 12; Loss: 0.049844
+Iter: 13; Loss: 0.049827
+Iter: 14; Loss: 0.049821
+Iter: 15; Loss: 0.049824
+Decoding test/codes/kodim01.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim01.npz --output test/decoded/kodim01
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim02.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.045708
+Iter: 01; Loss: 0.031540
+Iter: 02; Loss: 0.028883
+Iter: 03; Loss: 0.027928
+Iter: 04; Loss: 0.027458
+Iter: 05; Loss: 0.027206
+Iter: 06; Loss: 0.027072
+Iter: 07; Loss: 0.027000
+Iter: 08; Loss: 0.026970
+Iter: 09; Loss: 0.026969
+Iter: 10; Loss: 0.026987
+Iter: 11; Loss: 0.027021
+Iter: 12; Loss: 0.027061
+Iter: 13; Loss: 0.027108
+Iter: 14; Loss: 0.027168
+Iter: 15; Loss: 0.027240
+Decoding test/codes/kodim02.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim02.npz --output test/decoded/kodim02
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim03.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.037551
+Iter: 01; Loss: 0.027200
+Iter: 02; Loss: 0.024795
+Iter: 03; Loss: 0.023882
+Iter: 04; Loss: 0.023450
+Iter: 05; Loss: 0.023206
+Iter: 06; Loss: 0.023063
+Iter: 07; Loss: 0.022980
+Iter: 08; Loss: 0.022945
+Iter: 09; Loss: 0.022934
+Iter: 10; Loss: 0.022954
+Iter: 11; Loss: 0.022988
+Iter: 12; Loss: 0.023038
+Iter: 13; Loss: 0.023096
+Iter: 14; Loss: 0.023178
+Iter: 15; Loss: 0.023257
+Decoding test/codes/kodim03.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim03.npz --output test/decoded/kodim03
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim04.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.044140
+Iter: 01; Loss: 0.031933
+Iter: 02; Loss: 0.029094
+Iter: 03; Loss: 0.028058
+Iter: 04; Loss: 0.027562
+Iter: 05; Loss: 0.027267
+Iter: 06; Loss: 0.027073
+Iter: 07; Loss: 0.026937
+Iter: 08; Loss: 0.026848
+Iter: 09; Loss: 0.026800
+Iter: 10; Loss: 0.026763
+Iter: 11; Loss: 0.026753
+Iter: 12; Loss: 0.026754
+Iter: 13; Loss: 0.026777
+Iter: 14; Loss: 0.026805
+Iter: 15; Loss: 0.026847
+Decoding test/codes/kodim04.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim04.npz --output test/decoded/kodim04
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim05.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.075262
+Iter: 01; Loss: 0.059889
+Iter: 02; Loss: 0.055078
+Iter: 03; Loss: 0.053557
+Iter: 04; Loss: 0.052912
+Iter: 05; Loss: 0.052572
+Iter: 06; Loss: 0.052352
+Iter: 07; Loss: 0.052192
+Iter: 08; Loss: 0.052081
+Iter: 09; Loss: 0.051999
+Iter: 10; Loss: 0.051935
+Iter: 11; Loss: 0.051894
+Iter: 12; Loss: 0.051861
+Iter: 13; Loss: 0.051838
+Iter: 14; Loss: 0.051828
+Iter: 15; Loss: 0.051831
+Decoding test/codes/kodim05.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim05.npz --output test/decoded/kodim05
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim06.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.059495
+Iter: 01; Loss: 0.044973
+Iter: 02; Loss: 0.041985
+Iter: 03; Loss: 0.040975
+Iter: 04; Loss: 0.040467
+Iter: 05; Loss: 0.040159
+Iter: 06; Loss: 0.039957
+Iter: 07; Loss: 0.039824
+Iter: 08; Loss: 0.039735
+Iter: 09; Loss: 0.039679
+Iter: 10; Loss: 0.039644
+Iter: 11; Loss: 0.039635
+Iter: 12; Loss: 0.039626
+Iter: 13; Loss: 0.039632
+Iter: 14; Loss: 0.039649
+Iter: 15; Loss: 0.039685
+Decoding test/codes/kodim06.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim06.npz --output test/decoded/kodim06
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim07.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.046665
+Iter: 01; Loss: 0.033422
+Iter: 02; Loss: 0.029395
+Iter: 03; Loss: 0.028002
+Iter: 04; Loss: 0.027397
+Iter: 05; Loss: 0.027030
+Iter: 06; Loss: 0.026792
+Iter: 07; Loss: 0.026638
+Iter: 08; Loss: 0.026531
+Iter: 09; Loss: 0.026456
+Iter: 10; Loss: 0.026420
+Iter: 11; Loss: 0.026408
+Iter: 12; Loss: 0.026412
+Iter: 13; Loss: 0.026418
+Iter: 14; Loss: 0.026452
+Iter: 15; Loss: 0.026496
+Decoding test/codes/kodim07.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim07.npz --output test/decoded/kodim07
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim08.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.085238
+Iter: 01; Loss: 0.069450
+Iter: 02; Loss: 0.064613
+Iter: 03; Loss: 0.063047
+Iter: 04; Loss: 0.062403
+Iter: 05; Loss: 0.062068
+Iter: 06; Loss: 0.061852
+Iter: 07; Loss: 0.061688
+Iter: 08; Loss: 0.061571
+Iter: 09; Loss: 0.061483
+Iter: 10; Loss: 0.061415
+Iter: 11; Loss: 0.061362
+Iter: 12; Loss: 0.061318
+Iter: 13; Loss: 0.061293
+Iter: 14; Loss: 0.061278
+Iter: 15; Loss: 0.061272
+Decoding test/codes/kodim08.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim08.npz --output test/decoded/kodim08
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim09.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.040080
+Iter: 01; Loss: 0.029677
+Iter: 02; Loss: 0.027116
+Iter: 03; Loss: 0.026136
+Iter: 04; Loss: 0.025658
+Iter: 05; Loss: 0.025380
+Iter: 06; Loss: 0.025201
+Iter: 07; Loss: 0.025089
+Iter: 08; Loss: 0.025024
+Iter: 09; Loss: 0.024986
+Iter: 10; Loss: 0.024969
+Iter: 11; Loss: 0.024975
+Iter: 12; Loss: 0.024992
+Iter: 13; Loss: 0.025034
+Iter: 14; Loss: 0.025084
+Iter: 15; Loss: 0.025147
+Decoding test/codes/kodim09.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim09.npz --output test/decoded/kodim09
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim10.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.039605
+Iter: 01; Loss: 0.029634
+Iter: 02; Loss: 0.027111
+Iter: 03; Loss: 0.026168
+Iter: 04; Loss: 0.025699
+Iter: 05; Loss: 0.025437
+Iter: 06; Loss: 0.025269
+Iter: 07; Loss: 0.025157
+Iter: 08; Loss: 0.025086
+Iter: 09; Loss: 0.025053
+Iter: 10; Loss: 0.025039
+Iter: 11; Loss: 0.025037
+Iter: 12; Loss: 0.025063
+Iter: 13; Loss: 0.025104
+Iter: 14; Loss: 0.025155
+Iter: 15; Loss: 0.025206
+Decoding test/codes/kodim10.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim10.npz --output test/decoded/kodim10
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim11.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.046282
+Iter: 01; Loss: 0.037641
+Iter: 02; Loss: 0.035225
+Iter: 03; Loss: 0.034360
+Iter: 04; Loss: 0.033955
+Iter: 05; Loss: 0.033716
+Iter: 06; Loss: 0.033568
+Iter: 07; Loss: 0.033470
+Iter: 08; Loss: 0.033409
+Iter: 09; Loss: 0.033374
+Iter: 10; Loss: 0.033356
+Iter: 11; Loss: 0.033358
+Iter: 12; Loss: 0.033366
+Iter: 13; Loss: 0.033388
+Iter: 14; Loss: 0.033421
+Iter: 15; Loss: 0.033459
+Decoding test/codes/kodim11.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim11.npz --output test/decoded/kodim11
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim12.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.049228
+Iter: 01; Loss: 0.030785
+Iter: 02; Loss: 0.027757
+Iter: 03; Loss: 0.026671
+Iter: 04; Loss: 0.026103
+Iter: 05; Loss: 0.025773
+Iter: 06; Loss: 0.025559
+Iter: 07; Loss: 0.025414
+Iter: 08; Loss: 0.025323
+Iter: 09; Loss: 0.025262
+Iter: 10; Loss: 0.025225
+Iter: 11; Loss: 0.025214
+Iter: 12; Loss: 0.025225
+Iter: 13; Loss: 0.025246
+Iter: 14; Loss: 0.025280
+Iter: 15; Loss: 0.025328
+Decoding test/codes/kodim12.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim12.npz --output test/decoded/kodim12
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim13.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.076750
+Iter: 01; Loss: 0.065166
+Iter: 02; Loss: 0.061881
+Iter: 03; Loss: 0.060795
+Iter: 04; Loss: 0.060310
+Iter: 05; Loss: 0.060030
+Iter: 06; Loss: 0.059846
+Iter: 07; Loss: 0.059717
+Iter: 08; Loss: 0.059618
+Iter: 09; Loss: 0.059548
+Iter: 10; Loss: 0.059494
+Iter: 11; Loss: 0.059453
+Iter: 12; Loss: 0.059426
+Iter: 13; Loss: 0.059408
+Iter: 14; Loss: 0.059394
+Iter: 15; Loss: 0.059390
+Decoding test/codes/kodim13.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim13.npz --output test/decoded/kodim13
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim14.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.057306
+Iter: 01; Loss: 0.045228
+Iter: 02; Loss: 0.041805
+Iter: 03; Loss: 0.040641
+Iter: 04; Loss: 0.040121
+Iter: 05; Loss: 0.039818
+Iter: 06; Loss: 0.039622
+Iter: 07; Loss: 0.039482
+Iter: 08; Loss: 0.039381
+Iter: 09; Loss: 0.039310
+Iter: 10; Loss: 0.039258
+Iter: 11; Loss: 0.039226
+Iter: 12; Loss: 0.039203
+Iter: 13; Loss: 0.039198
+Iter: 14; Loss: 0.039197
+Iter: 15; Loss: 0.039211
+Decoding test/codes/kodim14.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim14.npz --output test/decoded/kodim14
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim15.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.050889
+Iter: 01; Loss: 0.032633
+Iter: 02; Loss: 0.028933
+Iter: 03; Loss: 0.027785
+Iter: 04; Loss: 0.027247
+Iter: 05; Loss: 0.026943
+Iter: 06; Loss: 0.026766
+Iter: 07; Loss: 0.026646
+Iter: 08; Loss: 0.026580
+Iter: 09; Loss: 0.026538
+Iter: 10; Loss: 0.026522
+Iter: 11; Loss: 0.026523
+Iter: 12; Loss: 0.026548
+Iter: 13; Loss: 0.026579
+Iter: 14; Loss: 0.026632
+Iter: 15; Loss: 0.026673
+Decoding test/codes/kodim15.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim15.npz --output test/decoded/kodim15
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim16.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.039525
+Iter: 01; Loss: 0.031016
+Iter: 02; Loss: 0.029041
+Iter: 03; Loss: 0.028284
+Iter: 04; Loss: 0.027893
+Iter: 05; Loss: 0.027661
+Iter: 06; Loss: 0.027522
+Iter: 07; Loss: 0.027430
+Iter: 08; Loss: 0.027374
+Iter: 09; Loss: 0.027348
+Iter: 10; Loss: 0.027346
+Iter: 11; Loss: 0.027367
+Iter: 12; Loss: 0.027399
+Iter: 13; Loss: 0.027437
+Iter: 14; Loss: 0.027476
+Iter: 15; Loss: 0.027531
+Decoding test/codes/kodim16.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim16.npz --output test/decoded/kodim16
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim17.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.041563
+Iter: 01; Loss: 0.029537
+Iter: 02; Loss: 0.026869
+Iter: 03; Loss: 0.025852
+Iter: 04; Loss: 0.025315
+Iter: 05; Loss: 0.024997
+Iter: 06; Loss: 0.024791
+Iter: 07; Loss: 0.024647
+Iter: 08; Loss: 0.024564
+Iter: 09; Loss: 0.024510
+Iter: 10; Loss: 0.024490
+Iter: 11; Loss: 0.024492
+Iter: 12; Loss: 0.024516
+Iter: 13; Loss: 0.024550
+Iter: 14; Loss: 0.024591
+Iter: 15; Loss: 0.024647
+Decoding test/codes/kodim17.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim17.npz --output test/decoded/kodim17
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim18.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.056866
+Iter: 01; Loss: 0.043743
+Iter: 02; Loss: 0.040534
+Iter: 03; Loss: 0.039468
+Iter: 04; Loss: 0.038994
+Iter: 05; Loss: 0.038725
+Iter: 06; Loss: 0.038555
+Iter: 07; Loss: 0.038441
+Iter: 08; Loss: 0.038366
+Iter: 09; Loss: 0.038316
+Iter: 10; Loss: 0.038288
+Iter: 11; Loss: 0.038274
+Iter: 12; Loss: 0.038272
+Iter: 13; Loss: 0.038286
+Iter: 14; Loss: 0.038314
+Iter: 15; Loss: 0.038342
+Decoding test/codes/kodim18.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim18.npz --output test/decoded/kodim18
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim19.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.048590
+Iter: 01; Loss: 0.039253
+Iter: 02; Loss: 0.036450
+Iter: 03; Loss: 0.035393
+Iter: 04; Loss: 0.034933
+Iter: 05; Loss: 0.034675
+Iter: 06; Loss: 0.034516
+Iter: 07; Loss: 0.034409
+Iter: 08; Loss: 0.034340
+Iter: 09; Loss: 0.034300
+Iter: 10; Loss: 0.034281
+Iter: 11; Loss: 0.034284
+Iter: 12; Loss: 0.034297
+Iter: 13; Loss: 0.034320
+Iter: 14; Loss: 0.034354
+Iter: 15; Loss: 0.034396
+Decoding test/codes/kodim19.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim19.npz --output test/decoded/kodim19
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim20.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.046845
+Iter: 01; Loss: 0.029697
+Iter: 02; Loss: 0.026811
+Iter: 03; Loss: 0.025892
+Iter: 04; Loss: 0.025458
+Iter: 05; Loss: 0.025226
+Iter: 06; Loss: 0.025110
+Iter: 07; Loss: 0.025040
+Iter: 08; Loss: 0.025015
+Iter: 09; Loss: 0.025005
+Iter: 10; Loss: 0.025022
+Iter: 11; Loss: 0.025064
+Iter: 12; Loss: 0.025116
+Iter: 13; Loss: 0.025190
+Iter: 14; Loss: 0.025252
+Iter: 15; Loss: 0.025328
+Decoding test/codes/kodim20.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim20.npz --output test/decoded/kodim20
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim21.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.048698
+Iter: 01; Loss: 0.038994
+Iter: 02; Loss: 0.036335
+Iter: 03; Loss: 0.035427
+Iter: 04; Loss: 0.035001
+Iter: 05; Loss: 0.034741
+Iter: 06; Loss: 0.034570
+Iter: 07; Loss: 0.034450
+Iter: 08; Loss: 0.034365
+Iter: 09; Loss: 0.034317
+Iter: 10; Loss: 0.034284
+Iter: 11; Loss: 0.034279
+Iter: 12; Loss: 0.034288
+Iter: 13; Loss: 0.034307
+Iter: 14; Loss: 0.034353
+Iter: 15; Loss: 0.034397
+Decoding test/codes/kodim21.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim21.npz --output test/decoded/kodim21
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim22.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.047996
+Iter: 01; Loss: 0.035989
+Iter: 02; Loss: 0.033395
+Iter: 03; Loss: 0.032509
+Iter: 04; Loss: 0.032081
+Iter: 05; Loss: 0.031835
+Iter: 06; Loss: 0.031673
+Iter: 07; Loss: 0.031569
+Iter: 08; Loss: 0.031499
+Iter: 09; Loss: 0.031457
+Iter: 10; Loss: 0.031439
+Iter: 11; Loss: 0.031440
+Iter: 12; Loss: 0.031448
+Iter: 13; Loss: 0.031460
+Iter: 14; Loss: 0.031493
+Iter: 15; Loss: 0.031532
+Decoding test/codes/kodim22.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim22.npz --output test/decoded/kodim22
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim23.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.047923
+Iter: 01; Loss: 0.029259
+Iter: 02; Loss: 0.025673
+Iter: 03; Loss: 0.024352
+Iter: 04; Loss: 0.023733
+Iter: 05; Loss: 0.023389
+Iter: 06; Loss: 0.023185
+Iter: 07; Loss: 0.023071
+Iter: 08; Loss: 0.022998
+Iter: 09; Loss: 0.022955
+Iter: 10; Loss: 0.022943
+Iter: 11; Loss: 0.022952
+Iter: 12; Loss: 0.022975
+Iter: 13; Loss: 0.023010
+Iter: 14; Loss: 0.023062
+Iter: 15; Loss: 0.023107
+Decoding test/codes/kodim23.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim23.npz --output test/decoded/kodim23
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Encoding test/images/kodim24.png
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:22: DeprecationWarning: Starting with ImageIO v3 the behavior of this function will switch to that of iio.v3.imread. To keep the current behavior (and make this warning dissapear) use `import imageio.v2 as imageio` or call `imageio.v2.imread` directly.
+  image = imread(args.input, pilmode='RGB')
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  image = Variable(image, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:54: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:56: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:59: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:61: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:64: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  encoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:66: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:70: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:72: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:75: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:77: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:80: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:82: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:85: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/encoder.py:87: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+Iter: 00; Loss: 0.056587
+Iter: 01; Loss: 0.045137
+Iter: 02; Loss: 0.042304
+Iter: 03; Loss: 0.041259
+Iter: 04; Loss: 0.040756
+Iter: 05; Loss: 0.040468
+Iter: 06; Loss: 0.040268
+Iter: 07; Loss: 0.040133
+Iter: 08; Loss: 0.040048
+Iter: 09; Loss: 0.039990
+Iter: 10; Loss: 0.039956
+Iter: 11; Loss: 0.039940
+Iter: 12; Loss: 0.039935
+Iter: 13; Loss: 0.039951
+Iter: 14; Loss: 0.039977
+Iter: 15; Loss: 0.040012
+Decoding test/codes/kodim24.npz
+python3 decoder.py --model conv_ckpt/decoder_epoch_00000200.pth --input test/codes/kodim24.npz --output test/decoded/kodim24
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:29: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  codes = Variable(codes, volatile=True)
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:43: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_1 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:45: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:48: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_2 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:50: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:53: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_3 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:55: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:58: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  decoder_h_4 = (Variable(
+/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/decoder.py:60: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  Variable(
+/home/hejung/venv3.9/lib/python3.9/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")

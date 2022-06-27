@@ -1,7 +1,10 @@
 import time
 import os
+import sys
 import argparse
+from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
 
+import json
 import numpy as np
 
 import torch
@@ -21,7 +24,7 @@ parser.add_argument(
 parser.add_argument(
     '--train', '-f', required=True, type=str, help='folder of training images')
 parser.add_argument(
-    '--max-epochs', '-e', type=int, default=200, help='max epochs')
+    '--max-epochs', '-e', type=int, default=2000, help='max epochs')
 parser.add_argument('--lr', type=float, default=0.0005, help='learning rate')
 # parser.add_argument('--cuda', '-g', action='store_true', help='enables cuda')
 parser.add_argument(
@@ -29,7 +32,23 @@ parser.add_argument(
 parser.add_argument('--checkpoint', type=int, help='unroll iterations')
 parser.add_argument('--network', type=str, default='conv', help='type of network')
 parser.add_argument('--metric', type=str, default='mse', help='type of loss function')
+parser.add_argument('--output', type=str, default='conv_ckpt', help='output directory')
 args = parser.parse_args()
+
+args_file = os.path.join(args.output, "ARGS")
+if os.path.isdir(args.output):
+    msg = 'directory {} exists. Do you want to proceed?'.format(args.output)
+    cont = input("%s (y/N) " % msg).lower() == 'y'
+    if not cont: sys.exit(0)
+    if os.path.isfile(args_file):
+        os.chmod(args_file, S_IWUSR|S_IREAD)
+
+os.makedirs(args.output, exist_ok=True)
+with open(args_file, "w") as f:
+    f.write(" ".join([sys.executable] + sys.argv))
+    f.write("\n")
+    f.write(json.dumps(vars(args)))
+os.chmod(args_file, S_IREAD|S_IRGRP|S_IROTH)
 
 class SSIM_Loss(SSIM):
     def forward(self, img1, img2):
@@ -67,7 +86,19 @@ elif args.network =='lstm':
     binarizer = network.Binarizer().cuda()
     decoder = network.DecoderCell().cuda()
 
+import types
+specs = [val.__spec__ for name, val in sys.modules.items() \
+    if isinstance(val, types.ModuleType) and not ('_main_' in name)]
+origins = [spec.origin for spec in specs if spec is not None]
+origins = [e for e in origins if e is not None and os.getcwd() in e]
 
+import shutil
+for origin in origins + [os.path.abspath(__file__)]:
+  tgtpath = origin.replace(os.getcwd() + "/", "")
+  _dir = os.path.dirname(origin.replace(os.getcwd() + "/", ""))
+  if _dir != "":
+    os.makedirs(os.path.join(args.output, _dir), exist_ok=True)
+  shutil.copy(origin, os.path.join(args.output, tgtpath))
 
 solver = optim.Adam(
     [
@@ -84,7 +115,7 @@ solver = optim.Adam(
     lr=args.lr)
 
 
-def resume(epoch=None):
+def resume(output, epoch=None):
     if epoch is None:
         s = 'iter'
         epoch = 0
@@ -92,30 +123,25 @@ def resume(epoch=None):
         s = 'epoch'
 
     encoder.load_state_dict(
-        torch.load('/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint/encoder_{}_{:08d}.pth'.format(s, epoch)))
+        torch.load(os.path.join(output, 'encoder_{}_{:08d}.pth'.format(s, epoch))))
     binarizer.load_state_dict(
-        torch.load('/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint/binarizer_{}_{:08d}.pth'.format(s, epoch)))
+        torch.load(os.path.join(output, 'binarizer_{}_{:08d}.pth'.format(s, epoch))))
     decoder.load_state_dict(
-        torch.load('/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint/decoder_{}_{:08d}.pth'.format(s, epoch)))
+        torch.load(os.path.join(output, 'decoder_{}_{:08d}.pth'.format(s, epoch))))
 
 
-def save(index, epoch=True):
-    if not os.path.exists('/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint'):
-        os.mkdir('/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint')
+def save(output, index, epoch=True):
+    if not os.path.exists(output):
+        os.mkdir(output)
 
     if epoch:
         s = 'epoch'
     else:
         s = 'iter'
 
-    torch.save(encoder.state_dict(), '/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint/encoder_{}_{:08d}.pth'.format(
-        s, index))
-
-    torch.save(binarizer.state_dict(),
-               '/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint/binarizer_{}_{:08d}.pth'.format(s, index))
-
-    torch.save(decoder.state_dict(), '/home/hejung/2022_hws/hw_0609/python_code/pytorch-image-comp-rnn-master/checkpoint/decoder_{}_{:08d}.pth'.format(
-        s, index))
+    torch.save(encoder.state_dict(), os.path.join(output, 'encoder_{}_{:08d}.pth'.format(s, index)))
+    torch.save(binarizer.state_dict(), os.path.join(output, 'binarizer_{}_{:08d}.pth'.format(s, index)))
+    torch.save(decoder.state_dict(), os.path.join(output, 'decoder_{}_{:08d}.pth'.format(s, index)))
 
 def get_device():
     if torch.cuda.is_available():
@@ -130,7 +156,7 @@ scheduler = LS.MultiStepLR(solver, milestones=[3, 10, 20, 50, 100], gamma=0.5)
 
 last_epoch = 0
 if args.checkpoint:
-    resume(args.checkpoint)
+    resume(args.output, args.checkpoint)
     last_epoch = args.checkpoint
     scheduler.last_epoch = last_epoch - 1
 
@@ -217,6 +243,6 @@ for epoch in range(last_epoch + 1, args.max_epochs + 1):
 
         ## save checkpoint every 500 training steps
         if index % 500 == 0:
-            save(0, False)
+            save(args.output, 0, False)
 
-    save(epoch)
+    save(args.output, epoch)
