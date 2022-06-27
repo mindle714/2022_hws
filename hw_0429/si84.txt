@@ -1,1 +1,1 @@
-/home/speech/wsj0/si84.txt
+/home/hejung/wsj0/si84.txt

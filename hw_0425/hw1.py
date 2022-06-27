@@ -1,3 +1,8 @@
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--image", type=str, required=True)
+args = parser.parse_args()
+
 import numpy as np
 import imageio as iio
 import matplotlib.pyplot as plt
@@ -21,7 +26,23 @@ def conv_gray(e):
 
   return sum([gray_bits[i] * (2**(7-i)) for i in range(8)])
 
-img = iio.imread("lena.png")
+base = ".".join(args.image.split(".")[:-1])
+#with iio.imopen(args.image, "ri", 
+#  plugin=None, format_hint=None, legacy_mode=True) as f:
+with iio.imopen(args.image, "ri", 
+  legacy_mode=True) as f:
+  img = f.read()
+  print(img[0:3,0:3])
+
+with iio.imopen(args.image, "ri", 
+  legacy_mode=False) as f:
+  img = f.read()
+  print(img[0:3,0:3])
+
+iio.imwrite("{}_orig.png".format(base), img)
+#img = iio.imread(args.image)
+#with iio.imopen(args.image, "r") as f:
+#  img = f.read()
 gray_img = conv_gray(img)
 
 bit_planes = get_bits(img)
@@ -52,4 +73,4 @@ for i in range(8):
   fig.text(ax_gray_pos.x0, ax_gray_pos.y0-0.05,
     "gray {} entropy {:.4f}".format(i, gray_entropy))
 
-plt.savefig('lena_gray.png')
+plt.savefig('{}_gray.png'.format(base))

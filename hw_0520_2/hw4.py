@@ -27,9 +27,11 @@ _in = np.array([
 ])
 
 _din = _dct(_in)
-print(_din)
+#print(_din)
 
 _in_shift = _in - 128.
+print(_in_shift)
+
 _din_shift = _dct(_in_shift)
 print(_din_shift)
 
@@ -61,11 +63,10 @@ print(np.sqrt(np.mean((_in_shift_des - _in)**2)))
 
 import matplotlib.pyplot as plt
 fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
+ax = fig.add_subplot(2, 1, 1)
 ax.imshow(_in / 255., cmap='gray')
-plt.savefig('in.png')
 
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
+ax = fig.add_subplot(2, 1, 2)
 ax.imshow(_in_shift_des / 255., cmap='gray')
-plt.savefig('in_shift_des.png')
+
+plt.savefig('viz.png')
