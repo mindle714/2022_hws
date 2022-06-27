@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+
+num_enrolls=3; num_vr_tc=$((41/(num_enrolls+1)))
+
+for dir in /home/hejung/wsj0/wav/wsj0/si_tr_s/*/; do 
+  dname="$(echo $dir | rev | cut -d/ -f2 | rev)"
+
+  for _ in $(seq 3); do
+    paste \
+    <(find /home/hejung/wsj0/wav/wsj0/si_tr_s -name "*.wav" \
+      -exec readlink -f {} \; | grep -v "$dir" | shuf | head -n$num_vr_tc) \
+    <(find $dir -name "*.wav" -exec readlink -f {} \; | shuf | \
+      awk -vnum_enrolls=$num_enrolls \
+          -vnum_vr_tc=$num_vr_tc \
+          'BEGIN{idx=0; cstr=""} {
+            if (idx >= num_vr_tc*(num_enrolls+1)) {
+              print cstr; exit;
+            }
+            if (idx>0 && idx%(num_enrolls+1)==0) {
+              print cstr; cstr="";
+            }
+            if (cstr == "") cstr = $1; else cstr = cstr" "$1;
+            idx += 1;
+          }')
+  done
+done > eval_vr.list

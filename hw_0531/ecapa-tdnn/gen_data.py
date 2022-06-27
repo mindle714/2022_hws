@@ -13,6 +13,8 @@ parser.add_argument("--apply-jointb", action='store_true')
 parser.add_argument("--mixup-multiplier", type=int, required=False, default=1) 
 parser.add_argument("--apply-cutmix", action='store_true') 
 parser.add_argument("--mix-magnitude", action='store_true') 
+parser.add_argument("--mps-axis", type=int, required=False, default=-1) 
+parser.add_argument("--mps-count", type=int, required=False, default=1) 
 args = parser.parse_args()
 
 if args.apply_jointb or args.mix_magnitude:
@@ -23,6 +25,9 @@ if args.apply_jointb or args.mix_magnitude:
   def phase(e): return np.arctan2(e.imag, e.real)
   def polar(mag, phase):
     return mag * (np.cos(phase) + np.sin(phase) * 1j)
+
+if args.mps_axis > -1:
+  import mod_spec
 
 import os
 import sys
@@ -92,6 +97,9 @@ def get_feat(_pcm, _spk, _samp_len, noise, snr_db):
   _ref = copy.deepcopy(_pcm)
   if noise is not None:
     _pcm = add_noise(_pcm, noise, snr_db)
+
+  if args.mps_axis > -1:
+    _pcm = mod_spec.mps(_pcm, axis=args.mps_axis, cnt=args.mps_count)
 
   '''
   pcm_feat = tf.train.Feature(float_list=tf.train.FloatList(value=_pcm))
