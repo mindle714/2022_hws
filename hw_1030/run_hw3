@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+for lpips in $(seq 0.02 0.02 0.1); do
+  for cosine in $(seq 0.02 0.02 0.1); do
+    python3 hw3.py --lpips $lpips --cosine $cosine --latent-type ws
+  done
+done
