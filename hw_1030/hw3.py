@@ -10,6 +10,7 @@ parser.add_argument("--lr", type=float, required=False, default=0.01)
 parser.add_argument("--iters", type=int, required=False, default=1000)
 parser.add_argument("--viz-freq", type=int, required=False, default=200)
 parser.add_argument("--loss-schedule", action="store_true")
+parser.add_argument("--pc-grad", action="store_true")
 args = parser.parse_args()
 
 import os
@@ -22,6 +23,8 @@ import matplotlib.pyplot as plt
 import torchvision
 from PIL import Image
 from torchvision import transforms
+if args.pc_grad:
+    from pcgrad import PCGrad
 
 torch.manual_seed(1234)
 
@@ -32,12 +35,9 @@ from model import Generator
 device = torch.device("cuda:0")
 
 from util import *
-
-"""# Prepare StyleGAN"""
-
-# base directory for this file: USE YOUR DIRECTORY
 base_directory = '.'
 
+"""# Prepare StyleGAN"""
 # Generator configuration: do not change
 image_size = 256
 crop_size = 192
@@ -101,6 +101,8 @@ def fetch_latent(latent_type):
 def invert_latent(latent, input_is_latent, target, lr, iters, viz_freq):
     # initialize optimizer & loss function
     optimizer = optim.Adam([latent], lr=lr)  # Adam Optimizer
+    if args.pc_grad:
+        optimizer = PCGrad(optimizer)
 
     image_sequence = []
     mse_losses = []; lpips_losses = []; cosine_losses = []
@@ -110,8 +112,11 @@ def invert_latent(latent, input_is_latent, target, lr, iters, viz_freq):
         x = G([latent], input_is_latent=input_is_latent)[0]
         x = stylegan_postprocess(x)
 
+        losses = []
+
         loss_mse = l_mse(x, target)
         loss = args.mse * loss_mse
+        losses.append(loss)
         loss_mse = loss_mse.cpu().detach().numpy()
 
         add_lpips = (args.lpips > 0.) and \
@@ -120,7 +125,8 @@ def invert_latent(latent, input_is_latent, target, lr, iters, viz_freq):
         loss_lpips = 0.
         if add_lpips:
             loss_lpips = l_lpips(x, target)
-            loss += args.lpips * loss_lpips
+            loss = args.lpips * loss_lpips
+            losses.append(loss)
             loss_lpips = loss_lpips.cpu().detach().numpy()
         
         add_cosine = (args.cosine > 0.) and \
@@ -129,7 +135,8 @@ def invert_latent(latent, input_is_latent, target, lr, iters, viz_freq):
         loss_cosine = 0.
         if add_cosine:
             loss_cosine = l_cosine(x, target).flatten()[0]
-            loss += args.cosine * loss_cosine
+            loss = args.cosine * loss_cosine
+            losses.append(loss)
             loss_cosine = loss_cosine.cpu().detach().numpy()
 
         mse_losses.append(loss_mse)
@@ -137,7 +144,10 @@ def invert_latent(latent, input_is_latent, target, lr, iters, viz_freq):
         cosine_losses.append(loss_cosine)
     
         optimizer.zero_grad()
-        loss.backward()
+        if args.pc_grad:
+            optimizer.pc_backward(losses)
+        else:
+            sum(losses).backward()
         optimizer.step()
     
         if i % viz_freq == 0 or i == iters - 1:
@@ -183,6 +193,8 @@ name = "hw3_{}_mse{}_lp{}_cos{}".format(
     args.latent_type, args.mse, args.lpips, args.cosine)
 if args.loss_schedule:
     name = "{}_ls".format(name)
+if args.pc_grad:
+    name = "{}_pcg".format(name)
 
 plt.savefig("{}.png".format(name))
 plt.clf()
