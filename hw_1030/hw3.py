@@ -9,6 +9,7 @@ parser.add_argument("--latent-type", type=str, required=False,
 parser.add_argument("--lr", type=float, required=False, default=0.01)
 parser.add_argument("--iters", type=int, required=False, default=1000)
 parser.add_argument("--viz-freq", type=int, required=False, default=200)
+parser.add_argument("--loss-schedule", action="store_true")
 args = parser.parse_args()
 
 import os
@@ -63,14 +64,6 @@ _ = G.load_state_dict(pth, strict=False)  # load state dict
 l_mse = nn.MSELoss()
 l_lpips = VGGPerceptualLoss().to(device)  # LPIPS loss; from VGGNet
 l_cosine = CosineDistanceLoss().to(device)  # Cosine Distance loss; from FaceNet
-    
-def criterion(x, target):
-    loss = args.mse * l_mse(x, target)
-    if args.lpips > 0.:
-        loss += args.lpips * l_lpips(x, target)
-    if args.cosine > 0.:
-        loss += args.cosine * l_cosine(x, target).flatten()[0]
-    return loss
 
 import glob
 files = glob.glob("{}/targets/*".format(base_directory))
@@ -109,14 +102,39 @@ def invert_latent(latent, input_is_latent, target, lr, iters, viz_freq):
     # initialize optimizer & loss function
     optimizer = optim.Adam([latent], lr=lr)  # Adam Optimizer
 
-    # for collecting image & latent sequence
     image_sequence = []
+    mse_losses = []; lpips_losses = []; cosine_losses = []
 
     # Perform optimization
     for i in range(iters):
         x = G([latent], input_is_latent=input_is_latent)[0]
         x = stylegan_postprocess(x)
-        loss = criterion(x, target)
+
+        loss_mse = l_mse(x, target)
+        loss = args.mse * loss_mse
+        loss_mse = loss_mse.cpu().detach().numpy()
+
+        add_lpips = (args.lpips > 0.) and \
+            ((not args.loss_schedule) or (i > iters // 2))
+
+        loss_lpips = 0.
+        if add_lpips:
+            loss_lpips = l_lpips(x, target)
+            loss += args.lpips * loss_lpips
+            loss_lpips = loss_lpips.cpu().detach().numpy()
+        
+        add_cosine = (args.cosine > 0.) and \
+            ((not args.loss_schedule) or (i > iters // 2))
+
+        loss_cosine = 0.
+        if add_cosine:
+            loss_cosine = l_cosine(x, target).flatten()[0]
+            loss += args.cosine * loss_cosine
+            loss_cosine = loss_cosine.cpu().detach().numpy()
+
+        mse_losses.append(loss_mse)
+        lpips_losses.append(loss_lpips)
+        cosine_losses.append(loss_cosine)
     
         optimizer.zero_grad()
         loss.backward()
@@ -126,14 +144,20 @@ def invert_latent(latent, input_is_latent, target, lr, iters, viz_freq):
             # save image sequence
             image_sequence.append(x)
 
-    return image_sequence
+    loss_dict = {
+        "mse": mse_losses,
+        "lpips": lpips_losses,
+        "cosine": cosine_losses
+    }
+
+    return image_sequence, loss_dict
 
 fig = plt.figure(figsize=(16,32))
 
 from tqdm import tqdm
 for it, target in tqdm(enumerate(targets), total=len(targets)):
     latent, input_is_latent = fetch_latent(args.latent_type) 
-    image_sequence = invert_latent(latent, input_is_latent,
+    image_sequence, loss_dict = invert_latent(latent, input_is_latent,
         target, args.lr, args.iters, args.viz_freq)
     
     # visualize & save image sequence
@@ -155,5 +179,33 @@ fig.suptitle("L2: {:.4f}({:.4f}) LPIPS: {:.4f}({:.4f}) Cosine: {:.4f}({:.4f})".f
     np.mean([e.item() for e in dist_lpips_list]), np.std([e.item() for e in dist_lpips_list]),
     np.mean([e.item() for e in dist_cosine_list]), np.std([e.item() for e in dist_cosine_list])))
 
-plt.savefig("hw3_{}_mse{}_lp{}_cos{}.png".format(
-    args.latent_type, args.mse, args.lpips, args.cosine))
+name = "hw3_{}_mse{}_lp{}_cos{}".format(
+    args.latent_type, args.mse, args.lpips, args.cosine)
+if args.loss_schedule:
+    name = "{}_ls".format(name)
+
+plt.savefig("{}.png".format(name))
+plt.clf()
+
+num_loss = 1
+if args.lpips > 0.: num_loss += 1
+if args.cosine > 0.: num_loss += 1
+
+fig = plt.figure(figsize=(6.4, 4.8 * num_loss))
+idx = 1
+
+ax_mse = fig.add_subplot(num_loss, 1, idx)
+ax_mse.plot(np.arange(args.iters), loss_dict["mse"])
+idx += 1
+
+if args.lpips > 0.:
+    ax_lpips = fig.add_subplot(num_loss, 1, idx)
+    ax_lpips.plot(np.arange(args.iters), loss_dict["lpips"])
+    idx += 1
+
+if args.cosine > 0.:
+    ax_cosine = fig.add_subplot(num_loss, 1, idx)
+    ax_cosine.plot(np.arange(args.iters), loss_dict["cosine"])
+    idx += 1
+
+plt.savefig("{}_loss.png".format(name))
