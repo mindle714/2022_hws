@@ -62,12 +62,6 @@ if args.mix_up:
 
     test_pairs = tf.data.Dataset.from_tensor_slices((test_images, test_labels)).batch(args.batch_size)
 
-'''
-sample_images, sample_labels = next(iter(train_pairs))
-for i, (image, label) in enumerate(zip(sample_images[:9], sample_labels[:9])):
-    print(label.numpy().tolist())
-'''
-
 model = models.Sequential()
 model.add(layers.ZeroPadding2D((1, 1), input_shape=(32, 32, 3)))
 model.add(layers.Conv2D(32, (5, 5), activation='relu'))
@@ -119,31 +113,28 @@ name = "hw1"
 if args.mix_up:
     name = "{}_mix".format(name)
 
-plt.figure()#(figsize=(10,10))
+plt.figure()
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'test_accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
-#plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
 plt.savefig('{}_accuracy.png'.format(name))
 plt.clf()
 
-plt.figure()#(figsize=(10,10))
+plt.figure()
 plt.plot(history.history['loss'], label='loss')
 plt.plot(history.history['val_loss'], label = 'test_loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
-#plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
 plt.savefig('{}_loss.png'.format(name))
 plt.clf()
 
-plt.figure()#(figsize=(10,10))
+plt.figure()
 plt.plot(history.history['lr'], label='lr')
 plt.xlabel('Epoch')
 plt.ylabel('Lr')
-#plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
 plt.savefig('{}_lr.png'.format(name))
 
