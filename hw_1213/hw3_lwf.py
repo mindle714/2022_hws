@@ -13,6 +13,7 @@ args = parser.parse_args()
 import matplotlib.pyplot as plt
 from model import resnet18
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
@@ -29,8 +30,12 @@ if gpus:
 up_model, old_model, preprocess_input = resnet18()
 old_model.load_weights(args.ckpt).expect_partial()
 x = tf.keras.layers.GlobalAveragePooling2D()(up_model.output)
-output = tf.keras.layers.Dense(100)(x)
-model = tf.keras.models.Model(inputs=[up_model.input], outputs=[output])
+output = tf.keras.layers.Dense(100, name='out_100')(x)
+model = tf.keras.models.Model(inputs=[up_model.input], outputs=[old_model.output, output])
+
+_, ref_old_model, _ = resnet18()
+ref_old_model.load_weights(args.ckpt).expect_partial()
+ref_old_model.trainable = False
 
 from tensorflow.keras import datasets
 _, (test_cifar10_images, test_cifar10_labels) = datasets.cifar10.load_data()
@@ -81,19 +86,6 @@ def preprocess_facescrub(img, label):
   img = preprocess_input(img)
   return img, label
 
-if args.mix_up:
-  import mixup
-  train_data, test_data = mixup.mix_dataset(
-          train_data, test_data, args.batch_size, args.mix_alpha,
-          num_class=100)
-
-else:
-  train_data = (
-    train_data
-    .shuffle(args.batch_size * 100)
-    .batch(args.batch_size)
-  )
-
 train_data = (
   train_data
   .map(
@@ -104,11 +96,28 @@ train_data = (
 
 test_data = (
   test_data
-  .batch(args.batch_size)
   .map(
     preprocess_facescrub,
     num_parallel_calls=tf.data.AUTOTUNE
   )
+)
+
+if args.mix_up:
+  import mixup
+  train_data, test_data = mixup.mix_dataset_lwf(
+          train_data, test_data, args.batch_size, args.mix_alpha,
+          ref_old_model, num_class=100)
+
+else:
+  train_data = (
+    train_data
+    .shuffle(args.batch_size * 100)
+    .batch(args.batch_size)
+  )
+
+test_data = (
+  test_data
+  .batch(args.batch_size)
 )
 
 def compile(model, lr):
@@ -120,7 +129,9 @@ def compile(model, lr):
   lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     lr, decay_steps=50000//args.batch_size, decay_rate=0.96, staircase=False)
 
-  opt = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+  opt = tf.keras.optimizers.experimental.AdamW(learning_rate=lr_schedule, weight_decay=5e-4)
+#  opt = tfa.optimizers.AdamW(learning_rate=lr_schedule, weight_decay=5e-4)
+#  opt = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   lr_metric = get_lr_metric(opt)
 
   if args.mix_up:
@@ -136,11 +147,20 @@ def compile(model, lr):
 old_model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
+test_cifar10_res = old_model.evaluate(test_cifar10_data, verbose=2, return_dict=True)
+test_cifar10_acc = test_cifar10_res['accuracy']
+print(test_cifar10_res)
+
 if args.warm_epoch > 0:
   up_model.trainable = False
   compile(model, args.warm_lr)
   history = model.fit(train_data, epochs=args.warm_epoch, 
                       validation_data=test_data)
+
+  test_cifar10_res = old_model.evaluate(test_cifar10_data, verbose=2, return_dict=True)
+  test_cifar10_acc = test_cifar10_res['accuracy']
+  print("After warmup")
+  print(test_cifar10_res)
   
 if args.epoch > 0:
   up_model.trainable = True
@@ -149,7 +169,7 @@ if args.epoch > 0:
                       validation_data=test_data)
 
 import os
-name = 'hw3'
+name = 'hw3_lwf'
 if args.mix_up:
   name = "{}_mix".format(name)
 if args.warm_epoch > 0:
@@ -158,20 +178,23 @@ if args.warm_epoch > 0:
 os.makedirs(name, exist_ok=True)
 model.save_weights('{}/model.ckpt'.format(name))
 
-train_res = model.evaluate(train_data, verbose=2)
-train_acc, train_lr, train_loss = train_res
+train_res = model.evaluate(train_data, verbose=2, return_dict=True)
+train_acc, train_lr, train_loss = \
+    train_res['out_100_accuracy'], train_res['out_100_lr'], train_res['out_100_loss']
 print(train_res)
 
-test_face_res = model.evaluate(test_data, verbose=2)
-test_face_acc, test_lr, test_loss = test_face_res
+test_face_res = model.evaluate(test_data, verbose=2, return_dict=True)
+test_face_acc, test_lr, test_loss = \
+    test_face_res['out_100_accuracy'], test_face_res['out_100_lr'], test_face_res['out_100_loss']
 print(test_face_res)
-test_cifar10_res = old_model.evaluate(test_cifar10_data, verbose=2)
-test_cifar10_acc, _ = test_cifar10_res
+
+test_cifar10_res = old_model.evaluate(test_cifar10_data, verbose=2, return_dict=True)
+test_cifar10_acc = test_cifar10_res['accuracy']
 print(test_cifar10_res)
 
 plt.figure()
-plt.plot(history.history['accuracy'], label='accuracy')
-plt.plot(history.history['val_accuracy'], label = 'test_accuracy')
+plt.plot(history.history['out_100_accuracy'], label='accuracy')
+plt.plot(history.history['val_out_100_accuracy'], label = 'test_accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend(loc='lower right')
@@ -180,8 +203,8 @@ plt.savefig('{}_accuracy.png'.format(name))
 plt.clf()
 
 plt.figure()
-plt.plot(history.history['loss'], label='loss')
-plt.plot(history.history['val_loss'], label = 'test_loss')
+plt.plot(history.history['out_100_loss'], label='loss')
+plt.plot(history.history['val_out_100_loss'], label = 'test_loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend(loc='lower right')
@@ -190,7 +213,7 @@ plt.savefig('{}_loss.png'.format(name))
 plt.clf()
 
 plt.figure()
-plt.plot(history.history['lr'], label='lr')
+plt.plot(history.history['out_100_lr'], label='lr')
 plt.xlabel('Epoch')
 plt.ylabel('Lr')
 plt.legend(loc='lower right')

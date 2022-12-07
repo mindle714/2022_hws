@@ -49,3 +49,39 @@ def mix_dataset(train_data, test_data,
     lambda _, label: (_, tf.squeeze(tf.one_hot(label, num_class), 0)))
 
   return train_data, test_data
+
+def mix_dataset_lwf(train_data, test_data,
+                    batch_size, mix_alpha,
+                    ref_model, num_class=10):
+  train_data = train_data.map(
+    lambda _, label: (_, tf.squeeze(tf.one_hot(label, num_class), 0)))
+
+  train_pairs_1 = (
+    train_data
+    .shuffle(batch_size * 100)
+    .batch(batch_size)
+  )
+
+  train_pairs_2 = (
+    train_data
+    .shuffle(batch_size * 100)
+    .batch(batch_size)
+  )
+
+  train_pairs = tf.data.Dataset.zip((train_pairs_1, train_pairs_2))
+  train_data = train_pairs.map(
+    lambda pair_1, pair_2: mix_up(pair_1, pair_2, alpha=mix_alpha),
+    num_parallel_calls=tf.data.AUTOTUNE
+  ).map(
+    lambda img, label:
+#      (img, tf.squeeze(ref_model(tf.expand_dims(img, 0)), 0), label),
+      (img, (tf.nn.softmax(ref_model(img), -1), label)),
+    num_parallel_calls=tf.data.AUTOTUNE
+  )
+  
+  test_data = test_data.map(
+    lambda img, label: 
+      (img, (tf.squeeze(tf.nn.softmax(ref_model(tf.expand_dims(img, 0)), -1), 0), 
+          tf.squeeze(tf.one_hot(label, num_class), 0))))
+
+  return train_data, test_data

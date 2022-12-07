@@ -109,6 +109,7 @@ if args.mix_up:
   name = "{}_mix".format(name)
 if args.warm_epoch > 0:
   name = "{}_warm{}".format(name, args.warm_epoch)
+name = "{}_b{}".format(name, args.batch_size)
 
 os.makedirs(name, exist_ok=True)
 model.save_weights('{}/model.ckpt'.format(name))
