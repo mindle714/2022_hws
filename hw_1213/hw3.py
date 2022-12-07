@@ -5,8 +5,11 @@ parser.add_argument("--warm-epoch", type=int, required=False, default=0)
 parser.add_argument("--epoch", type=int, required=False, default=20)
 parser.add_argument("--warm-lr", type=float, required=False, default=1e-3)
 parser.add_argument("--lr", type=float, required=False, default=1e-5)
+parser.add_argument("--ckpt", type=str, required=False, default="hw1_mix_warm3/model.ckpt")
 parser.add_argument("--mix-up", action="store_true")
 parser.add_argument("--mix-alpha", type=float, required=False, default=0.2)
+parser.add_argument("--train-type", type=str, required=False,
+  default="fine-tune", choices=["fine-tune", "lwf"])
 args = parser.parse_args()
 
 import matplotlib.pyplot as plt
@@ -25,17 +28,57 @@ if gpus:
     # Memory growth must be set before GPUs have been initialized
     print(e)
 
-up_model, model, preprocess_input = resnet18()
-print(model.summary())
+up_model, old_model, preprocess_input = resnet18()
+old_model.load_weights(args.ckpt).expect_partial()
+x = tf.keras.layers.GlobalAveragePooling2D()(up_model.output)
+output = tf.keras.layers.Dense(100)(x)
+model = tf.keras.models.Model(inputs=[up_model.input], outputs=[output])
 
 from tensorflow.keras import datasets
-(train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
+_, (test_cifar10_images, test_cifar10_labels) = datasets.cifar10.load_data()
+test_cifar10_images = test_cifar10_images.astype("float32")
+
+test_cifar10_data = tf.data.Dataset.from_tensor_slices((test_cifar10_images, test_cifar10_labels))
+
+def preprocess_cifar10(img, label):
+  img = tf.image.resize(img, [224, 224])
+  img = preprocess_input(img)
+  return img, label
+
+test_cifar10_data = (
+  test_cifar10_data
+  .batch(args.batch_size)
+  .map(
+    preprocess_cifar10,
+    num_parallel_calls=tf.data.AUTOTUNE
+  )
+)
+
+import numpy as np
+import glob
+from matplotlib.image import imread
+
+train_dir = "facescrub_train"
+test_dir = "facescrub_test"
+
+def load_data(_dir):
+  images = []; labels = []
+  for idx, face in enumerate(glob.glob("{}/*/".format(_dir))):
+    for sample in glob.glob("{}/*.jpg".format(face)):
+      img = imread(sample)
+      images.append(img); labels.append([idx])
+
+  images = np.array(images)
+  labels = np.array(labels)
+  return images, labels
+
+(train_images, train_labels), (test_images, test_labels) = load_data(train_dir), load_data(test_dir)
 train_images, test_images = train_images.astype("float32"), test_images.astype("float32")
 
 train_data = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
 test_data = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
 
-def preprocess_cifar10(img, label):
+def preprocess_facescrub(img, label):
   img = tf.image.resize(img, [224, 224])
   img = preprocess_input(img)
   return img, label
@@ -43,7 +86,8 @@ def preprocess_cifar10(img, label):
 if args.mix_up:
   import mixup
   train_data, test_data = mixup.mix_dataset(
-          train_data, test_data, args.batch_size, args.mix_alpha)
+          train_data, test_data, args.batch_size, args.mix_alpha,
+          num_class=100)
 
 else:
   train_data = (
@@ -55,7 +99,7 @@ else:
 train_data = (
   train_data
   .map(
-    preprocess_cifar10,
+    preprocess_facescrub,
     num_parallel_calls=tf.data.AUTOTUNE
   )
 )
@@ -64,7 +108,7 @@ test_data = (
   test_data
   .batch(args.batch_size)
   .map(
-    preprocess_cifar10,
+    preprocess_facescrub,
     num_parallel_calls=tf.data.AUTOTUNE
   )
 )
@@ -90,25 +134,30 @@ def compile(model, lr):
     model.compile(optimizer=opt,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy', lr_metric])
-  
+
+old_model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
 if args.warm_epoch > 0:
   up_model.trainable = False
   compile(model, args.warm_lr)
   history = model.fit(train_data, epochs=args.warm_epoch, 
                       validation_data=test_data)
   
+if args.epoch > 0:
   up_model.trainable = True
-
-compile(model, args.lr)
-history = model.fit(train_data, epochs=args.epoch, 
-                    validation_data=test_data)
+  compile(model, args.lr)
+  history = model.fit(train_data, epochs=args.epoch, 
+                      validation_data=test_data)
 
 import os
-name = 'hw1'
+name = 'hw3'
 if args.mix_up:
   name = "{}_mix".format(name)
 if args.warm_epoch > 0:
   name = "{}_warm{}".format(name, args.warm_epoch)
+if args.train_type == "lwf":
+  name = "{}_lwf".format(name)
 
 os.makedirs(name, exist_ok=True)
 model.save_weights('{}/model.ckpt'.format(name))
@@ -117,9 +166,12 @@ train_res = model.evaluate(train_data, verbose=2)
 train_acc, train_lr, train_loss = train_res
 print(train_res)
 
-test_res = model.evaluate(test_data, verbose=2)
-test_acc, test_lr, test_loss = test_res
-print(test_res)
+test_face_res = model.evaluate(test_data, verbose=2)
+test_face_acc, test_lr, test_loss = test_face_res
+print(test_face_res)
+test_cifar10_res = old_model.evaluate(test_cifar10_data, verbose=2)
+test_cifar10_acc, _ = test_cifar10_res
+print(test_cifar10_res)
 
 plt.figure()
 plt.plot(history.history['accuracy'], label='accuracy')
@@ -127,7 +179,7 @@ plt.plot(history.history['val_accuracy'], label = 'test_accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend(loc='lower right')
-plt.title('{} {}'.format(train_acc, test_acc))
+plt.title('{} {} {}'.format(train_acc, test_face_acc, test_cifar10_acc))
 plt.savefig('{}_accuracy.png'.format(name))
 plt.clf()
 
