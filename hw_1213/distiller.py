@@ -79,7 +79,8 @@ class Distiller(keras.Model):
     # Return a dict of performance
     results = {m.name: m.result() for m in self.metrics}
     results.update(
-      {"student_loss": student_loss, "distillation_loss": distillation_loss}
+      {"student_loss": student_loss, "distillation_loss": distillation_loss,
+        "loss": loss}
     )
     return results
 

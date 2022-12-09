@@ -7,6 +7,7 @@ parser.add_argument("--warm-lr", type=float, required=False, default=1e-3)
 parser.add_argument("--lr", type=float, required=False, default=1e-5)
 parser.add_argument("--mix-up", action="store_true")
 parser.add_argument("--mix-alpha", type=float, required=False, default=0.2)
+parser.add_argument("--suffix", type=str, required=False, default="")
 args = parser.parse_args()
 
 import matplotlib.pyplot as plt
@@ -110,6 +111,8 @@ if args.mix_up:
 if args.warm_epoch > 0:
   name = "{}_warm{}".format(name, args.warm_epoch)
 name = "{}_b{}".format(name, args.batch_size)
+if args.suffix != "":
+  name = "{}_{}".format(name, args.suffix)
 
 os.makedirs(name, exist_ok=True)
 model.save_weights('{}/model.ckpt'.format(name))

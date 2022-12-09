@@ -1,11 +1,14 @@
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch-size", type=int, required=False, default=32)
-parser.add_argument("--epoch", type=int, required=False, default=10)
-parser.add_argument("--lr", type=float, required=False, default=1e-3)
-parser.add_argument("--teacher", type=str, required=False, default="hw1/model.ckpt")
-parser.add_argument("--alpha", type=float, required=False, default=0.1)
-parser.add_argument("--temperature", type=float, required=False, default=10)
+parser.add_argument("--epoch", type=int, required=False, default=20)
+parser.add_argument("--lr", type=float, required=False, default=4e-4)
+parser.add_argument("--teacher", type=str, required=False, default="hw1_mix_warm3_b16_lr5e-5/model.ckpt")
+parser.add_argument("--alpha", type=float, required=False, default=0.9)
+parser.add_argument("--temperature", type=float, required=False, default=1)
+parser.add_argument("--mix-up", action="store_true")
+parser.add_argument("--mix-alpha", type=float, required=False, default=0.2)
+parser.add_argument("--suffix", type=str, required=False, default="")
 args = parser.parse_args()
 
 import tensorflow as tf
@@ -32,27 +35,36 @@ import matplotlib.pyplot as plt
 # Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images.astype("float32") / 255.0, test_images.astype("float32") / 255.0
 
-train_data = (
-  tf.data.Dataset.from_tensor_slices((train_images, train_labels))
-  .shuffle(args.batch_size * 100)
-  .batch(args.batch_size)
-)
+train_data = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
+test_data = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
+
+if args.mix_up:
+  import mixup
+  train_data, test_data = mixup.mix_dataset(
+          train_data, test_data, args.batch_size, args.mix_alpha)
+
+else:
+  train_data = (
+    train_data
+    .shuffle(args.batch_size * 100)
+    .batch(args.batch_size)
+  )
 
 test_data = (
-  tf.data.Dataset.from_tensor_slices((test_images, test_labels))
+  test_data
   .batch(args.batch_size)
 )
 
 s_model = models.Sequential()
 s_model.add(layers.ZeroPadding2D((1, 1), input_shape=(32, 32, 3)))
 s_model.add(layers.Conv2D(32, (5, 5), activation='relu'))
-s_model.add(layers.MaxPooling2D((2, 2), strides=(1, 1)))
+s_model.add(layers.MaxPooling2D((2, 2)))#, strides=(1, 1)))
 s_model.add(layers.ZeroPadding2D((1, 1)))
 s_model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-s_model.add(layers.MaxPooling2D((2, 2), strides=(1, 1)))
+s_model.add(layers.MaxPooling2D((2, 2)))#, strides=(1, 1)))
 s_model.add(layers.ZeroPadding2D((1, 1)))
 s_model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-s_model.add(layers.MaxPooling2D((2, 2), strides=(1, 1)))
+s_model.add(layers.MaxPooling2D((2, 2)))#, strides=(1, 1)))
 
 s_model.add(layers.Flatten())
 s_model.add(layers.Dense(500, activation='relu'))
@@ -62,7 +74,7 @@ print(s_model.summary())
 
 from model import resnet18
 
-t_model, preprocess_input = resnet18()
+_, t_model, preprocess_input = resnet18()
 t_model.load_weights(args.teacher).expect_partial()
 
 def preprocess_cifar10(img):
@@ -86,11 +98,14 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
 
 opt = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 lr_metric = get_lr_metric(opt)
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+if args.mix_up:
+  loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 
 model.compile(optimizer=opt,
-    	      student_loss_fn=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    	      distillation_loss_fn=tf.keras.losses.KLDivergence(),
-        	  metrics=['accuracy', lr_metric],
+              student_loss_fn=loss_fn,
+              distillation_loss_fn=tf.keras.losses.KLDivergence(),
+              metrics=['accuracy', lr_metric],
               alpha=args.alpha,
               temperature=args.temperature)
 
@@ -99,7 +114,14 @@ history = model.fit(train_data, epochs=args.epoch,
                     batch_size=args.batch_size)
 
 import os
-name = 'hw2_{}_{}'.format(args.alpha, args.temperature)
+name = 'hw2'
+if args.mix_up:
+  name = "{}_mix".format(name)
+name = "{}_b{}".format(name, args.batch_size)
+name = '{}_{}_{}'.format(name, args.alpha, args.temperature)
+if args.suffix != "":
+  name = "{}_{}".format(name, args.suffix)
+
 os.makedirs(name, exist_ok=True)
 model.save_weights('{}/model.ckpt'.format(name))
 
@@ -122,21 +144,15 @@ plt.savefig('{}_accuracy.png'.format(name))
 plt.clf()
 
 plt.figure()
-plt.plot(history.history['student_loss'], label='loss')
-plt.plot(history.history['val_student_loss'], label = 'test_loss')
+plt.plot(history.history['student_loss'], label='loss(student)')
+plt.plot(history.history['distillation_loss'], label='loss(teacher)')
+plt.plot(history.history['loss'], label='loss(student+teacher)')
+plt.plot(history.history['val_student_loss'], label = 'test_loss(student)')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend(loc='lower right')
 plt.title('{} {}'.format(train_loss, test_loss))
-plt.savefig('{}_student_loss.png'.format(name))
-plt.clf()
-
-plt.figure()
-plt.plot(history.history['distillation_loss'], label='loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.legend(loc='lower right')
-plt.savefig('{}_distillation_loss.png'.format(name))
+plt.savefig('{}_loss.png'.format(name))
 plt.clf()
 
 plt.figure()

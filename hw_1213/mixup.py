@@ -52,7 +52,8 @@ def mix_dataset(train_data, test_data,
 
 def mix_dataset_lwf(train_data, test_data,
                     batch_size, mix_alpha,
-                    ref_model, num_class=10):
+                    ref_model, num_class=10,
+                    temperature=2):
   train_data = train_data.map(
     lambda _, label: (_, tf.squeeze(tf.one_hot(label, num_class), 0)))
 
@@ -75,7 +76,7 @@ def mix_dataset_lwf(train_data, test_data,
   ).map(
     lambda img, label:
 #      (img, tf.squeeze(ref_model(tf.expand_dims(img, 0)), 0), label),
-      (img, (tf.nn.softmax(ref_model(img), -1), label)),
+      (img, (tf.nn.softmax(ref_model(img) / temperature, -1), label)),
     num_parallel_calls=tf.data.AUTOTUNE
   )
   

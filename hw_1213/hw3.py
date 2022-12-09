@@ -1,13 +1,16 @@
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("--batch-size", type=int, required=False, default=32)
+parser.add_argument("--batch-size", type=int, required=False, default=16)
 parser.add_argument("--warm-epoch", type=int, required=False, default=0)
 parser.add_argument("--epoch", type=int, required=False, default=20)
 parser.add_argument("--warm-lr", type=float, required=False, default=1e-3)
-parser.add_argument("--lr", type=float, required=False, default=1e-5)
-parser.add_argument("--ckpt", type=str, required=False, default="hw1_mix_warm3/model.ckpt")
+parser.add_argument("--lr", type=float, required=False, default=5e-5)
+parser.add_argument("--ckpt", type=str, required=False, default="hw1_mix_warm3_b16_lr5e-5/model.ckpt")
 parser.add_argument("--mix-up", action="store_true")
 parser.add_argument("--mix-alpha", type=float, required=False, default=0.2)
+parser.add_argument("--suffix", type=str, required=False, default="")
+parser.add_argument("--fine-target", type=str, required=False, default="all",
+    choices=["all", "stage4", "stage3"])
 args = parser.parse_args()
 
 import matplotlib.pyplot as plt
@@ -33,15 +36,25 @@ output = tf.keras.layers.Dense(100)(x)
 model = tf.keras.models.Model(inputs=[up_model.input], outputs=[output])
 
 from tensorflow.keras import datasets
-_, (test_cifar10_images, test_cifar10_labels) = datasets.cifar10.load_data()
-test_cifar10_images = test_cifar10_images.astype("float32")
+(train_cifar10_images, train_cifar10_labels), (test_cifar10_images, test_cifar10_labels) = datasets.cifar10.load_data()
+train_cifar10_images, test_cifar10_images = train_cifar10_images.astype("float32"), test_cifar10_images.astype("float32")
 
+train_cifar10_data = tf.data.Dataset.from_tensor_slices((train_cifar10_images, train_cifar10_labels))
 test_cifar10_data = tf.data.Dataset.from_tensor_slices((test_cifar10_images, test_cifar10_labels))
 
 def preprocess_cifar10(img, label):
   img = tf.image.resize(img, [224, 224])
   img = preprocess_input(img)
   return img, label
+
+train_cifar10_data = (
+  train_cifar10_data
+  .batch(args.batch_size)
+  .map(
+    preprocess_cifar10,
+    num_parallel_calls=tf.data.AUTOTUNE
+  )
+)
 
 test_cifar10_data = (
   test_cifar10_data
@@ -143,7 +156,27 @@ if args.warm_epoch > 0:
                       validation_data=test_data)
   
 if args.epoch > 0:
-  up_model.trainable = True
+  if args.fine_target == "all":
+    up_model.trainable = True
+
+  elif args.fine_target == "stage4":
+    up_model.trainable = False
+    for l in up_model.layers:
+      if "stage4" in l.name:
+        l.trainable = True
+    up_model.layers[-2].trainable = True
+
+  elif args.fine_target == "stage3":
+    up_model.trainable = False
+    for l in up_model.layers:
+      if "stage3" in l.name or "stage4" in l.name:
+        l.trainable = True
+    up_model.layers[-2].trainable = True
+
+  else:
+    import sys
+    sys.exit("Unimplemented target {}".format(args.fine_target))
+
   compile(model, args.lr)
   history = model.fit(train_data, epochs=args.epoch, 
                       validation_data=test_data)
@@ -154,14 +187,26 @@ if args.mix_up:
   name = "{}_mix".format(name)
 if args.warm_epoch > 0:
   name = "{}_warm{}".format(name, args.warm_epoch)
+name = "{}_b{}".format(name, args.batch_size)
+if args.fine_target == "stage4":
+  name = "{}_stage4".format(name)
+elif args.fine_target == "stage3":
+  name = "{}_stage3".format(name)
+if args.suffix != "":
+  name = "{}_{}".format(name, args.suffix)
 
 os.makedirs(name, exist_ok=True)
 model.save_weights('{}/model.ckpt'.format(name))
 
+print("Training Accuracy")
 train_res = model.evaluate(train_data, verbose=2)
 train_acc, train_lr, train_loss = train_res
 print(train_res)
+train_cifar10_res = old_model.evaluate(train_cifar10_data, verbose=2)
+train_cifar10_acc, _ = train_cifar10_res
+print(train_cifar10_res)
 
+print("Testing Accuracy")
 test_face_res = model.evaluate(test_data, verbose=2)
 test_face_acc, test_lr, test_loss = test_face_res
 print(test_face_res)
@@ -175,7 +220,7 @@ plt.plot(history.history['val_accuracy'], label = 'test_accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend(loc='lower right')
-plt.title('{} {} {}'.format(train_acc, test_face_acc, test_cifar10_acc))
+plt.title('{} {} {} {}'.format(train_acc, test_face_acc, train_cifar10_acc, test_cifar10_acc))
 plt.savefig('{}_accuracy.png'.format(name))
 plt.clf()
 
